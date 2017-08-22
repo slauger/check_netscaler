@@ -1,18 +1,20 @@
+[![Build Status](https://travis-ci.org/slauger/check_netscaler.svg?branch=master)](https://travis-ci.org/slauger/check_netscaler)
+
 # check_netscaler Nagios Plugin
 
-A Nagios Plugin written for the Citrix NetScaler Application Delivery Controller. It's based on Perl (Nagios::Plugin) and using the the NITRO REST API. No need for SNMP.
+A Nagios Plugin written for the Citrix NetScaler Application Delivery Controller. It's based on Perl (Monitoring::Plugin) and using the the NITRO REST API. No need for SNMP.
 
 Currently the plugin has the following subcommands:
-
 
 | command                | description |
 ---                      | --- | 
 **state**                | check the current service state of vservers (e.g. lb, vpn, gslb), services and service groups and servers
-**matches, matches_not** | check if a string exists in the api response or not (e.g. HA or cluster status)
+**matches, matches_not** | check if a string matches the the api response or not
 **above, below**         | check if a value is above/below a threshold (e.g. traffic limits, concurrent connections)
 **sslcert**              | check the lifetime for installed ssl certificates
 **nsconfig**             | check for configuration changes which are not saved to disk
 **license**              | check the expiry date of a local installed license file
+**hastatus**             | check the high availability status of a appliance
 **staserver**            | check if configured STA (secure ticket authority) servers are available
 **servicegroup**         | check the state of a servicegroup and its members
 **hwinfo**               | just print information about the Netscaler itself
@@ -33,16 +35,39 @@ If you looking for a plugin to test your NetScaler Gateway vServer and Storefron
 
 ## Installation
 
-On a Enterprise Linux machine (CentOS, RHEL) execute the following commands to install all Perl dependencies (Nagios::Plugin, LWP, JSON, Time-Piece, Data-Dumper):
+Run the following commands to install all Perl dependencies (Monitoring::Plugin, LWP, JSON, Time::Piece, Data::Dumper).
+
+### Enterprise Linux (CentOS, RedHat)
 
 ```
-yum install perl-libwww-perl perl-JSON perl-Nagios-Plugin perl-Time-Piece perl-Data-Dumper
+yum install perl-libwww-perl perl-JSON perl-Monitoring-Plugin perl-Time-Piece perl-Data-Dumper
 ```
 
 If you want to connect to your NetScaler with SSL/HTTPS you should also install the LWP HTTPS package.
 
 ```
 yum install perl-LWP-Protocol-https
+```
+
+### Debian and Ubuntu Linux
+
+```
+apt-get install libwww-perl liblwp-protocol-https-perl libjson-perl libmonitoring-plugin-perl
+```
+
+### Mac OS X
+
+The preinstalled Perl distribution is missing the JSON and Monitoring::Plugin libaries. The best way is to install them is trough the cpanminus tool. The cpanminus tool can be installed trough [brew](https://github.com/Homebrew/brew).
+
+```
+brew install cpanminus
+```
+
+Use the following commands to install the missing perl libaries.
+
+```
+sudo cpanm JSON
+sudo cpanm Monitoring::Plugin
 ```
 
 ## Usage
@@ -212,6 +237,13 @@ Multiple license files can be passed, separated with a colon.
 ./check_netscaler.pl -H ${IPADDR} -s -C license -n FID_4c9a2c7e_14292ea2df2_2a97.lic,FID_2b9a2c7e_14212ef2d27_4b87.lic -w 30 -c 10
 ```
 
+### Check the current high availability status
+
+```
+# NetScaler::HA
+./check_netscaler.pl -H ${IPADDR} -s -C hastatus
+```
+
 ### Check if STA servers are working
 
 ```
@@ -306,7 +338,7 @@ This means:
 
 ## Configuration File
 
-The plugin uses the Nagios::Plugin Libary, so you can use --extra-opts and seperate the login crendetials from your nagios configuration.
+The plugin uses the Monitoring::Plugin Libary, so you can use --extra-opts and seperate the login crendetials from your nagios configuration.
 
 ```
 define command {
@@ -340,6 +372,12 @@ http://NSIP/nitro-rest.tgz (where NSIP is the IP address of your NetScaler appli
 ## Tested Firmware
 
 Tested with NetScaler 10.5, 11.0, 11.1 and 12.0. The plugin should work with all available firmware builds.
+
+## Automated Tests
+
+Every commit and pull request in this repository will trigger a continuous integration test with [Travis CI](https://travis-ci.org/slauger/check_netscaler). The test starts a NetScaler CPX instance (currently build 11.1-53.11) and runs `tests/travis_test.sh` against the container.
+
+Please add tests if you add new commands to this plugin. Be aware that a NetScaler CPX is very limited in it's features and not all checks of this plugin will work against a CPX instance (e.g. `hwinfo`, `ntp`, ...).
 
 ## Changelog
 

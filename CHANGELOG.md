@@ -1,6 +1,9 @@
-## v1.4.0 (2017-08-XX)
+## v1.4.0 (2017-08-20)
 - added command ntp to check NTP status (#18)
 - merged check_threshold and get_perfdata into one function: check_threshold_and_get_perfdata
+- added command hastatus to check the status of an high availability pair (#25)
+- command state: more performance data when testing single vserver and service objects (not servicegroups)
+- switched from Nagios::Plugin to Monitoring::Plugin (Nagios::Plugin was renamed to Monitoring::Plugin in 2014)
 
 ## v1.3.0 (2017-08-13)
 - added command license to check the status of a local license file (#17)

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 ##############################################################################
 # check_netscaler.pl
 # Nagios Plugin for Citrix NetScaler
@@ -6,7 +6,7 @@
 #
 # https://github.com/slauger/check_netscaler
 #
-# Version: v1.4.0 (2017-08-XX)
+# Version: v1.4.0 (2017-08-20)
 #
 # Copyright 2015-2017 Simon Lauger
 #
@@ -31,10 +31,10 @@ use JSON;
 use URI::Escape;
 use MIME::Base64;
 use Data::Dumper;
-use Nagios::Plugin;
+use Monitoring::Plugin;
 use Time::Piece;
 
-my $plugin = Nagios::Plugin->new(
+my $plugin = Monitoring::Plugin->new(
 	plugin		=> 'check_netscaler',
 	shortname	=> 'NetScaler',
 	version		=> 'v1.4.0',
@@ -47,8 +47,8 @@ my $plugin = Nagios::Plugin->new(
 [ -s|--ssl ] [ -a|--api=<version> ] [ -P|--port=<port> ]
 [ -e|--endpoint=<endpoint> ] [ -w|--warning=<warning> ] [ -c|--critical=<critical> ]
 [ -v|--verbose ] [ -t|--timeout=<timeout> ] [ -x|--urlopts=<urlopts> ]',
-	license		=> 'http://www.apache.org/licenses/LICENSE-2.0',
- 	extra		=> '
+	license	=> 'http://www.apache.org/licenses/LICENSE-2.0',
+	extra	=> '
 This is a Nagios monitoring plugin for the Citrix NetScaler. The plugin works with
 the Citrix NetScaler NITRO API. The goal of this plugin is to have a single plugin
 for every important metric on the Citrix NetSaler.
@@ -180,7 +180,7 @@ if ($plugin->opts->command eq 'state') {
 	get_hardware_info($plugin);
 } elsif ($plugin->opts->command eq 'perfdata') {
 	# print performance data of protocol stats
-	check_threshold_and_get_perfdata($plugin, "above");
+	check_threshold_and_get_perfdata($plugin, 'above');
 } elsif ($plugin->opts->command eq 'interfaces') {
 	# check the state of all interfaces
 	check_interfaces($plugin);
@@ -190,6 +190,9 @@ if ($plugin->opts->command eq 'state') {
 } elsif ($plugin->opts->command eq 'license') {
 	# check a installed license file
 	check_license($plugin);
+} elsif ($plugin->opts->command eq 'hastatus') {
+	# check the HA status of a node
+	check_hastatus($plugin);
 } elsif ($plugin->opts->command eq 'ntp') {
 	# check NTP status
 	check_ntp($plugin);
@@ -311,7 +314,6 @@ sub check_state
 	}
 
 	my %counter;
-
 	# special handling for objecttype server
 	if ($plugin->opts->objecttype eq 'server') {
 		$counter{'ENABLED'}        = 0;
@@ -321,35 +323,53 @@ sub check_state
 		$counter{'DOWN'}           = 0;
 		$counter{'OUT OF SERVICE'} = 0;
 		$counter{'UNKOWN'}         = 0;
+		
+		# for servicegroups: PARTIAL-UP (non critical event)
+		if ($plugin->opts->objecttype eq 'servicegroup') {
+			$counter{'PARTIAL-UP'} = 0;
+		}
 	}
 
-	# for servicegroups: PARTIAL-UP (not critical event)
-	if ($plugin->opts->objecttype eq 'servicegroup') {
-		$counter{'PARTIAL-UP'} = 0;
-	}
+	# performance data for service and vservers
+	# if you want some performance data for your service groups please use the check_servicegroup command
+	# see https://www.icinga.com/docs/icinga1/latest/de/perfdata.html
+	my %perfdata;
+	$perfdata{'totalrequests'}      = 'c';
+	$perfdata{'requestsrate'}       = undef;
+	$perfdata{'totalresponses'}     = 'c';
+	$perfdata{'responsesrate'}      = undef;
+	$perfdata{'totalrequestbytes'}  = 'B';
+	$perfdata{'requestbytesrate'}   = undef;
+	$perfdata{'totalresponsebytes'} = 'B';
+	$perfdata{'responsebytesrate'}  = undef;
 
 	my %params;
 
-	my $field_name;
-	my $field_state;
+	my $field_name      = undef;
+	my $field_state     = undef;
+	my $enable_perfdata = undef;
 
 	# well, i guess the citrix api developers were drunk
 	if ($plugin->opts->objecttype eq 'service') {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'config';
-		$field_name  = 'name';
-		$field_state = 'svrstate';
+		$field_name      = 'name';
+		$field_state     = 'svrstate';
+		$enable_perfdata = 1;
 	} elsif ($plugin->opts->objecttype eq 'servicegroup') {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'config';
-		$field_name  = 'servicegroupname';
-		$field_state = 'servicegroupeffectivestate';
+		$field_name      = 'servicegroupname';
+		$field_state     = 'servicegroupeffectivestate';
+		$enable_perfdata = 0;
 	} elsif ($plugin->opts->objecttype eq 'server') {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'config';
-		$field_name  = 'name';
-		$field_state = 'state';
+		$field_name      = 'name';
+		$field_state     = 'state';
+		$enable_perfdata = 0;
 	} else {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'stat';
-		$field_name  = 'name';
-		$field_state = 'state';
+		$field_name      = 'name';
+		$field_state     = 'state';
+		$enable_perfdata = 1;
 	}
 
 	$params{'objecttype'} = $plugin->opts->objecttype;
@@ -363,6 +383,7 @@ sub check_state
 		$plugin->nagios_exit(CRITICAL, $plugin->opts->command . ': no ' . $plugin->opts->objecttype . ' found in configuration')
 	}
 
+	# loop around, check states and increment the counters
 	foreach my $response (@{$response}) {
 		if (defined ($counter{$response->{$field_state}})) {
 			$counter{$response->{$field_state}}++;
@@ -374,16 +395,33 @@ sub check_state
 		} else {
 			$plugin->add_message(CRITICAL, $response->{$field_name} . ' ' . $response->{$field_state} . ';');
 		}
+
+		# add performance data only if we are dealing with a single object
+		if (defined($plugin->opts->objectname) && $enable_perfdata) {
+			foreach my $perfdata_field (keys %perfdata) {
+				$plugin->add_perfdata(
+					label => $response->{$field_name} . ' ' . $perfdata_field,
+					value => $response->{$perfdata_field},
+					uom   => $perfdata{$perfdata_field},
+					min   => 0,
+					max   => undef,
+				);
+			}
+		}
 	}
 
-	foreach my $key (keys %counter) {
-		$plugin->add_message(OK, $counter{$key} . ' ' . $key . ';');
-		$plugin->add_perfdata(
-			label => $key,
-			value => $counter{$key},
-			min   => 0,
-			max   => undef,
-		);
+	# a global counter is pretty useless for a single object
+	if (!defined($plugin->opts->objectname)) {
+		foreach my $key (keys %counter) {
+			$plugin->add_message(OK, $counter{$key} . ' ' . $key . ';');
+			$plugin->add_perfdata(
+				label => $key,
+				value => $counter{$key},
+				uom   => undef,
+				min   => 0,
+				max   => undef,
+			);
+		}
 	}
 
 	my ($code, $message) = $plugin->check_messages;
@@ -440,9 +478,9 @@ sub check_sslcert
 {
 	my $plugin = shift;
 
-	if (!defined $plugin->opts->warning || !defined $plugin->opts->critical) {
-		$plugin->nagios_die($plugin->opts->command . ': command requires parameter for warning and critical');
-	}
+	# defaults for warning and critical
+	my $warning = $plugin->opts->warning || 30;
+	my $critical = $plugin->opts->critical || 10;
 
 	my %params;
 	$params{'endpoint'}   = $plugin->opts->endpoint || 'config';
@@ -454,9 +492,11 @@ sub check_sslcert
 	$response = $response->{$params{'objecttype'}};
 
 	foreach $response (@{$response}) {
-		if ($response->{daystoexpiration} <= $plugin->opts->critical) {
+		if ($response->{daystoexpiration} <= 0) {
+			$plugin->add_message(CRITICAL, $response->{certkey} . ' expired;');
+		} elsif ($response->{daystoexpiration} <= $critical) {
 			$plugin->add_message(CRITICAL, $response->{certkey} . ' expires in ' . $response->{daystoexpiration} . ' days;');
-		} elsif ($response->{daystoexpiration} <= $plugin->opts->warning) {
+		} elsif ($response->{daystoexpiration} <= $warning) {
 			$plugin->add_message(WARNING, $response->{certkey} . ' expires in ' . $response->{daystoexpiration} . ' days;');
 		}
 	}
@@ -868,6 +908,89 @@ sub check_license
 				}
 			}
 		}
+	}
+
+	my ($code, $message) = $plugin->check_messages;
+	$plugin->nagios_exit($code, $plugin->opts->command . ': ' . $message);
+}
+
+sub check_hastatus
+{
+	my $plugin = shift;
+
+	my %params;
+	$params{'endpoint'}   = $plugin->opts->endpoint || 'stat';
+	$params{'objecttype'} = $plugin->opts->objecttype || 'hanode';
+	$params{'objectname'} = $plugin->opts->objecttype;
+	$params{'options'}    = $plugin->opts->urlopts;
+
+	my $response = nitro_client($plugin, \%params);
+	$response = $response->{$params{'objecttype'}};
+
+	if ($response->{'hacurstatus'} ne 'YES') {
+		$plugin->nagios_exit(CRITICAL, $plugin->opts->command . ': appliance is not configured for high availability')
+	}
+
+	my %hastatus;
+
+    # current ha master state
+	$hastatus{'PRIMARY'}          = OK;
+	$hastatus{'SECONDARY'}        = OK;
+	$hastatus{'STAYSECONDARY'}    = WARNING;
+	$hastatus{'CLAIMING'}         = WARNING;
+	$hastatus{'FORCE CHANGE'}     = WARNING;
+
+    # current ha status
+	$hastatus{'UP'}               = OK;
+	$hastatus{'DISABLED'}         = WARNING;
+	$hastatus{'INIT'}             = WARNING;
+	$hastatus{'DUMB'}             = WARNING;
+	$hastatus{'PARTIALFAIL'}      = CRITICAL;
+	$hastatus{'COMPLETEFAIL'}     = CRITICAL;
+	$hastatus{'PARTIALFAILSSL'}   = CRITICAL;
+	$hastatus{'ROUTEMONITORFAIL'} = CRITICAL;
+
+	my $index = undef;
+
+	foreach ('hacurmasterstate', 'hacurstate') {
+		$index = uc($response->{$_});
+		if (defined($hastatus{$index})) {
+			$plugin->add_message($hastatus{$index}, $_ . ' ' . $response->{$_} . ';');
+		} else {
+			$plugin->add_message(CRITICAL, $_ . ' ' . $response->{$_} . ';');
+		}
+	}
+
+	# make use of warning and critical parameters?
+	if ($response->{'haerrsyncfailure'} > 0) {
+		$plugin->add_message(WARNING, 'ha sync failed ' . $response->{'haerrsyncfailure'} . ' times;');
+	}
+
+	# make use of warning and critical parameters?
+	if ($response->{'haerrproptimeout'} > 0) {
+		$plugin->add_message(WARNING, 'ha propagation timed out ' . $response->{'haerrproptimeout'} . ' times;');
+	}
+
+	my $measurement = undef;
+
+	foreach ('hatotpktrx', 'hatotpkttx', 'hapktrxrate', 'hapkttxrate') {
+		if ($_ eq 'hatotpktrx' || $_ eq 'hatotpkttx') {
+			$measurement = 'c'
+		} elsif ($_ eq 'hapktrxrate' || $_ eq 'hapkttxrate') {
+			$measurement = 'a'
+		} else {
+			$measurement = undef;		
+		}
+
+		$plugin->add_perfdata(
+			label    => $_,
+			value    => $response->{$_},
+			uom      => $measurement,
+			min      => 0,
+			max      => undef,
+			warning  => undef,
+			critical => undef,
+		);
 	}
 
 	my ($code, $message) = $plugin->check_messages;
