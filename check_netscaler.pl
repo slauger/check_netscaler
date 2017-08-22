@@ -10,6 +10,9 @@
 #
 # Copyright 2015-2017 Simon Lauger
 #
+# Contributor:
+#	bb-ricardo (github.com/bb-ricardo)
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -47,8 +50,8 @@ my $plugin = Monitoring::Plugin->new(
 [ -s|--ssl ] [ -a|--api=<version> ] [ -P|--port=<port> ]
 [ -e|--endpoint=<endpoint> ] [ -w|--warning=<warning> ] [ -c|--critical=<critical> ]
 [ -v|--verbose ] [ -t|--timeout=<timeout> ] [ -x|--urlopts=<urlopts> ]',
-	license	=> 'http://www.apache.org/licenses/LICENSE-2.0',
-	extra	=> '
+	license		=> 'http://www.apache.org/licenses/LICENSE-2.0',
+	extra		=> '
 This is a Nagios monitoring plugin for the Citrix NetScaler. The plugin works with
 the Citrix NetScaler NITRO API. The goal of this plugin is to have a single plugin
 for every important metric on the Citrix NetSaler.
@@ -219,8 +222,7 @@ sub add_arg
 
 		if (ref($arg->{'desc'})) {
 			@desc = @{$arg->{'desc'}};
-		}
-		else {
+		} else {
 			@desc = ( $arg->{'desc'} );
 		}
 
@@ -253,20 +255,16 @@ sub nitro_client
 		},
 	);
 
-	my $protocol = undef;
+	my $protocol = 'http://';
 
 	if ($plugin->opts->ssl) {
 		$protocol = 'https://';
-	} else {
-		$protocol = 'http://';
 	}
 
-	my $port = undef;
+	my $port = '';
 
 	if ($plugin->opts->port) {
 		$port = ':' . $plugin->opts->port;
-	} else {
-		$port = '';
 	}
 
 	my $url = $protocol . $plugin->opts->hostname . $port . '/nitro/' . $plugin->opts->api . '/' . $params->{'endpoint'} . '/' . $params->{'objecttype'};
@@ -345,9 +343,9 @@ sub check_state
 
 	my %params;
 
-	my $field_name      = undef;
-	my $field_state     = undef;
-	my $enable_perfdata = undef;
+	my $field_name      = 'name';
+	my $field_state     = 'state';
+	my $enable_perfdata = 1;
 
 	# well, i guess the citrix api developers were drunk
 	if ($plugin->opts->objecttype eq 'service') {
@@ -367,9 +365,6 @@ sub check_state
 		$enable_perfdata = 0;
 	} else {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'stat';
-		$field_name      = 'name';
-		$field_state     = 'state';
-		$enable_perfdata = 1;
 	}
 
 	$params{'objecttype'} = $plugin->opts->objecttype;
