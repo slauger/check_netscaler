@@ -6,9 +6,9 @@
 #
 # https://github.com/slauger/check_netscaler
 #
-# Version: v1.4.0 (2017-08-20)
+# Version: v1.5.0 (2018-03-10)
 #
-# Copyright 2015-2017 Simon Lauger
+# Copyright 2015-2018 Simon Lauger
 #
 # Contributor:
 #	bb-ricardo (github.com/bb-ricardo)
@@ -40,7 +40,7 @@ use Time::Piece;
 my $plugin = Monitoring::Plugin->new(
 	plugin		=> 'check_netscaler',
 	shortname	=> 'NetScaler',
-	version		=> 'v1.4.0',
+	version		=> 'v1.5.0',
 	url		=> 'https://github.com/slauger/check_netscaler',
 	blurb		=> 'Nagios Plugin for Citrix NetScaler Appliance (VPX/MPX/SDX/CPX)',
 	usage		=> 'Usage: %s
@@ -143,6 +143,12 @@ my @args = (
 		desc => 'version of the NITRO API to use (default: v1)',
 		required => 0,
 		default => 'v1',
+	},
+	{
+		spec => 'filter|f=s',
+		usage => '-f, --filter=STRING',
+		desc => 'filter out objects from the API response (regular expression syntax)',
+		required => 0,
 	}
 );
 
@@ -380,6 +386,10 @@ sub check_state
 
 	# loop around, check states and increment the counters
 	foreach my $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{$field_name} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if (defined ($counter{$response->{$field_state}})) {
 			$counter{$response->{$field_state}}++;
 		}
@@ -487,6 +497,10 @@ sub check_sslcert
 	$response = $response->{$params{'objecttype'}};
 
 	foreach $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{certkey} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if ($response->{daystoexpiration} <= 0) {
 			$plugin->add_message(CRITICAL, $response->{certkey} . ' expired;');
 		} elsif ($response->{daystoexpiration} <= $critical) {
@@ -532,6 +546,10 @@ sub check_staserver
 
 	# check if any stas are in down state
 	foreach $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{'staserver'} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if ($response->{'staauthid'} eq '') {
 			$plugin->add_message(WARNING, $response->{'staserver'} . ' unavailable;');
 		} else {
@@ -703,6 +721,9 @@ sub check_interfaces
 	my $response = nitro_client($plugin, \%params);
 
 	foreach my $interface (@{$response->{'Interface'}}) {
+		if (defined($plugin->opts->filter) && $interface->{'devicename'} =~ $plugin->opts->filter) {
+			next;
+		}
 
 		my $interface_state = OK;
 

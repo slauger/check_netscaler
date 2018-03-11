@@ -115,6 +115,8 @@ Usage: check_netscaler
    add additional url options
  -a, --api=STRING
    version of the NITRO API to use (default: v1)
+ -f, --filter=STRING
+   filter out objects from the API response (regular expression syntax)
  -t, --timeout=INTEGER
    Seconds before plugin times out (default: 15)
  -v, --verbose
