@@ -480,11 +480,11 @@ sub check_keyword
 				}
 
 				if (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->critical)) {
-					$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
+					$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
 				} elsif (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->warning)) {
-					$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
+					$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' .$objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
 				} else {
-					$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $objectname_name . ': '.$response->{$objectname_name}.';');
+					$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' . $objectname_name . ': '. $response->{$objectname_name}.';');
 				}
 			}
 		}
