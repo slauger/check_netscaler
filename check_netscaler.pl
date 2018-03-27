@@ -327,7 +327,7 @@ sub check_state
 		$counter{'DOWN'}           = 0;
 		$counter{'OUT OF SERVICE'} = 0;
 		$counter{'UNKOWN'}         = 0;
-		
+
 		# for servicegroups: PARTIAL-UP (non critical event)
 		if ($plugin->opts->objecttype eq 'servicegroup') {
 			$counter{'PARTIAL-UP'} = 0;
@@ -463,19 +463,46 @@ sub check_keyword
 
 	my $response = nitro_client($plugin, \%params);
 	$response = $response->{$plugin->opts->objecttype};
+	if ( ref $response eq 'ARRAY' ) {
+		foreach $response (@{$response}) {
+			foreach my $objectname (split(',', $plugin->opts->objectname)) {
+				if (not index($objectname, '.') != -1) {
+					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multiple objects. You need te seperate id and name with a ".".');
+				}
 
-	foreach ( split(',', $plugin->opts->objectname) ) {
-		if (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->critical)) {
-			$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
-		} elsif (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->warning)) {
-			$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
-		} else {
-			$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $_ . ': '.$response->{$_}.';');
+				my ($objectname_id, $objectname_name) = split /\./, $objectname;
+
+				if (not defined($response->{$objectname_id})) {
+					$plugin->nagios_die($plugin->opts->command . ': object id "' . $objectname_id . '" not found in output.');
+				}
+				if (not defined($response->{$objectname_name})) {
+					$plugin->nagios_die($plugin->opts->command . ': object name "' . $objectname_name . '" not found in output.');
+				}
+
+				if (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->critical)) {
+					$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
+				} elsif (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->warning)) {
+					$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
+				} else {
+					$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $objectname_name . ': '.$response->{$objectname_name}.';');
+				}
+			}
 		}
+	} elsif ( ref $response eq 'HASH' ) {
+		foreach ( split(',', $plugin->opts->objectname) ) {
+			if (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->critical)) {
+				$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
+			} elsif (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->warning)) {
+				$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
+			} else {
+				$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $_ . ': '.$response->{$_}.';');
+			}
+		}
+	} else {
+		$plugin->nagios_die($plugin->opts->command . ': unable to parse data. Returned data is not a HASH or ARRAY!');
 	}
 
-	my ($code, $message) = $plugin->check_messages;
-
+	my ($code, $message) = $plugin->check_messages(join => "; ", join_all => "; ");
 	$plugin->nagios_exit($code, 'keyword ' . $type_of_string_comparison . ': ' . $message);
 }
 
@@ -644,7 +671,7 @@ sub check_threshold_and_get_perfdata
 		foreach $response (@{$response}) {
 			foreach my $objectname (split(',', $plugin->opts->objectname)) {
 				if (not index($objectname, '.') != -1) {
-					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multible objects. You need te seperate id and name with a ".".');
+					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multiple objects. You need te seperate id and name with a ".".');
 				}
 
 				my ($objectname_id, $objectname_name) = split /\./, $objectname;
@@ -995,7 +1022,7 @@ sub check_hastatus
 		} elsif ($_ eq 'hapktrxrate' || $_ eq 'hapkttxrate') {
 			$measurement = 'a'
 		} else {
-			$measurement = undef;		
+			$measurement = undef;
 		}
 
 		$plugin->add_perfdata(
