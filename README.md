@@ -115,6 +115,8 @@ Usage: check_netscaler
    add additional url options
  -a, --api=STRING
    version of the NITRO API to use (default: v1)
+ -f, --filter=STRING
+   filter out objects from the API response (regular expression syntax)
  -t, --timeout=INTEGER
    Seconds before plugin times out (default: 15)
  -v, --verbose
@@ -228,7 +230,10 @@ Multiple fields need to be seperated by a colon.
 ### Check the expiry date of a local license file
 
 The license file must be placed in `/nsconfig/license` and the filename must be given as objectname.
-Also the NITRO user needs permissions to access the filesystem directly (NITRO command systemfile).
+Also the NITRO user needs permissions to access the filesystem directly (NITRO command systemfile). This could be achieved with the following command policy.
+```
+add system cmdPolicy nagios ALLOW "(^man.*)|(^show\\s+(?!system)(?!configstatus)(?!ns ns\\.conf)(?!ns savedconfig)(?!ns runningConfig)(?!gslb runningConfig)(?!audit messages)(?!techsupport).*)|(^stat.*)|(^show\\s+(system)\\s+(file))"
+```
 
 Multiple license files can be passed, separated with a colon.
 
@@ -362,6 +367,7 @@ ssl=true
 - [macampo](https://github.com/macampo)
 - [Velociraptor85](https://github.com/Velociraptor85)
 - [bb-ricardo](https://github.com/bb-ricardo)
+- [DerInti](https://github.com/DerInti)
 
 ## NITRO API Documentation
 
@@ -371,11 +377,11 @@ http://NSIP/nitro-rest.tgz (where NSIP is the IP address of your NetScaler appli
 
 ## Tested Firmware
 
-Tested with NetScaler 10.5, 11.0, 11.1 and 12.0. The plugin should work with all available firmware builds.
+Tested with NetScaler 10.5, 11.0, 11.1, 12.0 and 12.1. The plugin should work with all available firmware builds.
 
 ## Automated Tests
 
-Every commit and pull request in this repository will trigger a continuous integration test with [Travis CI](https://travis-ci.org/slauger/check_netscaler). The test starts a NetScaler CPX instance (currently build 11.1-53.11) and runs `tests/travis_test.sh` against the container.
+Every commit and pull request in this repository will trigger a continuous integration test with [Travis CI](https://travis-ci.org/slauger/check_netscaler). The test starts a NetScaler CPX instance (currently build 12.0-56.20) and runs `tests/travis_test.sh` against the container.
 
 Please add tests if you add new commands to this plugin. Be aware that a NetScaler CPX is very limited in it's features and not all checks of this plugin will work against a CPX instance (e.g. `hwinfo`, `ntp`, ...).
 

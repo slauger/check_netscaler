@@ -1,3 +1,12 @@
+## v1.6.0 (YYYY-MM-DD)
+- better support for SDX appliances in subs matches/matches_not (#33)
+
+## v1.5.0 (2018-03-10)
+- added automated tests against a NetScaler CPX with TravisCI
+- using /usr/bin/env instead of hardcoding the perl binary path
+- added filter parameter for filtering out objects from the API response (used in state, sslcert, staserver and interface) (#31)
+- disabled performance data in sub state for services
+
 ## v1.4.0 (2017-08-20)
 - added command ntp to check NTP status (#18)
 - merged check_threshold and get_perfdata into one function: check_threshold_and_get_perfdata

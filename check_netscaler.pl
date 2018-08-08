@@ -6,9 +6,9 @@
 #
 # https://github.com/slauger/check_netscaler
 #
-# Version: v1.4.0 (2017-08-20)
+# Version: v1.5.0 (2018-03-10)
 #
-# Copyright 2015-2017 Simon Lauger
+# Copyright 2015-2018 Simon Lauger
 #
 # Contributor:
 #	bb-ricardo (github.com/bb-ricardo)
@@ -40,7 +40,7 @@ use Time::Piece;
 my $plugin = Monitoring::Plugin->new(
 	plugin		=> 'check_netscaler',
 	shortname	=> 'NetScaler',
-	version		=> 'v1.4.0',
+	version		=> 'v1.5.0',
 	url		=> 'https://github.com/slauger/check_netscaler',
 	blurb		=> 'Nagios Plugin for Citrix NetScaler Appliance (VPX/MPX/SDX/CPX)',
 	usage		=> 'Usage: %s
@@ -143,6 +143,12 @@ my @args = (
 		desc => 'version of the NITRO API to use (default: v1)',
 		required => 0,
 		default => 'v1',
+	},
+	{
+		spec => 'filter|f=s',
+		usage => '-f, --filter=STRING',
+		desc => 'filter out objects from the API response (regular expression syntax)',
+		required => 0,
 	}
 );
 
@@ -321,7 +327,7 @@ sub check_state
 		$counter{'DOWN'}           = 0;
 		$counter{'OUT OF SERVICE'} = 0;
 		$counter{'UNKOWN'}         = 0;
-		
+
 		# for servicegroups: PARTIAL-UP (non critical event)
 		if ($plugin->opts->objecttype eq 'servicegroup') {
 			$counter{'PARTIAL-UP'} = 0;
@@ -352,7 +358,7 @@ sub check_state
 		$params{'endpoint'} = $plugin->opts->endpoint || 'config';
 		$field_name      = 'name';
 		$field_state     = 'svrstate';
-		$enable_perfdata = 1;
+		$enable_perfdata = 0;
 	} elsif ($plugin->opts->objecttype eq 'servicegroup') {
 		$params{'endpoint'} = $plugin->opts->endpoint || 'config';
 		$field_name      = 'servicegroupname';
@@ -380,6 +386,10 @@ sub check_state
 
 	# loop around, check states and increment the counters
 	foreach my $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{$field_name} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if (defined ($counter{$response->{$field_state}})) {
 			$counter{$response->{$field_state}}++;
 		}
@@ -453,19 +463,46 @@ sub check_keyword
 
 	my $response = nitro_client($plugin, \%params);
 	$response = $response->{$plugin->opts->objecttype};
+	if ( ref $response eq 'ARRAY' ) {
+		foreach $response (@{$response}) {
+			foreach my $objectname (split(',', $plugin->opts->objectname)) {
+				if (not index($objectname, '.') != -1) {
+					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multiple objects. You need te seperate id and name with a ".".');
+				}
 
-	foreach ( split(',', $plugin->opts->objectname) ) {
-		if (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->critical)) {
-			$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
-		} elsif (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->warning)) {
-			$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
-		} else {
-			$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $_ . ': '.$response->{$_}.';');
+				my ($objectname_id, $objectname_name) = split /\./, $objectname;
+
+				if (not defined($response->{$objectname_id})) {
+					$plugin->nagios_die($plugin->opts->command . ': object id "' . $objectname_id . '" not found in output.');
+				}
+				if (not defined($response->{$objectname_name})) {
+					$plugin->nagios_die($plugin->opts->command . ': object name "' . $objectname_name . '" not found in output.');
+				}
+
+				if (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->critical)) {
+					$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' . $objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
+				} elsif (($type_of_string_comparison eq 'matches' && $response->{$objectname_name} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$objectname_name} ne $plugin->opts->warning)) {
+					$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' .$objectname_name . ': "' . $response->{$objectname_name} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
+				} else {
+					$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $response->{$objectname_id} . '.' . $objectname_name . ': '. $response->{$objectname_name}.';');
+				}
+			}
 		}
+	} elsif ( ref $response eq 'HASH' ) {
+		foreach ( split(',', $plugin->opts->objectname) ) {
+			if (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->critical) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->critical)) {
+				$plugin->add_message(CRITICAL, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->critical . '";');
+			} elsif (($type_of_string_comparison eq 'matches' && $response->{$_} eq $plugin->opts->warning) || ($type_of_string_comparison eq 'matches not' && $response->{$_} ne $plugin->opts->warning)) {
+				$plugin->add_message(WARNING, $plugin->opts->objecttype . '.' . $_ . ': "' . $response->{$_} . '" ' . $type_of_string_comparison . ' keyword "' . $plugin->opts->warning . '";');
+			} else {
+				$plugin->add_message(OK, $plugin->opts->objecttype . '.' . $_ . ': '.$response->{$_}.';');
+			}
+		}
+	} else {
+		$plugin->nagios_die($plugin->opts->command . ': unable to parse data. Returned data is not a HASH or ARRAY!');
 	}
 
-	my ($code, $message) = $plugin->check_messages;
-
+	my ($code, $message) = $plugin->check_messages(join => "; ", join_all => "; ");
 	$plugin->nagios_exit($code, 'keyword ' . $type_of_string_comparison . ': ' . $message);
 }
 
@@ -487,6 +524,10 @@ sub check_sslcert
 	$response = $response->{$params{'objecttype'}};
 
 	foreach $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{certkey} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if ($response->{daystoexpiration} <= 0) {
 			$plugin->add_message(CRITICAL, $response->{certkey} . ' expired;');
 		} elsif ($response->{daystoexpiration} <= $critical) {
@@ -532,6 +573,10 @@ sub check_staserver
 
 	# check if any stas are in down state
 	foreach $response (@{$response}) {
+		if (defined($plugin->opts->filter) && $response->{'staserver'} =~ $plugin->opts->filter) {
+			next;
+		}
+
 		if ($response->{'staauthid'} eq '') {
 			$plugin->add_message(WARNING, $response->{'staserver'} . ' unavailable;');
 		} else {
@@ -626,7 +671,7 @@ sub check_threshold_and_get_perfdata
 		foreach $response (@{$response}) {
 			foreach my $objectname (split(',', $plugin->opts->objectname)) {
 				if (not index($objectname, '.') != -1) {
-					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multible objects. You need te seperate id and name with a ".".');
+					$plugin->nagios_die($plugin->opts->command . ': return data is an array and contains multiple objects. You need te seperate id and name with a ".".');
 				}
 
 				my ($objectname_id, $objectname_name) = split /\./, $objectname;
@@ -703,6 +748,9 @@ sub check_interfaces
 	my $response = nitro_client($plugin, \%params);
 
 	foreach my $interface (@{$response->{'Interface'}}) {
+		if (defined($plugin->opts->filter) && $interface->{'devicename'} =~ $plugin->opts->filter) {
+			next;
+		}
 
 		my $interface_state = OK;
 
@@ -974,7 +1022,7 @@ sub check_hastatus
 		} elsif ($_ eq 'hapktrxrate' || $_ eq 'hapkttxrate') {
 			$measurement = 'a'
 		} else {
-			$measurement = undef;		
+			$measurement = undef;
 		}
 
 		$plugin->add_perfdata(
