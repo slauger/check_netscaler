@@ -1,3 +1,16 @@
+## v1.5.1 (2018-06-10)
+- fixed minor typo, made matches/matches_not support matching in arrays
+- output for array matches more comprehensible (#33)
+- updated README.md and CHANGELOG.md (#33)
+- updated README.md (plugin successful tested with 12.1)
+- using 12.0 build 56.20 for traivs ci tests
+
+## v1.5.0 (2018-03-10)
+- added automated tests against a NetScaler CPX with TravisCI
+- using /usr/bin/env instead of hardcoding the perl binary path
+- added filter parameter for filtering out objects from the API response (used in state, sslcert, staserver and interface) (#31)
+- disabled performance data in sub state for services
+
 ## v1.4.0 (2017-08-20)
 - added command ntp to check NTP status (#18)
 - merged check_threshold and get_perfdata into one function: check_threshold_and_get_perfdata
