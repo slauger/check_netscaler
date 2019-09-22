@@ -9,9 +9,9 @@ before_install:
   - sudo apt-get -qq update
   - docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
   - docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
-  - docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION}
-  - docker run -dt -p 80 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
-  - docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
+  - docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
+  - docker run -dt -p 80 --name web1 nginx:${NGINX_CONTAINER_VERSION:-latest}
+  - docker run -dt -p 80 --name web2 nginx:${NGINX_CONTAINER_VERSION:-latest}
 
 install:
   - sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
@@ -20,8 +20,8 @@ install:
 
 script:
   - export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
-  - export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
-  - export WEB02_IP=$(docker inspect web02 | jq -r .[0].NetworkSettings.IPAddress)
+  - export WEB01_IP=$(docker inspect web1 | jq -r .[0].NetworkSettings.IPAddress)
+  - export WEB02_IP=$(docker inspect web2 | jq -r .[0].NetworkSettings.IPAddress)
   - sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
   - sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
   - tests/travis_prepare.sh
