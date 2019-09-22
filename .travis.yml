@@ -21,7 +21,7 @@ install:
 script:
   - export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
   - export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
-  - export WEB02_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
+  - export WEB02_IP=$(docker inspect web02 | jq -r .[0].NetworkSettings.IPAddress)
   - sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
   - sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
   - tests/travis_prepare.sh
