@@ -6,8 +6,20 @@
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
+@test "check_netscaler with command perfdata snf multiple objectnames against all admin partitions" {
+  run ./check_netscaler.pl -H ${NETSCALER_IP} -s -C perfdata -o nspartition -n memoryusagepcnt,maxbandwidth,maxmemory,dropsrate
+  echo "status = ${status}"
+  echo "output = ${output}"
+  [ ${status} -eq 0 ]
+}
 @test "check_netscaler with command perfdata against specific admin partitions" {
   run ./check_netscaler.pl -H ${NETSCALER_IP} -s -C perfdata -o nspartition/partition1 -n memoryusagepcnt 
+  echo "status = ${status}"
+  echo "output = ${output}"
+  [ ${status} -eq 0 ]
+}
+@test "check_netscaler with command perfdata and multiple objectnames against specific admin partitions" {
+  run ./check_netscaler.pl -H ${NETSCALER_IP} -s -C perfdata -o nspartition/partition1 -n memoryusagepcnt,maxbandwidth,maxmemory,dropsrate
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
