@@ -1,5 +1,9 @@
 all: binary
 
+test:
+	test -n "$(NETSCALER_IP)"
+	bats-core/bin/bats --pretty tests/bats
+
 binary:
 	pp \
 	-o check_netscaler \

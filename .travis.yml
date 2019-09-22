@@ -9,13 +9,19 @@ before_install:
   - sudo apt-get -qq update
   - docker pull store/citrix/netscalercpx:${CONTAINER_VERSION}
   - docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION}
+  - docker run -p 80 --name web01 nginx
+  - docker run -p 80 --name web02 nginx
 
 install:
   - sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
   - sudo cpanm Monitoring::Plugin
-  - git clone https://github.com/bats-core/bats-core.git ~/bats-core
+  - git clone https://github.com/bats-core/bats-core.git bats-core
 
 script:
   - export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
+  - export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
+  - export WEB02_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
+  - sed -i 's/WEB01_IP/${WEB01_IP}/g' tests/ns.conf
+  - sed -i 's/WEB02_IP/${WEB02_IP}/g' tests/ns.conf
   - tests/travis_prepare.sh
-  - ~/bats-core/bin/bats --pretty tests/travis_test.bats
+  - bats-core/bin/bats --pretty tests/bats
