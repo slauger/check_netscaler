@@ -20,15 +20,15 @@
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 2 ]
-  [[ ${output} = *"svc_http_dummy1 DOWN"* ]]
-  [[ ${output} = *"svc_http_dummy2 DOWN"* ]]
+  [[ ${output} = *"svc_http_dummy1 OUT OF SERVICE"* ]]
+  [[ ${output} = *"svc_http_dummy2 OUT OF SERVICE"* ]]
 }
 @test "check_netscaler with command state against all servicegroups" {
   run ./check_netscaler.pl -H ${NETSCALER_IP} -C state -o servicegroup
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 2 ]
-  [[ ${output} = *"sg_http_dummy DOWN"* ]]
+  [[ ${output} = *"sg_http_dummy OUT OF SERVICE"* ]]
 }
 @test "check_netscaler with command state against all servers" {
   run ./check_netscaler.pl -H ${NETSCALER_IP} -C state -o server
