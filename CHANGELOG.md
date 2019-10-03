@@ -1,4 +1,6 @@
 ## current branch only
+
+## v1.6.0 (2019-10-04)
 - return OK in state check if no vservers are configured (#44)
 - replaced depreacted calls from Perl-Nagios-Plugin with new names from Perl-Monitoring-Plugin
 - experimental support for objecttypes with a slash inside, e.g. for nspartition/foo (#43)
