@@ -10,6 +10,7 @@ function deploy_nsconfig
   # configure netscaler cpx
   sshpass -p nsroot scp tests/ns.conf nsroot@${NETSCALER_IP}:/home/nsroot/ns.conf
   sshpass -p nsroot ssh nsroot@${NETSCALER_IP} "/var/netscaler/bins/cli_script.sh /home/nsroot/ns.conf"
+  sshpass -p nsroot ssh nsroot@${NETSCALER_IP} "mkdir -p /nsconfig/license"
   sshpass -p nsroot scp tests/license/*.lic /nsconfig/license/
 }
 
