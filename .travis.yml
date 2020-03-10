@@ -25,4 +25,4 @@ script:
   - sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
   - sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
   - tests/travis_prepare.sh
-  - bats-core/bin/bats --pretty tests/bats
+  - bats-core/bin/bats tests/bats
