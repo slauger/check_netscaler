@@ -229,8 +229,10 @@ Multiple fields need to be seperated by a colon.
 
 ### Check the expiry date of a local license file
 
-The license file must be placed in `/nsconfig/license` and the filename must be given as objectname.
-Also the NITRO user needs permissions to access the filesystem directly (NITRO command systemfile). This could be achieved with the following command policy.
+The license file must be placed in `/nsconfig/license`. An optional filename could be passed via the objectname parameter. If no objectname is given, all installed license files will be checked.
+
+The NITRO user needs permissions to access the filesystem directly (NITRO command systemfile). This could be achieved with the following command policy.
+
 ```
 add system cmdPolicy nagios ALLOW "(^man.*)|(^show\\s+(?!system)(?!configstatus)(?!ns ns\\.conf)(?!ns savedconfig)(?!ns runningConfig)(?!gslb runningConfig)(?!audit messages)(?!techsupport).*)|(^stat.*)|(^show\\s+(system)\\s+(file))"
 ```
@@ -240,6 +242,9 @@ Multiple license files can be passed, separated with a colon.
 ```
 # NetScaler::License
 ./check_netscaler.pl -H ${IPADDR} -s -C license -n FID_4c9a2c7e_14292ea2df2_2a97.lic,FID_2b9a2c7e_14212ef2d27_4b87.lic -w 30 -c 10
+
+# NetScaler::License::All
+./check_netscaler.pl -H ${IPADDR} -s -C license -w 30 -c 10
 ```
 
 ### Check the current high availability status
