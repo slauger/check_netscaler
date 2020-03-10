@@ -93,6 +93,14 @@ echo NetScaler::Perfdata::HTTP
 ./check_netscaler.pl --extra-opts=${section}@${1} -C perfdata -o nsglobalcntr -n http_tot_Requests,http_tot_Responses -x 'args=counters:http_tot_Requests;http_tot_Responses'
 echo
 
+echo NetScaler::License
+./check_netscaler.pl --extra-opts=${section}@${1} -C license
+echo
+
+echo NetScaler::License::Single
+./check_netscaler.pl --extra-opts=${section}@${1} -C license -n FID_ab9cab9c_ab9c_ab9c_ab9c_ab9cab9cab9c.lic
+echo
+
 echo NetScaler::NTP
 ./check_netscaler.pl --extra-opts=${section}@${1} -C ntp -w 'o=0.03,j=100' -c 'o=0.05,j=200'
 echo
