@@ -16,16 +16,20 @@ jobs:
       run: sudo cpanm Monitoring::Plugin
     - name: clone bats-core
       run: git clone https://github.com/bats-core/bats-core.git bats-core                                                                            
+
     - name: pre pull netscalercpx image
       run: docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
     - name: pre pull nginx image
       run: docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
+
     - name: start netscaler cpx
       run: docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
     - name: start web01 container
-      run: docker run -dt -p 80 --name web1 nginx:${NGINX_CONTAINER_VERSION:-latest}
+      run: docker run -dt -p 80 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
     - name: start web02 container
-      run: docker run -dt -p 80 --name web2 nginx:${NGINX_CONTAINER_VERSION:-latest}
+      run: docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
+    - name: debug output of docker
+      run: docker ps -a
 
     - name: get netscaler ip
       run: export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
