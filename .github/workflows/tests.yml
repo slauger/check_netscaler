@@ -40,4 +40,7 @@ jobs:
       run: tests/travis_prepare.sh
 
     - name: run tests via bats
-      run: bats-core/bin/bats tests/bats
+      run: |
+        docker ps -a
+        docker inspect netscalercpx
+        bats-core/bin/bats tests/bats
