@@ -8,16 +8,14 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: update apt repositories
-      run: sudo apt-get -qq update
-    - name: install required packages
-      run: sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
-    - name: install Monitoring::Plugin
-      run: sudo cpanm Monitoring::Plugin
-    - name: clone bats-core
-      run: git clone https://github.com/bats-core/bats-core.git bats-core                                                                            
+    - name: install dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
+        sudo cpanm Monitoring::Plugin
+        git clone https://github.com/bats-core/bats-core.git bats-core
 
-    - name: prepull images
+    - name: prepull docker images
       run: |
         docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
         docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
