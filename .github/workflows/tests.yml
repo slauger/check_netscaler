@@ -27,6 +27,8 @@ jobs:
         docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
         sleep 10
         docker ps -a
+        docker inspect netscalercpx
+        docker logs netscalercpx
 
     - name: prepare ns.conf
       run: |
