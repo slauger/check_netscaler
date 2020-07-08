@@ -17,30 +17,26 @@ jobs:
     - name: clone bats-core
       run: git clone https://github.com/bats-core/bats-core.git bats-core                                                                            
 
-    - name: pre pull netscalercpx image
-      run: docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
-    - name: pre pull nginx image
-      run: docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
+    - name: prepull images
+      run: |
+        docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
+        docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
 
-    - name: start netscaler cpx
-      run: docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
-    - name: start web01 container
-      run: docker run -dt -p 80 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
-    - name: start web02 container
-      run: docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
-    - name: debug output of docker
-      run: docker ps -a
+    - name: start required containers
+      run: |
+        docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
+        docker run -dt -p 80 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
+        docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
+        docker ps -a
 
-    - name: get netscaler ip
-      run: export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
-    - name: get web01 ip
-      run: export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
-    - name: get web02 ip
-      run: export WEB02_IP=$(docker inspect web02 | jq -r .[0].NetworkSettings.IPAddress)
-    - name: replace web01 ip in ns.conf
-      run: sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
-    - name: replace web02 ip in ns.conf
-      run: sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
+    - name: prepare ns.conf
+      run: |
+        export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
+        export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
+        export WEB02_IP=$(docker inspect web02 | jq -r .[0].NetworkSettings.IPAddress)
+        sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
+        sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
+        echo "::set-env name=NETSCALER_IP::${NETSCALER_IP}"
 
     - name: configure netscaler
       run: tests/travis_prepare.sh
