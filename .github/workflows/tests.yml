@@ -22,6 +22,10 @@ jobs:
           - 2222:22
           - 80:80
 
+    - name: show containers
+      run: |
+        docker ps -a
+
     steps:
     - uses: actions/checkout@v1
 
