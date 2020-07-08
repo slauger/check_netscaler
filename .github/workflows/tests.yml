@@ -19,7 +19,7 @@ jobs:
           --ulimit core=-1
           --cap-add=NET_ADMIN
         ports:
-          - 22:2222
+          - 2222:22
           - 80:80
 
     steps:
