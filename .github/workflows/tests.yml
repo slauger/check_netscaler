@@ -52,9 +52,9 @@ jobs:
 
     - name: prepare ns.conf
       run: |
-        export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
-        export WEB01_IP=$(docker inspect web01 | jq -r .[0].NetworkSettings.IPAddress)
-        export WEB02_IP=$(docker inspect web02 | jq -r .[0].NetworkSettings.IPAddress)
+        export NETSCALER_IP=$(dig +short netscalercpx)
+        export WEB01_IP=$(dig +short web01)
+        export WEB02_IP=$(dig +short web02)
         sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
         sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
         echo "::set-env name=NETSCALER_IP::${NETSCALER_IP}"
