@@ -6,22 +6,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      web01:
-        image: nginx:latest
-      web02:
-        image: nginx:latest
-      netscalercpx:
-        image: store/citrix/netscalercpx:12.0-56.20
-        env:
-          EULA: yes
-        options: >-
-          --ulimit core=-1
-          --cap-add=NET_ADMIN
-        ports:
-          - 2222:22
-          - 80:80
-
     steps:
     - uses: actions/checkout@v1
 
@@ -35,26 +19,25 @@ jobs:
         sudo cpanm Monitoring::Plugin
         git clone https://github.com/bats-core/bats-core.git bats-core
 
-#    - name: prepull docker images
-#      run: |
-#        docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
-#        docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
+    - name: prepull docker images
+      run: |
+        docker pull store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
+        docker pull nginx:${NGINX_CONTAINER_VERSION:-latest}
 
-#    - name: start required containers
-#      run: |
-#        docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
-        #docker run -dt -p 80 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
-        #docker run -dt -p 80 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
-        #sleep 10
-        #docker ps -a
-        #docker inspect netscalercpx
-        #docker logs netscalercpx
+    - name: start required containers
+      run: |
+        docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --label name=netscalercpx --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
+       docker run -dt -p 80 --label name=web01 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
+       docker run -dt -p 80 --label name=web02 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
 
     - name: prepare ns.conf
       run: |
-        export NETSCALER_IP=$(dig +short netscalercpx)
-        export WEB01_IP=$(dig +short web01)
-        export WEB02_IP=$(dig +short web02)
+        export NETSCALER_ID=$(docker ps -a --filter label=name=netscalercpx -q)
+        export WEB01_ID=$(docker ps -a --filter label=name=web01 -q)
+        export WEB02_ID=$(docker ps -a --filter label=name=web02 -q)
+        export NETSCALER_IP=$(docker inspect ${NETSCALER_ID} | jq -r .[0].NetworkSettings.IPAddress)
+        export WEB01_IP=$(docker inspect ${WEB01_ID} | jq -r .[0].NetworkSettings.IPAddress)
+        export WEB02_IP=$(docker inspect ${WEB02_ID} | jq -r .[0].NetworkSettings.IPAddress)
         sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
         sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
         echo "::set-env name=NETSCALER_IP::${NETSCALER_IP}"
