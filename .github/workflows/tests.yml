@@ -29,6 +29,7 @@ jobs:
         docker run -e EULA=yes -dt -p 22 -p 80 -p 161/udp --ulimit core=-1 --cap-add=NET_ADMIN --label name=netscalercpx --name netscalercpx store/citrix/netscalercpx:${CONTAINER_VERSION:-12.0-56.20}
         docker run -dt -p 80 --label name=web01 --name web01 nginx:${NGINX_CONTAINER_VERSION:-latest}
         docker run -dt -p 80 --label name=web02 --name web02 nginx:${NGINX_CONTAINER_VERSION:-latest}
+        sleep 30
 
     - name: prepare ns.conf
       run: |
