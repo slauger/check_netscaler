@@ -47,7 +47,4 @@ jobs:
 
     - name: run tests via bats
       run: |
-        docker ps -a
-        docker inspect netscalercpx
-        docker logs netscalercpx
         bats-core/bin/bats tests/bats
