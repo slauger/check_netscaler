@@ -150,6 +150,12 @@ my @args = (
     usage    => '-f, --filter=STRING',
     desc     => 'filter out objects from the API response (regular expression syntax)',
     required => 0,
+  },
+  {
+    spec     => 'label|l=s',
+    usage    => '-l, --label=STRING',
+    desc     => 'optional name of the field, which will be used as identifier when the response contians multiple items (default is to use the array index instead)',
+    required => 0,
   }
 );
 
@@ -519,8 +525,17 @@ sub check_keyword {
 
           $description = $params{'objecttype'} . '.' . $response->{$objectname_id} . '.' . $objectname;
         } else {
-          $objectname  = $origin_objectname;
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $response_id . ']';
+          $objectname = $origin_objectname;
+
+          # use a custom label from a field in the response as perfdata label (see #56)
+          my $label;
+
+          if ( $plugin->opts->label ) {
+            $label = $response->{'id'};
+          } else {
+            $label = $response_id;
+          }
+          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $label . ']';
         }
 
         if ( not defined( $response->{$objectname} ) ) {
@@ -744,8 +759,17 @@ sub check_threshold_and_get_perfdata {
 
           $description = $params{'objecttype'} . '.' . $response->{$objectname_id} . '.' . $objectname;
         } else {
-          $objectname  = $origin_objectname;
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $response_id . ']';
+          $objectname = $origin_objectname;
+
+          # use a custom label from a field in the response as perfdata label (see #56)
+          my $label;
+
+          if ( $plugin->opts->label ) {
+            $label = $response->{'id'};
+          } else {
+            $label = $response_id;
+          }
+          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $label . ']';
         }
 
         if ( not defined( $response->{$objectname} ) ) {
