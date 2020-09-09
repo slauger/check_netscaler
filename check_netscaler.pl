@@ -531,7 +531,7 @@ sub check_keyword {
           my $label;
 
           if ( $plugin->opts->label ) {
-            $label = $response->{'id'};
+            $label = $response->{$plugin->opts->label};
           } else {
             $label = $response_id;
           }
@@ -765,7 +765,7 @@ sub check_threshold_and_get_perfdata {
           my $label;
 
           if ( $plugin->opts->label ) {
-            $label = $response->{'id'};
+            $label = $response->{$plugin->opts->label};
           } else {
             $label = $response_id;
           }
