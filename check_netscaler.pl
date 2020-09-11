@@ -152,8 +152,14 @@ my @args = (
     required => 0,
   },
   {
-    spec     => 'label|l=s',
-    usage    => '-l, --label=STRING',
+    spec     => 'limit|l=s',
+    usage    => '-l, --limit=STRING',
+    desc     => 'limit check to objects matching this pattern (regular expression syntax)',
+    required => 0,
+  },
+  {
+    spec     => 'label|L=s',
+    usage    => '-L, --label=STRING',
     desc     => 'optional name of the field, which will be used as identifier when the response contians multiple items (default is to use the array index instead)',
     required => 0,
   }
@@ -514,6 +520,7 @@ sub check_keyword {
         my $objectname;
         my $objectname_id;
         my $description;
+        my $label;
 
         # handling of the dot notation for sdx appliances (see #33)
         if ( $plugin->opts->objectname =~ /\./ ) {
@@ -528,10 +535,8 @@ sub check_keyword {
           $objectname = $origin_objectname;
 
           # use a custom label from a field in the response as perfdata label (see #56)
-          my $label;
-
           if ( $plugin->opts->label ) {
-            $label = $response->{$plugin->opts->label};
+            $label = $response->{ $plugin->opts->label };
           } else {
             $label = $response_id;
           }
@@ -540,6 +545,16 @@ sub check_keyword {
 
         if ( not defined( $response->{$objectname} ) ) {
           $plugin->plugin_die( $plugin->opts->command . ': object name "' . $objectname . '" not found in output.' );
+        }
+
+        # should we skip this label (see #56)?
+        if ( defined( $plugin->opts->filter ) && $label =~ $plugin->opts->filter ) {
+          next;
+        }
+
+        # limit parameter set (see #56)?
+        if ( defined( $plugin->opts->limit ) && $label !~ $plugin->opts->limit ) {
+          next;
         }
 
         if ( ( $type_of_string_comparison eq 'matches' && $response->{$objectname} eq $plugin->opts->critical )
@@ -748,6 +763,7 @@ sub check_threshold_and_get_perfdata {
         my $objectname;
         my $objectname_id;
         my $description;
+        my $label;
 
         # handling of the dot notation for sdx appliances (see #33)
         if ( $plugin->opts->objectname =~ /\./ ) {
@@ -762,14 +778,22 @@ sub check_threshold_and_get_perfdata {
           $objectname = $origin_objectname;
 
           # use a custom label from a field in the response as perfdata label (see #56)
-          my $label;
-
           if ( $plugin->opts->label ) {
-            $label = $response->{$plugin->opts->label};
+            $label = $response->{ $plugin->opts->label };
           } else {
             $label = $response_id;
           }
           $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $label . ']';
+        }
+
+        # should we skip this label (see #56)?
+        if ( defined( $plugin->opts->filter ) && $label =~ $plugin->opts->filter ) {
+          next;
+        }
+
+        # limit parameter set (see #56)?
+        if ( defined( $plugin->opts->limit ) && $label !~ $plugin->opts->limit ) {
+          next;
         }
 
         if ( not defined( $response->{$objectname} ) ) {
