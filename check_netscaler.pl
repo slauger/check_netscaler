@@ -162,6 +162,13 @@ my @args = (
     usage    => '-L, --label=STRING',
     desc     => 'optional name of the field, which will be used as identifier when the response contians multiple items (default is to use the array index instead)',
     required => 0,
+  },
+  {
+    spec     => 'seperator|S=s',
+    usage    => '--seperator=STRING',
+    desc     => 'optional seperator for perfdata values (see #47 for details)',
+    required => 0,
+    default  => '.',
   }
 );
 
@@ -530,7 +537,7 @@ sub check_keyword {
             $plugin->nagios_die( $plugin->opts->command . ': object id "' . $objectname_id . '" not found in output.' );
           }
 
-          $description = $params{'objecttype'} . '.' . $response->{$objectname_id} . '.' . $objectname;
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $response->{$objectname_id} . $plugin->opts->seperator . $objectname;
         } else {
           $objectname = $origin_objectname;
 
@@ -540,7 +547,7 @@ sub check_keyword {
           } else {
             $label = $response_id;
           }
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $label . ']';
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $origin_objectname . '[' . $label . ']';
         }
 
         if ( not defined( $response->{$objectname} ) ) {
@@ -783,7 +790,7 @@ sub check_threshold_and_get_perfdata {
           } else {
             $label = $response_id;
           }
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $label . ']';
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $origin_objectname . '[' . $label . ']';
         }
 
         # should we skip this label (see #56)?
@@ -846,7 +853,7 @@ sub check_threshold_and_get_perfdata {
       }
 
       $plugin->add_perfdata(
-        label    => "'" . $params{'objecttype'} . '.' . $objectname . "'",
+        label    => "'" . $params{'objecttype'} . $plugin->opts->seperator . $objectname . "'",
         value    => $response->{$objectname},
         min      => undef,
         max      => undef,
@@ -912,19 +919,19 @@ sub check_interfaces {
         . ';' );
 
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".rxbytes'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "rxbytes'",
       value => $interface->{'rxbytes'} . 'B'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".txbytes'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "txbytes'",
       value => $interface->{'txbytes'} . 'B'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".rxerrors'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "rxerrors'",
       value => $interface->{'rxerrors'} . 'c'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".txerrors'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "txerrors'",
       value => $interface->{'txerrors'} . 'c'
     );
   }
@@ -1038,7 +1045,7 @@ sub check_servicegroup {
   $plugin->add_message( OK, 'member quorum: ' . $member_quorum . '% (UP/DOWN): ' . $members_up . '/' . $members_down );
 
   $plugin->add_perfdata(
-    label    => "'" . $plugin->opts->objectname . ".member_quorum'",
+    label    => "'" . $plugin->opts->objectname . $plugin->opts->seperator . "member_quorum'",
     value    => $member_quorum . '%',
     min      => 0,
     max      => 100,
