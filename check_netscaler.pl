@@ -99,7 +99,7 @@ my @args = (
   {
     spec     => 'command|C=s',
     usage    => '-C, --command=STRING',
-    desc     => 'Check to be executed on the appliance.',
+    desc     => 'Check to be executed on the appliance',
     required => 1,
   },
   {
@@ -439,6 +439,11 @@ sub check_state {
       next;
     }
 
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{$field_name} !~ $plugin->opts->limit ) {
+      next;
+    }
+
     if ( defined( $counter{ $response->{$field_state} } ) ) {
       $counter{ $response->{$field_state} }++;
     }
@@ -620,6 +625,11 @@ sub check_sslcert {
       next;
     }
 
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{certkey} !~ $plugin->opts->limit ) {
+      next;
+    }
+
     if ( $response->{daystoexpiration} <= 0 ) {
       $plugin->add_message( CRITICAL, $response->{certkey} . ' expired;' );
     } elsif ( $response->{daystoexpiration} <= $critical ) {
@@ -665,6 +675,11 @@ sub check_staserver {
   # check if any stas are in down state
   foreach $response ( @{$response} ) {
     if ( defined( $plugin->opts->filter ) && $response->{'staserver'} =~ $plugin->opts->filter ) {
+      next;
+    }
+
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{'staserver'} !~ $plugin->opts->limit ) {
       next;
     }
 
@@ -883,6 +898,11 @@ sub check_interfaces {
 
   foreach my $interface ( @{ $response->{'Interface'} } ) {
     if ( defined( $plugin->opts->filter ) && $interface->{'devicename'} =~ $plugin->opts->filter ) {
+      next;
+    }
+
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $interface->{'devicename'} !~ $plugin->opts->limit ) {
       next;
     }
 
