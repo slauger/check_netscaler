@@ -1,2 +1,4 @@
 check_netscaler
 bats-core
+node_modules
+yarn.lock
