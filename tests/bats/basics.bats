@@ -4,25 +4,25 @@
 
 # do some basic plugin tests
 @test "check_netscaler with command sslcert" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C sslcert
+  run ./check_netscaler.pl -C sslcert
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
 @test "check_netscaler with command interfaces" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C interfaces
+  run ./check_netscaler.pl -C interfaces
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
 @test "check_netscaler with command nsconfig" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C nsconfig
+  run ./check_netscaler.pl -C nsconfig
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
 @test "check_netscaler with command hastatus" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C hastatus
+  run ./check_netscaler.pl -C hastatus
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 2 ]

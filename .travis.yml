@@ -19,7 +19,7 @@ install:
   - git clone https://github.com/bats-core/bats-core.git bats-core
 
 script:
-  - export NETSCALER_IP=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
+  - export NETSCALER_HOST=$(docker inspect netscalercpx | jq -r .[0].NetworkSettings.IPAddress)
   - export WEB01_IP=$(docker inspect web1 | jq -r .[0].NetworkSettings.IPAddress)
   - export WEB02_IP=$(docker inspect web2 | jq -r .[0].NetworkSettings.IPAddress)
   - sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
