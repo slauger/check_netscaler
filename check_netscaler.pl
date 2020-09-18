@@ -6,9 +6,9 @@
 #
 # https://github.com/slauger/check_netscaler
 #
-# Version: v1.6.0 (2019-10-04)
+# Version: v1.6.0
 #
-# Copyright 2015-2019 Simon Lauger
+# Copyright 2015-2020 Simon Lauger
 #
 # Contributor:
 # bb-ricardo (github.com/bb-ricardo)
