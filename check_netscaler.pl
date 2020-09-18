@@ -63,13 +63,13 @@ See https://github.com/slauger/check_netscaler for details.'
 
 # default host
 my $host;
-if(defined $ENV{NETSCALER_HOST}) {
+if ( defined $ENV{NETSCALER_HOST} ) {
   $host = $ENV{NETSCALER_HOST};
 }
 
 # default username
 my $username;
-if(defined $ENV{NETSCALER_USERNAME}) {
+if ( defined $ENV{NETSCALER_USERNAME} ) {
   $username = $ENV{NETSCALER_USERNAME};
 } else {
   $username = 'nsroot';
@@ -77,7 +77,7 @@ if(defined $ENV{NETSCALER_USERNAME}) {
 
 # default password
 my $password;
-if(defined $ENV{NETSCALER_PASSWORD}) {
+if ( defined $ENV{NETSCALER_PASSWORD} ) {
   $password = $ENV{NETSCALER_PASSWORD};
 } else {
   $password = 'nsroot';
