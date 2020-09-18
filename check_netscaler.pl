@@ -61,26 +61,49 @@ This plugin works for NetScaler VPX, MPX, SDX and CPX appliances.
 See https://github.com/slauger/check_netscaler for details.'
 );
 
+# default host
+my $host;
+if(defined $ENV{NETSCALER_HOST}) {
+  $host = $ENV{NETSCALER_HOST};
+}
+
+# default username
+my $username;
+if(defined $ENV{NETSCALER_USERNAME}) {
+  $username = $ENV{NETSCALER_USERNAME};
+} else {
+  $username = 'nsroot';
+}
+
+# default password
+my $password;
+if(defined $ENV{NETSCALER_PASSWORD}) {
+  $password = $ENV{NETSCALER_PASSWORD};
+} else {
+  $password = 'nsroot';
+}
+
 my @args = (
   {
     spec     => 'hostname|H=s',
     usage    => '-H, --hostname=STRING',
     desc     => 'Hostname of the NetScaler appliance to connect to',
+    default  => $host,
     required => 1,
   },
   {
     spec     => 'username|u=s',
     usage    => '-u, --username=STRING',
     desc     => 'Username to log into box as (default: nsroot)',
-    default  => 'nsroot',
-    required => 0,
+    default  => $username,
+    required => 1,
   },
   {
     spec     => 'password|p=s',
     usage    => '-p, --password=STRING',
     desc     => 'Password for login username (default: nsroot)',
-    default  => 'nsroot',
-    required => 0,
+    default  => $password,
+    required => 1,
   },
   {
     spec     => 'ssl|s!',
