@@ -1,3 +1,16 @@
+## [1.6.1](https://github.com/slauger/check_netscaler/compare/v1.6.0...v1.6.1) (2020-09-18)
+
+
+### Bug Fixes
+
+* add --seperator to allow to configure a custom perfdata seperator ([#47](https://github.com/slauger/check_netscaler/issues/47)) ([9a9a1b1](https://github.com/slauger/check_netscaler/commit/9a9a1b1d29c3da784cd6b05cce1b162797f8a3cb))
+* add limit switch ('--limit', '-l') and change spec for label switch from '-l' to '-L' ([f396fbe](https://github.com/slauger/check_netscaler/commit/f396fbe052f658e1d0f3df56519f44ca9f5a721f))
+* add release automation via semantic-release-bot ([19bb5d1](https://github.com/slauger/check_netscaler/commit/19bb5d12c390b48e6705da80ecfe1ccc64d5035e))
+* add support for limit in more subs ([90b7995](https://github.com/slauger/check_netscaler/commit/90b799526885b7ff663821552f5c21b7d4c2fa22))
+* add the ability to set a custom perfdata label for sub check_keyword and check_threshold_and_get_perfdata ([#56](https://github.com/slauger/check_netscaler/issues/56)) ([5c0ef0a](https://github.com/slauger/check_netscaler/commit/5c0ef0a218a56402742329a082d3c754131c3401))
+* get host, user and password from environment variables (NETSCALER_HOST, NETSCALER_USERNAME, NETSCALER_PASSWORD) ([4cec658](https://github.com/slauger/check_netscaler/commit/4cec658b89d833d38c318c146f151ba993e62197))
+* replace hardcoded id with $plugin->opts->label ([2c623d3](https://github.com/slauger/check_netscaler/commit/2c623d3b48da4c47a0a9599fe4c7b86ced22c5cf))
+
 ## current branch only
 
 ## v1.6.0 (2019-10-04)
