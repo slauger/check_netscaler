@@ -16,6 +16,7 @@ before_install:
 install:
   - sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
   - sudo cpanm Monitoring::Plugin
+  - sudo cpanm Perl::Tidy
   - git clone https://github.com/bats-core/bats-core.git bats-core
 
 script:
@@ -24,5 +25,6 @@ script:
   - export WEB02_IP=$(docker inspect web2 | jq -r .[0].NetworkSettings.IPAddress)
   - sed -i "s/WEB01_IP/${WEB01_IP}/g" tests/ns.conf
   - sed -i "s/WEB02_IP/${WEB02_IP}/g" tests/ns.conf
+  - tests/lint.sh
   - tests/travis_prepare.sh
   - bats-core/bin/bats tests/bats
