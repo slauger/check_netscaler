@@ -14,8 +14,9 @@ before_install:
   - docker run -dt -p 80 --name web2 nginx:${NGINX_CONTAINER_VERSION:-latest}
 
 install:
-  - sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace perltidy
+  - sudo apt-get install -y sshpass jq cpanminus libwww-perl liblwp-protocol-https-perl libjson-perl strace
   - sudo cpanm Monitoring::Plugin
+  - sudo cpanm Perl::Tidy
   - git clone https://github.com/bats-core/bats-core.git bats-core
 
 script:
