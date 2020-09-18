@@ -11,8 +11,6 @@
 * get host, user and password from environment variables (NETSCALER_HOST, NETSCALER_USERNAME, NETSCALER_PASSWORD) ([4cec658](https://github.com/slauger/check_netscaler/commit/4cec658b89d833d38c318c146f151ba993e62197))
 * replace hardcoded id with $plugin->opts->label ([2c623d3](https://github.com/slauger/check_netscaler/commit/2c623d3b48da4c47a0a9599fe4c7b86ced22c5cf))
 
-## current branch only
-
 ## v1.6.0 (2019-10-04)
 - return OK in state check if no vservers are configured (#44)
 - replaced depreacted calls from Perl-Nagios-Plugin with new names from Perl-Monitoring-Plugin
