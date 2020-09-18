@@ -6,9 +6,9 @@
 #
 # https://github.com/slauger/check_netscaler
 #
-# Version: v1.6.0 (2019-10-04)
+# Version: v1.6.0
 #
-# Copyright 2015-2019 Simon Lauger
+# Copyright 2015-2020 Simon Lauger
 #
 # Contributor:
 # bb-ricardo (github.com/bb-ricardo)
@@ -61,26 +61,49 @@ This plugin works for NetScaler VPX, MPX, SDX and CPX appliances.
 See https://github.com/slauger/check_netscaler for details.'
 );
 
+# default host
+my $host;
+if ( defined $ENV{NETSCALER_HOST} ) {
+  $host = $ENV{NETSCALER_HOST};
+}
+
+# default username
+my $username;
+if ( defined $ENV{NETSCALER_USERNAME} ) {
+  $username = $ENV{NETSCALER_USERNAME};
+} else {
+  $username = 'nsroot';
+}
+
+# default password
+my $password;
+if ( defined $ENV{NETSCALER_PASSWORD} ) {
+  $password = $ENV{NETSCALER_PASSWORD};
+} else {
+  $password = 'nsroot';
+}
+
 my @args = (
   {
     spec     => 'hostname|H=s',
     usage    => '-H, --hostname=STRING',
     desc     => 'Hostname of the NetScaler appliance to connect to',
+    default  => $host,
     required => 1,
   },
   {
     spec     => 'username|u=s',
     usage    => '-u, --username=STRING',
     desc     => 'Username to log into box as (default: nsroot)',
-    default  => 'nsroot',
-    required => 0,
+    default  => $username,
+    required => 1,
   },
   {
     spec     => 'password|p=s',
     usage    => '-p, --password=STRING',
     desc     => 'Password for login username (default: nsroot)',
-    default  => 'nsroot',
-    required => 0,
+    default  => $password,
+    required => 1,
   },
   {
     spec     => 'ssl|s!',
@@ -99,7 +122,7 @@ my @args = (
   {
     spec     => 'command|C=s',
     usage    => '-C, --command=STRING',
-    desc     => 'Check to be executed on the appliance.',
+    desc     => 'Check to be executed on the appliance',
     required => 1,
   },
   {
@@ -150,6 +173,25 @@ my @args = (
     usage    => '-f, --filter=STRING',
     desc     => 'filter out objects from the API response (regular expression syntax)',
     required => 0,
+  },
+  {
+    spec     => 'limit|l=s',
+    usage    => '-l, --limit=STRING',
+    desc     => 'limit check to objects matching this pattern (regular expression syntax)',
+    required => 0,
+  },
+  {
+    spec     => 'label|L=s',
+    usage    => '-L, --label=STRING',
+    desc     => 'optional name of the field, which will be used as identifier when the response contians multiple items (default is to use the array index instead)',
+    required => 0,
+  },
+  {
+    spec     => 'seperator|S=s',
+    usage    => '--seperator=STRING',
+    desc     => 'optional seperator for perfdata values (see #47 for details)',
+    required => 0,
+    default  => '.',
   }
 );
 
@@ -420,6 +462,11 @@ sub check_state {
       next;
     }
 
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{$field_name} !~ $plugin->opts->limit ) {
+      next;
+    }
+
     if ( defined( $counter{ $response->{$field_state} } ) ) {
       $counter{ $response->{$field_state} }++;
     }
@@ -508,6 +555,7 @@ sub check_keyword {
         my $objectname;
         my $objectname_id;
         my $description;
+        my $label;
 
         # handling of the dot notation for sdx appliances (see #33)
         if ( $plugin->opts->objectname =~ /\./ ) {
@@ -517,14 +565,31 @@ sub check_keyword {
             $plugin->nagios_die( $plugin->opts->command . ': object id "' . $objectname_id . '" not found in output.' );
           }
 
-          $description = $params{'objecttype'} . '.' . $response->{$objectname_id} . '.' . $objectname;
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $response->{$objectname_id} . $plugin->opts->seperator . $objectname;
         } else {
-          $objectname  = $origin_objectname;
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $response_id . ']';
+          $objectname = $origin_objectname;
+
+          # use a custom label from a field in the response as perfdata label (see #56)
+          if ( $plugin->opts->label ) {
+            $label = $response->{ $plugin->opts->label };
+          } else {
+            $label = $response_id;
+          }
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $origin_objectname . '[' . $label . ']';
         }
 
         if ( not defined( $response->{$objectname} ) ) {
           $plugin->plugin_die( $plugin->opts->command . ': object name "' . $objectname . '" not found in output.' );
+        }
+
+        # should we skip this label (see #56)?
+        if ( defined( $plugin->opts->filter ) && $label =~ $plugin->opts->filter ) {
+          next;
+        }
+
+        # limit parameter set (see #56)?
+        if ( defined( $plugin->opts->limit ) && $label !~ $plugin->opts->limit ) {
+          next;
         }
 
         if ( ( $type_of_string_comparison eq 'matches' && $response->{$objectname} eq $plugin->opts->critical )
@@ -583,6 +648,11 @@ sub check_sslcert {
       next;
     }
 
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{certkey} !~ $plugin->opts->limit ) {
+      next;
+    }
+
     if ( $response->{daystoexpiration} <= 0 ) {
       $plugin->add_message( CRITICAL, $response->{certkey} . ' expired;' );
     } elsif ( $response->{daystoexpiration} <= $critical ) {
@@ -628,6 +698,11 @@ sub check_staserver {
   # check if any stas are in down state
   foreach $response ( @{$response} ) {
     if ( defined( $plugin->opts->filter ) && $response->{'staserver'} =~ $plugin->opts->filter ) {
+      next;
+    }
+
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $response->{'staserver'} !~ $plugin->opts->limit ) {
       next;
     }
 
@@ -733,6 +808,7 @@ sub check_threshold_and_get_perfdata {
         my $objectname;
         my $objectname_id;
         my $description;
+        my $label;
 
         # handling of the dot notation for sdx appliances (see #33)
         if ( $plugin->opts->objectname =~ /\./ ) {
@@ -744,8 +820,25 @@ sub check_threshold_and_get_perfdata {
 
           $description = $params{'objecttype'} . '.' . $response->{$objectname_id} . '.' . $objectname;
         } else {
-          $objectname  = $origin_objectname;
-          $description = $params{'objecttype'} . '.' . $origin_objectname . '[' . $response_id . ']';
+          $objectname = $origin_objectname;
+
+          # use a custom label from a field in the response as perfdata label (see #56)
+          if ( $plugin->opts->label ) {
+            $label = $response->{ $plugin->opts->label };
+          } else {
+            $label = $response_id;
+          }
+          $description = $params{'objecttype'} . $plugin->opts->seperator . $origin_objectname . '[' . $label . ']';
+        }
+
+        # should we skip this label (see #56)?
+        if ( defined( $plugin->opts->filter ) && $label =~ $plugin->opts->filter ) {
+          next;
+        }
+
+        # limit parameter set (see #56)?
+        if ( defined( $plugin->opts->limit ) && $label !~ $plugin->opts->limit ) {
+          next;
         }
 
         if ( not defined( $response->{$objectname} ) ) {
@@ -798,7 +891,7 @@ sub check_threshold_and_get_perfdata {
       }
 
       $plugin->add_perfdata(
-        label    => "'" . $params{'objecttype'} . '.' . $objectname . "'",
+        label    => "'" . $params{'objecttype'} . $plugin->opts->seperator . $objectname . "'",
         value    => $response->{$objectname},
         min      => undef,
         max      => undef,
@@ -828,6 +921,11 @@ sub check_interfaces {
 
   foreach my $interface ( @{ $response->{'Interface'} } ) {
     if ( defined( $plugin->opts->filter ) && $interface->{'devicename'} =~ $plugin->opts->filter ) {
+      next;
+    }
+
+    # limit parameter set (see #56)?
+    if ( defined( $plugin->opts->limit ) && $interface->{'devicename'} !~ $plugin->opts->limit ) {
       next;
     }
 
@@ -864,19 +962,19 @@ sub check_interfaces {
         . ';' );
 
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".rxbytes'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "rxbytes'",
       value => $interface->{'rxbytes'} . 'B'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".txbytes'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "txbytes'",
       value => $interface->{'txbytes'} . 'B'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".rxerrors'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "rxerrors'",
       value => $interface->{'rxerrors'} . 'c'
     );
     $plugin->add_perfdata(
-      label => "\'" . $interface->{'devicename'} . ".txerrors'",
+      label => "\'" . $interface->{'devicename'} . $plugin->opts->seperator . "txerrors'",
       value => $interface->{'txerrors'} . 'c'
     );
   }
@@ -990,7 +1088,7 @@ sub check_servicegroup {
   $plugin->add_message( OK, 'member quorum: ' . $member_quorum . '% (UP/DOWN): ' . $members_up . '/' . $members_down );
 
   $plugin->add_perfdata(
-    label    => "'" . $plugin->opts->objectname . ".member_quorum'",
+    label    => "'" . $plugin->opts->objectname . $plugin->opts->seperator . "member_quorum'",
     value    => $member_quorum . '%',
     min      => 0,
     max      => 100,

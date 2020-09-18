@@ -3,26 +3,26 @@
 # https://github.com/slauger/check_netscaler
 
 # do some basic plugin tests
-@test "check_netscaler with command sslcert" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C sslcert
+@test "run with command sslcert" {
+  run ./check_netscaler.pl -C sslcert
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
-@test "check_netscaler with command interfaces" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C interfaces
+@test "run with command interfaces" {
+  run ./check_netscaler.pl -C interfaces
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
-@test "check_netscaler with command nsconfig" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C nsconfig
+@test "run with command nsconfig" {
+  run ./check_netscaler.pl -C nsconfig
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 0 ]
 }
-@test "check_netscaler with command hastatus" {
-  run ./check_netscaler.pl -H ${NETSCALER_IP} -C hastatus
+@test "run with command hastatus" {
+  run ./check_netscaler.pl -C hastatus
   echo "status = ${status}"
   echo "output = ${output}"
   [ ${status} -eq 2 ]

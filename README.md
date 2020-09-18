@@ -87,7 +87,7 @@ Usage: check_netscaler
  -V, --version
    Print version information
  --extra-opts=[section][@file]
-   Read options from an ini file. See http://nagiosplugins.org/extra-opts
+   Read options from an ini file. See https://www.monitoring-plugins.org/doc/extra-opts.html
    for usage and examples.
  -H, --hostname=STRING
    Hostname of the NetScaler appliance to connect to
@@ -117,6 +117,12 @@ Usage: check_netscaler
    version of the NITRO API to use (default: v1)
  -f, --filter=STRING
    filter out objects from the API response (regular expression syntax)
+ -l, --limit=STRING
+   limit check to objects matching this pattern (regular expression syntax)
+ -L, --label=STRING
+   optional name of the field, which will be used as identifier when the response contians multiple items (default is to use the array index instead)
+ --seperator=STRING
+   optional seperator for perfdata values (see #47 for details)
  -t, --timeout=INTEGER
    Seconds before plugin times out (default: 15)
  -v, --verbose
@@ -335,6 +341,61 @@ This means:
 * jitter CRITICAL if jitter is >= 200 ms
 * stratum CRITICAL if peer stratum > 2
 * truechimers CRITICAL if number of truechimers (possible sync sources) is <= 2
+
+### Advanced configurations
+
+#### Filter out items from check
+
+Check all interfaces but ignore interface `LO/1` and `0/1`.
+
+```
+./check_netscaler.pl -H ${IPADDR} -C interfaces -f '(LO.1|0.1)'
+```
+
+#### Limit check to specific items
+
+Check only interface `0/2` and `0/3`.
+
+```
+./check_netscaler.pl -H ${IPADDR} -C interfaces -l '(0.2|0.3)'
+```
+
+#### Use item in the response as perfdata label
+
+By default the array index will be used as perfdata label.
+
+```
+# default behavior - use the array index
+./check_netscaler.pl -H ${IPADDR} -C perfdata -o Interface -n rxbytesrate
+NetScaler OK - perfdata: Interface.rxbytesrate[0]: 1711; Interface.rxbytesrate[1]: 13915 | 'Interface.rxbytesrate[0]'=1711;; 'Interface.rxbytesrate[1]'=13915;;
+```
+
+This behavior can be changed with the label switch.
+
+```
+# set the label switch to 'id'
+./check_netscaler.pl -H ${IPADDR} -C perfdata -o Interface -n rxbytesrate -L id
+NetScaler OK - perfdata: Interface.rxbytesrate[0/1]: 1575; Interface.rxbytesrate[LO/1]: 12130 | 'Interface.rxbytesrate[0/1]'=1575;; 'Interface.rxbytesrate[LO/1]'=12130;;
+```
+
+### Custom perfdata seperator
+
+By default the perfdata seperator is set to a dot (e.g. `0/1.txbytes'=492581B;;`). This behavior can be changed with the `--seperator` switch.
+
+```
+./check_netscaler.pl -H ${IPADDR} -s -C interfaces --seperator='_'
+```
+
+#### Combine all advanced switches
+
+- Set label to field `id`
+- Limit response to regular expression `0.[0-9]`
+- Filter out interface `0.2`
+- Use underline as perfdata seperator
+
+```
+./check_netscaler.pl -H ${IPADDR} -C perfdata -o Interface -n rxbytesrate -L id -l '0.[0-9]' -f '0.2' --seperator='_'
+```
 
 ## Debug command
 

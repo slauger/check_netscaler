@@ -1,7 +1,7 @@
 all: binary
 
 test:
-	test -n "$(NETSCALER_IP)"
+	test -n "$(NETSCALER_HOST)"
 	bats-core/bin/bats --pretty tests/bats
 
 binary:
