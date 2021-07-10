@@ -240,7 +240,7 @@ The license file must be placed in `/nsconfig/license`. An optional filename cou
 The NITRO user needs permissions to access the filesystem directly (NITRO command systemfile). This could be achieved with the following command policy.
 
 ```
-add system cmdPolicy nagios ALLOW "(^man.*)|(^show\\s+(?!system)(?!configstatus)(?!ns ns\\.conf)(?!ns savedconfig)(?!ns runningConfig)(?!gslb runningConfig)(?!audit messages)(?!techsupport).*)|(^stat.*)|(^show\\s+(system)\\s+(file))"
+add system cmdPolicy nagios-license-check ALLOW "(^show\\s+system\\s+\\S+)|(^show\\s+system\\s+\\S+\\s+.*)"
 ```
 
 Multiple license files can be passed, separated with a colon.
