@@ -1221,8 +1221,6 @@ sub check_hastatus {
   foreach ( 'hatotpktrx', 'hatotpkttx', 'hapktrxrate', 'hapkttxrate' ) {
     if ( $_ eq 'hatotpktrx' || $_ eq 'hatotpkttx' ) {
       $measurement = 'c';
-    } elsif ( $_ eq 'hapktrxrate' || $_ eq 'hapkttxrate' ) {
-      $measurement = 'a';
     } else {
       $measurement = undef;
     }
