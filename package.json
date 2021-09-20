@@ -4,7 +4,7 @@
     "@semantic-release/changelog": "semantic-release/changelog",
     "@semantic-release/commit-analyzer": "semantic-release/commit-analyzer",
     "@semantic-release/git": "9.0.1",
-    "@semantic-release/github": "^7.1.1",
+    "@semantic-release/github": "^8.0.0",
     "@semantic-release/release-notes-generator": "semantic-release/release-notes-generator",
     "semantic-release": "18.0.0"
   }
