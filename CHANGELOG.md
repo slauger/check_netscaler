@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/slauger/check_netscaler/compare/v1.6.1...v1.6.2) (2021-09-27)
+
+
+### Bug Fixes
+
+* measurement should be undef for hapktrxrate and hapkttxrate ([#47](https://github.com/slauger/check_netscaler/issues/47)) ([1c721dd](https://github.com/slauger/check_netscaler/commit/1c721dd4e6f940a409b1b0c8c20af5a3d5a13bb4))
+
 ## [1.6.1](https://github.com/slauger/check_netscaler/compare/v1.6.0...v1.6.1) (2020-09-18)
 
 
