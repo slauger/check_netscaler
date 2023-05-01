@@ -6,6 +6,6 @@
     "@semantic-release/git": "10.0.1",
     "@semantic-release/github": "^8.0.5",
     "@semantic-release/release-notes-generator": "semantic-release/release-notes-generator",
-    "semantic-release": "21.0.1"
+    "semantic-release": "21.0.2"
   }
 }
