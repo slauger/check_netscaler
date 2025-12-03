@@ -46,9 +46,3 @@ dmypy.json
 
 # ruff
 .ruff_cache/
-
-# Old Perl build artifacts (from v1.x)
-check_netscaler
-bats-core
-node_modules
-yarn.lock
