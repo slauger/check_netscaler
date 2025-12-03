@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["pip_requirements", "pip_setup", "pep621"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Python dependencies (non-major)"
+    }
+  ],
+  "pip_requirements": {
+    "fileMatch": ["(^|/)requirements.*\\.txt$"]
+  },
+  "pep621": {
+    "fileMatch": ["(^|/)pyproject\\.toml$"]
+  },
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "automerge": false,
+  "rangeStrategy": "bump"
+}
