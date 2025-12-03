@@ -188,23 +188,25 @@ class TestArgumentParser:
 class TestMainFunction:
     """Test main entry point"""
 
-    def test_main_returns_unknown(self, capsys):
-        """Test that main returns UNKNOWN state (not yet implemented)"""
-        exit_code = main(["-H", "192.168.1.1", "-C", "state"])
-
-        assert exit_code == STATE_UNKNOWN
-
-        captured = capsys.readouterr()
-        assert "Not yet implemented" in captured.out
-
-    def test_main_shows_version_info(self, capsys):
-        """Test that main shows version information"""
-        exit_code = main(["-H", "192.168.1.1", "-C", "state"])
-
-        captured = capsys.readouterr()
-        assert "check_netscaler" in captured.out
-
     def test_main_invalid_args(self):
         """Test that main exits on invalid arguments"""
         with pytest.raises(SystemExit):
             main([])  # Missing required arguments
+
+    def test_main_unimplemented_command(self, capsys):
+        """Test that unimplemented commands return UNKNOWN"""
+        # Use a command that's not implemented yet
+        from unittest.mock import patch, Mock
+
+        mock_client_class = Mock()
+        mock_client = Mock()
+        mock_client.__enter__ = Mock(return_value=mock_client)
+        mock_client.__exit__ = Mock(return_value=False)
+        mock_client_class.return_value = mock_client
+
+        with patch("check_netscaler.client.NITROClient", mock_client_class):
+            exit_code = main(["-H", "192.168.1.1", "-C", "sslcert"])
+
+            captured = capsys.readouterr()
+            assert "not yet implemented" in captured.out.lower()
+            assert exit_code == STATE_UNKNOWN

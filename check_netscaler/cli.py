@@ -155,14 +155,54 @@ def main(args: Optional[List[str]] = None) -> int:
     parser = create_parser()
     parsed_args = parser.parse_args(args)
 
-    # TODO: Implement actual check logic
-    # For now, just print a message
-    print(f"check_netscaler v{__version__}")
-    print(f"Command: {parsed_args.command}")
-    print(f"Host: {parsed_args.hostname}")
-    print("UNKNOWN - Not yet implemented")
+    try:
+        # Import here to avoid circular dependencies
+        from check_netscaler.client import NITROClient
+        from check_netscaler.commands.state import StateCommand
+        from check_netscaler.output.nagios import NagiosOutput
 
-    return STATE_UNKNOWN
+        # Create NITRO client
+        client = NITROClient(
+            hostname=parsed_args.hostname,
+            username=parsed_args.username,
+            password=parsed_args.password,
+            ssl=parsed_args.ssl,
+            port=parsed_args.port,
+            timeout=parsed_args.timeout,
+            verify_ssl=not parsed_args.ssl,  # TODO: Add --insecure flag
+            api_version=parsed_args.api,
+        )
+
+        # Execute command
+        with client:
+            if parsed_args.command == "state":
+                command = StateCommand(client, parsed_args)
+                result = command.execute()
+            else:
+                print(f"UNKNOWN - Command '{parsed_args.command}' not yet implemented")
+                return STATE_UNKNOWN
+
+        # Format and print output
+        output = NagiosOutput.format_output(
+            status=result.status,
+            message=result.message,
+            perfdata=result.perfdata,
+            long_output=result.long_output,
+            separator=parsed_args.separator,
+        )
+        print(output)
+
+        return result.status
+
+    except KeyboardInterrupt:
+        print("UNKNOWN - Interrupted by user")
+        return STATE_UNKNOWN
+    except Exception as e:
+        print(f"UNKNOWN - Unexpected error: {e}")
+        if parsed_args.verbose > 0:
+            import traceback
+            traceback.print_exc()
+        return STATE_UNKNOWN
 
 
 if __name__ == "__main__":
