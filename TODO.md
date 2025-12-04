@@ -5,16 +5,16 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- ~2400 lines of Python code
-- 117 tests passing
-- **5 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`**
+- ~2500 lines of Python code
+- 130 tests passing
+- **6 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~33% of commands implemented (5/15)
+**Progress:** ~40% of commands implemented (6/15)
 
 ## 🎯 Implementation Tasks
 
@@ -212,15 +212,15 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** `check_netscaler/commands/ntp.py`
 
-##### 2.14 `debug` Command
+##### 2.14 `debug` Command ✅ DONE
 **Raw API output for debugging**
 
-- [ ] Raw JSON output from API
-- [ ] Support for stat and config endpoints
-- [ ] Pretty-print JSON
-- [ ] Always returns OK
+- [x] Raw JSON output from API
+- [x] Support for stat and config endpoints
+- [x] Pretty-print JSON
+- [x] Always returns OK
 
-**File:** `check_netscaler/commands/debug.py`
+**File:** ✅ `check_netscaler/commands/debug.py`
 
 ---
 

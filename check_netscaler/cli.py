@@ -194,6 +194,10 @@ def main(args: Optional[List[str]] = None) -> int:
                 from check_netscaler.commands.sslcert import SSLCertCommand
                 command = SSLCertCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command == "debug":
+                from check_netscaler.commands.debug import DebugCommand
+                command = DebugCommand(client, parsed_args)
+                result = command.execute()
             else:
                 print(f"UNKNOWN - Command '{parsed_args.command}' not yet implemented")
                 return STATE_UNKNOWN
