@@ -46,3 +46,7 @@ dmypy.json
 
 # ruff
 .ruff_cache/
+
+# AI Assistant notes (not for repository)
+CLAUDE.md
+AGENT.md
