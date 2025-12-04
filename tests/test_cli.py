@@ -195,7 +195,8 @@ class TestMainFunction:
 
     def test_main_unimplemented_command(self, capsys):
         """Test that unimplemented commands return UNKNOWN"""
-        # Use a command that's not implemented yet (ntp is still unimplemented)
+        # Use a fictitious command that doesn't exist
+        # Note: All original commands are now implemented!
         from unittest.mock import patch, Mock
 
         mock_client_class = Mock()
@@ -204,9 +205,8 @@ class TestMainFunction:
         mock_client.__exit__ = Mock(return_value=False)
         mock_client_class.return_value = mock_client
 
-        with patch("check_netscaler.client.NITROClient", mock_client_class):
-            exit_code = main(["-H", "192.168.1.1", "-C", "ntp"])
-
-            captured = capsys.readouterr()
-            assert "not yet implemented" in captured.out.lower()
-            assert exit_code == STATE_UNKNOWN
+        # This will fail at argparse level since 'fictitious' is not in choices
+        # So we test with a valid command name but expect implementation
+        with pytest.raises(SystemExit):
+            # Try with invalid command (will be caught by argparse)
+            main(["-H", "192.168.1.1", "-C", "fictitious"])

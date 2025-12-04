@@ -5,16 +5,16 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- ~3000 lines of Python code
-- 308 tests passing
-- **13 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`, `interfaces`, `perfdata`**
+- ~3500 lines of Python code
+- 336 tests passing
+- **14 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`, `interfaces`, `perfdata`, `ntp`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~87% of commands implemented (13/15)
+**Progress:** ~93% of commands implemented (14/15) - ALMOST COMPLETE! 🎉
 
 ## 🎯 Implementation Tasks
 
@@ -220,17 +220,22 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** ✅ `check_netscaler/commands/staserver.py`
 
-##### 2.13 `ntp` Command
+##### 2.13 `ntp` Command ✅ DONE
 **NTP synchronization status**
 
-- [ ] NTP peer information
-- [ ] Offset calculation
-- [ ] Jitter calculation
-- [ ] Stratum checking
-- [ ] Truechimers count
-- [ ] Compatible with check_ntp_peer output format
+- [x] NTP peer information (via ntpstatus API)
+- [x] Offset calculation (ms to seconds conversion)
+- [x] Jitter calculation
+- [x] Stratum checking
+- [x] Truechimers count (*, +, - peers)
+- [x] Compatible with check_ntp_peer output format
+- [x] Threshold format: o=offset,s=stratum,j=jitter,t=truechimers
+- [x] Sync state checking (ENABLED/DISABLED)
+- [x] Peer list parsing
+- [x] Performance data output
+- [x] WARNING/CRITICAL threshold checking
 
-**File:** `check_netscaler/commands/ntp.py`
+**File:** ✅ `check_netscaler/commands/ntp.py`
 
 ##### 2.14 `debug` Command ✅ DONE
 **Raw API output for debugging**
