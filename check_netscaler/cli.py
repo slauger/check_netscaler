@@ -178,6 +178,10 @@ def main(args: Optional[List[str]] = None) -> int:
             if parsed_args.command == "state":
                 command = StateCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command in ["above", "below"]:
+                from check_netscaler.commands.threshold import ThresholdCommand
+                command = ThresholdCommand(client, parsed_args)
+                result = command.execute()
             else:
                 print(f"UNKNOWN - Command '{parsed_args.command}' not yet implemented")
                 return STATE_UNKNOWN
