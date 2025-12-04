@@ -6,15 +6,15 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 
 **Code:**
 - ~3000 lines of Python code
-- 195 tests passing
-- **9 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`**
+- 227 tests passing
+- **10 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~60% of commands implemented (9/15)
+**Progress:** ~67% of commands implemented (10/15)
 
 ## 🎯 Implementation Tasks
 
@@ -114,15 +114,18 @@ All commands from the Perl script need to be ported to Python.
 
 #### Priority: MEDIUM
 
-##### 2.5 `hastatus` Command
+##### 2.5 `hastatus` Command ✅ DONE
 **High Availability monitoring**
 
-- [ ] HA node status retrieval
-- [ ] HA state checking (PRIMARY, SECONDARY)
-- [ ] Sync status
-- [ ] Failover detection
+- [x] HA node status retrieval
+- [x] HA state checking (PRIMARY, SECONDARY)
+- [x] Sync status
+- [x] Failover detection
+- [x] State mappings for hacurmasterstate and hacurstate
+- [x] Sync failure and propagation timeout monitoring
+- [x] Performance data for packet statistics
 
-**File:** `check_netscaler/commands/hastatus.py`
+**File:** ✅ `check_netscaler/commands/hastatus.py`
 
 ##### 2.6 `servicegroup` Command ✅ DONE
 **ServiceGroup with member quorum**
