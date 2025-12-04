@@ -5,16 +5,16 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- ~2900 lines of Python code
-- 174 tests passing
-- **8 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`**
+- ~3000 lines of Python code
+- 195 tests passing
+- **9 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~53% of commands implemented (8/15)
+**Progress:** ~60% of commands implemented (9/15)
 
 ## 🎯 Implementation Tasks
 
@@ -193,14 +193,16 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** `check_netscaler/commands/license.py`
 
-##### 2.12 `staserver` Command
+##### 2.12 `staserver` Command ✅ DONE
 **STA server availability check**
 
-- [ ] STA server list retrieval
-- [ ] Server state checking
-- [ ] Filter by vServer name
+- [x] STA server list retrieval
+- [x] Server state checking (staauthid)
+- [x] Filter by vServer name
+- [x] Global and vServer-specific binding support
+- [x] Filter/limit regex support
 
-**File:** `check_netscaler/commands/staserver.py`
+**File:** ✅ `check_netscaler/commands/staserver.py`
 
 ##### 2.13 `ntp` Command
 **NTP synchronization status**
