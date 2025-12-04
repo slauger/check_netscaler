@@ -194,6 +194,10 @@ def main(args: Optional[List[str]] = None) -> int:
                 from check_netscaler.commands.sslcert import SSLCertCommand
                 command = SSLCertCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command == "servicegroup":
+                from check_netscaler.commands.servicegroup import ServiceGroupCommand
+                command = ServiceGroupCommand(client, parsed_args)
+                result = command.execute()
             elif parsed_args.command == "debug":
                 from check_netscaler.commands.debug import DebugCommand
                 command = DebugCommand(client, parsed_args)
