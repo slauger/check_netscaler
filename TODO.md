@@ -5,44 +5,45 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- 217 lines of Python code (CLI skeleton only)
-- 288 lines of test code (CLI tests)
-- **0 functional checks implemented**
+- ~2000 lines of Python code
+- 73 tests passing
+- **2 commands fully implemented: `state`, `above`/`below`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
+**Progress:** ~15% of commands implemented (2/15)
+
 ## 🎯 Implementation Tasks
 
 ### Phase 1: Core Infrastructure
 
-#### 1.1 NITRO API Client
-- [ ] HTTP client implementation (requests library)
-- [ ] Session management (login/logout)
-- [ ] Request handling (GET/POST)
-- [ ] Error handling and HTTP status codes
-- [ ] Timeout handling
-- [ ] SSL/TLS support
-- [ ] API version routing (v1, v2)
-- [ ] Endpoint routing (stat vs config)
+#### 1.1 NITRO API Client ✅ DONE
+- [x] HTTP client implementation (requests library)
+- [x] Session management (login/logout)
+- [x] Request handling (GET/POST)
+- [x] Error handling and HTTP status codes
+- [x] Timeout handling
+- [x] SSL/TLS support
+- [x] API version routing (v1, v2)
+- [x] Endpoint routing (stat vs config)
 
-**Files to create:**
-- `check_netscaler/client/nitro.py`
-- `check_netscaler/client/session.py`
-- `check_netscaler/client/exceptions.py`
+**Files:**
+- ✅ `check_netscaler/client/nitro.py`
+- ✅ `check_netscaler/client/session.py`
+- ✅ `check_netscaler/client/exceptions.py`
 
-#### 1.2 Nagios Output Formatter
-- [ ] Status line formatting (OK, WARNING, CRITICAL, UNKNOWN)
-- [ ] Performance data formatting (Nagios format)
-- [ ] Multi-line output support
-- [ ] Proper exit codes
-- [ ] Message aggregation for multiple objects
+#### 1.2 Nagios Output Formatter ✅ DONE
+- [x] Status line formatting (OK, WARNING, CRITICAL, UNKNOWN)
+- [x] Performance data formatting (Nagios format)
+- [x] Multi-line output support
+- [x] Proper exit codes
+- [x] Message aggregation for multiple objects
 
-**Files to create:**
-- `check_netscaler/output/nagios.py`
-- `check_netscaler/output/perfdata.py`
+**Files:**
+- ✅ `check_netscaler/output/nagios.py`
 
 #### 1.3 Mock NITRO Server
 - [ ] Mock HTTP server for testing
@@ -63,30 +64,32 @@ All commands from the Perl script need to be ported to Python.
 
 #### Priority: HIGH
 
-##### 2.1 `state` Command
+##### 2.1 `state` Command ✅ DONE
 **Most important check - 80% of use cases**
 
-- [ ] vServer state checking (lbvserver, vpnvserver, gslbvserver, csvserver, sslvserver, authenticationvserver)
-- [ ] Service state checking
-- [ ] ServiceGroup state checking
-- [ ] Server state checking
-- [ ] State aggregation (UP, DOWN, OUT OF SERVICE, etc.)
-- [ ] Performance data for active connections
+- [x] vServer state checking (lbvserver, vpnvserver, gslbvserver, csvserver, sslvserver, authenticationvserver)
+- [x] Service state checking
+- [x] ServiceGroup state checking
+- [x] Server state checking
+- [x] State aggregation (UP, DOWN, OUT OF SERVICE, etc.)
+- [x] Performance data for active connections
+- [x] Filter/limit regex support
 
-**File:** `check_netscaler/commands/state.py`
+**File:** ✅ `check_netscaler/commands/state.py`
 
-##### 2.2 `above` / `below` Commands
+##### 2.2 `above` / `below` Commands ✅ DONE
 **System resource monitoring**
 
-- [ ] Threshold comparison logic
-- [ ] Support for multiple fields (comma-separated)
-- [ ] Common checks:
+- [x] Threshold comparison logic
+- [x] Support for multiple fields (comma-separated)
+- [x] Common checks:
   - CPU usage (cpuusagepcnt, mgmtcpuusagepcnt)
   - Memory usage (memusagepcnt)
   - Disk usage (disk0perusage, disk1perusage)
-- [ ] Performance data output
+- [x] Performance data output
+- [x] Both above and below modes
 
-**File:** `check_netscaler/commands/threshold.py`
+**File:** ✅ `check_netscaler/commands/threshold.py`
 
 ##### 2.3 `sslcert` Command
 **SSL certificate expiration monitoring**
