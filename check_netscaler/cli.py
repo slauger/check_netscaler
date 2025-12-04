@@ -182,6 +182,10 @@ def main(args: Optional[List[str]] = None) -> int:
                 from check_netscaler.commands.threshold import ThresholdCommand
                 command = ThresholdCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command == "nsconfig":
+                from check_netscaler.commands.nsconfig import NSConfigCommand
+                command = NSConfigCommand(client, parsed_args)
+                result = command.execute()
             else:
                 print(f"UNKNOWN - Command '{parsed_args.command}' not yet implemented")
                 return STATE_UNKNOWN
