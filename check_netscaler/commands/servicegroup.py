@@ -1,16 +1,17 @@
 """
 ServiceGroup with member quorum monitoring command
 """
+
 from typing import Dict, List
 
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class ServiceGroupCommand(BaseCommand):
@@ -126,7 +127,7 @@ class ServiceGroupCommand(BaseCommand):
                 member_state_field = member.get("state", "UNKNOWN")
 
                 # Check member health - both state and svrstate must be healthy
-                is_healthy = (member_state_field == "ENABLED" and server_state == "UP")
+                is_healthy = member_state_field == "ENABLED" and server_state == "UP"
 
                 # Track member state for quorum calculation
                 member_states[server_name] = "UP" if is_healthy else "DOWN"
@@ -159,7 +160,9 @@ class ServiceGroupCommand(BaseCommand):
 
             # Build message
             sg_info = f"{sg_name} ({sg_type}) - state: {sg_effective_state}"
-            quorum_info = f"member quorum: {member_quorum:.2f}% (UP/DOWN): {members_up}/{members_down}"
+            quorum_info = (
+                f"member quorum: {member_quorum:.2f}% (UP/DOWN): {members_up}/{members_down}"
+            )
 
             message = f"{sg_info} - {quorum_info}"
 

@@ -1,12 +1,12 @@
 """
 Tests for matches/matches_not commands
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.matches import MatchesCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestMatchesCommand:
@@ -39,9 +39,7 @@ class TestMatchesCommand:
     def test_matches_critical(self):
         """Test matches when value equals critical"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "DOWN"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "DOWN"}}
 
         args = self.create_args()
         command = MatchesCommand(client, args)
@@ -53,9 +51,7 @@ class TestMatchesCommand:
     def test_matches_warning(self):
         """Test matches when value equals warning"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "SECONDARY"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "SECONDARY"}}
 
         args = self.create_args()
         command = MatchesCommand(client, args)
@@ -67,9 +63,7 @@ class TestMatchesCommand:
     def test_matches_ok(self):
         """Test matches when value doesn't match either threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "PRIMARY"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "PRIMARY"}}
 
         args = self.create_args()
         command = MatchesCommand(client, args)
@@ -84,9 +78,7 @@ class TestMatchesCommand:
     def test_matches_not_critical(self):
         """Test matches_not when value NOT equals critical"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "SECONDARY"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "SECONDARY"}}
 
         args = self.create_args(command="matches_not", critical="PRIMARY")
         command = MatchesCommand(client, args)
@@ -98,9 +90,7 @@ class TestMatchesCommand:
     def test_matches_not_warning(self):
         """Test matches_not when value NOT equals warning"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "PRIMARY"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "PRIMARY"}}
 
         args = self.create_args(command="matches_not", warning="SECONDARY", critical="PRIMARY")
         command = MatchesCommand(client, args)
@@ -114,9 +104,7 @@ class TestMatchesCommand:
     def test_matches_not_ok(self):
         """Test matches_not when value equals both thresholds"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "UP"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "UP"}}
 
         args = self.create_args(command="matches_not", warning="UP", critical="UP")
         command = MatchesCommand(client, args)
@@ -174,10 +162,7 @@ class TestMatchesCommand:
         }
 
         args = self.create_args(
-            objecttype="service",
-            objectname="svrstate",
-            critical="DOWN",
-            warning="OUT OF SERVICE"
+            objecttype="service", objectname="svrstate", critical="DOWN", warning="OUT OF SERVICE"
         )
         command = MatchesCommand(client, args)
         result = command.execute()
@@ -197,10 +182,7 @@ class TestMatchesCommand:
         }
 
         args = self.create_args(
-            objecttype="service",
-            objectname="svrstate",
-            critical="DOWN",
-            label="name"
+            objecttype="service", objectname="svrstate", critical="DOWN", label="name"
         )
         command = MatchesCommand(client, args)
         result = command.execute()
@@ -211,9 +193,7 @@ class TestMatchesCommand:
     def test_matches_empty_array(self):
         """Test matches with empty array"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "service": []
-        }
+        client.get_stat.return_value = {"service": []}
 
         args = self.create_args(objecttype="service", objectname="svrstate")
         command = MatchesCommand(client, args)
@@ -271,9 +251,7 @@ class TestMatchesCommand:
     def test_matches_field_not_found(self):
         """Test when field is not found in response"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "PRIMARY"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "PRIMARY"}}
 
         args = self.create_args(objectname="nonexistent")
         command = MatchesCommand(client, args)
@@ -309,16 +287,14 @@ class TestMatchesCommand:
     def test_matches_config_endpoint(self):
         """Test matches with config endpoint"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": {"configchanged": "false"}
-        }
+        client.get_config.return_value = {"nsconfig": {"configchanged": "false"}}
 
         args = self.create_args(
             endpoint="config",
             objecttype="nsconfig",
             objectname="configchanged",
             warning="unknown",
-            critical="true"
+            critical="true",
         )
         command = MatchesCommand(client, args)
         result = command.execute()
@@ -366,16 +342,9 @@ class TestMatchesCommand:
     def test_matches_numeric_value(self):
         """Test matches with numeric value converted to string"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": {"value": 42}
-        }
+        client.get_stat.return_value = {"system": {"value": 42}}
 
-        args = self.create_args(
-            objecttype="system",
-            objectname="value",
-            warning="0",
-            critical="42"
-        )
+        args = self.create_args(objecttype="system", objectname="value", warning="0", critical="42")
         command = MatchesCommand(client, args)
         result = command.execute()
 
@@ -385,9 +354,7 @@ class TestMatchesCommand:
     def test_matches_message_format(self):
         """Test that message format is correct"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "DOWN"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "DOWN"}}
 
         args = self.create_args()
         command = MatchesCommand(client, args)
@@ -400,9 +367,7 @@ class TestMatchesCommand:
     def test_matches_not_message_format(self):
         """Test that matches_not message format is correct"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": {"hacurstatus": "DOWN"}
-        }
+        client.get_stat.return_value = {"hanode": {"hacurstatus": "DOWN"}}
 
         args = self.create_args(command="matches_not", critical="UP")
         command = MatchesCommand(client, args)

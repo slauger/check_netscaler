@@ -1,12 +1,12 @@
 """
 Tests for servicegroup command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.servicegroup import ServiceGroupCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestServiceGroupCommand:
@@ -99,10 +99,34 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server2", "ip": "192.168.1.11", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server3", "ip": "192.168.1.12", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server4", "ip": "192.168.1.13", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server2",
+                            "ip": "192.168.1.11",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server3",
+                            "ip": "192.168.1.12",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server4",
+                            "ip": "192.168.1.13",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
                     ]
                 }
 
@@ -136,10 +160,34 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server2", "ip": "192.168.1.11", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
-                        {"servername": "server3", "ip": "192.168.1.12", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
-                        {"servername": "server4", "ip": "192.168.1.13", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server2",
+                            "ip": "192.168.1.11",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
+                        {
+                            "servername": "server3",
+                            "ip": "192.168.1.12",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
+                        {
+                            "servername": "server4",
+                            "ip": "192.168.1.13",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
                     ]
                 }
 
@@ -173,7 +221,13 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
                     ]
                 }
 
@@ -206,7 +260,13 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
                     ]
                 }
 
@@ -238,8 +298,20 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server2", "ip": "192.168.1.11", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server2",
+                            "ip": "192.168.1.11",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
                     ]
                 }
 
@@ -372,7 +444,13 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "DISABLED", "svrstate": "UP"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "DISABLED",
+                            "svrstate": "UP",
+                        },
                     ]
                 }
 
@@ -454,8 +532,20 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server2", "ip": "192.168.1.11", "port": "8080", "state": "ENABLED", "svrstate": "DOWN"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server2",
+                            "ip": "192.168.1.11",
+                            "port": "8080",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
                     ]
                 }
 
@@ -491,7 +581,13 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
                     ]
                 }
 
@@ -522,9 +618,27 @@ class TestServiceGroupCommand:
             elif objecttype == "servicegroup_servicegroupmember_binding":
                 return {
                     "servicegroup_servicegroupmember_binding": [
-                        {"servername": "server1", "ip": "192.168.1.10", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server2", "ip": "192.168.1.11", "port": "80", "state": "ENABLED", "svrstate": "UP"},
-                        {"servername": "server3", "ip": "192.168.1.12", "port": "80", "state": "ENABLED", "svrstate": "DOWN"},
+                        {
+                            "servername": "server1",
+                            "ip": "192.168.1.10",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server2",
+                            "ip": "192.168.1.11",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "UP",
+                        },
+                        {
+                            "servername": "server3",
+                            "ip": "192.168.1.12",
+                            "port": "80",
+                            "state": "ENABLED",
+                            "svrstate": "DOWN",
+                        },
                     ]
                 }
 

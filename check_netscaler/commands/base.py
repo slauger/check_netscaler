@@ -1,9 +1,10 @@
 """
 Base class for all check commands
 """
+
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
 from argparse import Namespace
+from typing import Any, Dict, List, Optional
 
 from check_netscaler.client import NITROClient
 

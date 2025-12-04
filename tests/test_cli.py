@@ -1,12 +1,10 @@
 """
 Tests for CLI argument parsing and basic functionality
 """
+
 import pytest
-import sys
-from io import StringIO
 
 from check_netscaler.cli import create_parser, main
-from check_netscaler.constants import STATE_UNKNOWN
 
 
 class TestArgumentParser:
@@ -56,12 +54,9 @@ class TestArgumentParser:
     def test_custom_credentials(self):
         """Test custom username and password"""
         parser = create_parser()
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "state",
-            "-u", "admin",
-            "-p", "secret"
-        ])
+        args = parser.parse_args(
+            ["-H", "192.168.1.1", "-C", "state", "-u", "admin", "-p", "secret"]
+        )
 
         assert args.username == "admin"
         assert args.password == "secret"
@@ -69,11 +64,7 @@ class TestArgumentParser:
     def test_custom_port(self):
         """Test custom port"""
         parser = create_parser()
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "state",
-            "-P", "8080"
-        ])
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state", "-P", "8080"])
 
         assert args.port == 8080
 
@@ -81,9 +72,22 @@ class TestArgumentParser:
         """Test valid command choices"""
         parser = create_parser()
         valid_commands = [
-            "state", "sslcert", "above", "below", "matches", "matches_not",
-            "nsconfig", "hastatus", "servicegroup", "hwinfo", "interfaces",
-            "perfdata", "license", "staserver", "ntp", "debug"
+            "state",
+            "sslcert",
+            "above",
+            "below",
+            "matches",
+            "matches_not",
+            "nsconfig",
+            "hastatus",
+            "servicegroup",
+            "hwinfo",
+            "interfaces",
+            "perfdata",
+            "license",
+            "staserver",
+            "ntp",
+            "debug",
         ]
 
         for cmd in valid_commands:
@@ -100,12 +104,9 @@ class TestArgumentParser:
     def test_objecttype_and_objectname(self):
         """Test objecttype and objectname arguments"""
         parser = create_parser()
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "state",
-            "-o", "lbvserver",
-            "-n", "my_vserver"
-        ])
+        args = parser.parse_args(
+            ["-H", "192.168.1.1", "-C", "state", "-o", "lbvserver", "-n", "my_vserver"]
+        )
 
         assert args.objecttype == "lbvserver"
         assert args.objectname == "my_vserver"
@@ -113,12 +114,7 @@ class TestArgumentParser:
     def test_thresholds(self):
         """Test warning and critical thresholds"""
         parser = create_parser()
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "above",
-            "-w", "75",
-            "-c", "90"
-        ])
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "above", "-w", "75", "-c", "90"])
 
         assert args.warning == "75"
         assert args.critical == "90"
@@ -142,12 +138,9 @@ class TestArgumentParser:
     def test_filter_and_limit(self):
         """Test filter and limit options"""
         parser = create_parser()
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "interfaces",
-            "-f", "(LO.1|0.1)",
-            "-l", "(0.2|0.3)"
-        ])
+        args = parser.parse_args(
+            ["-H", "192.168.1.1", "-C", "interfaces", "-f", "(LO.1|0.1)", "-l", "(0.2|0.3)"]
+        )
 
         assert args.filter == "(LO.1|0.1)"
         assert args.limit == "(0.2|0.3)"
@@ -161,11 +154,7 @@ class TestArgumentParser:
         assert args.separator == "."
 
         # Custom separator
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "state",
-            "--separator", "_"
-        ])
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state", "--separator", "_"])
         assert args.separator == "_"
 
     def test_api_version(self):
@@ -177,11 +166,7 @@ class TestArgumentParser:
         assert args.api == "v1"
 
         # Custom version
-        args = parser.parse_args([
-            "-H", "192.168.1.1",
-            "-C", "state",
-            "-a", "v2"
-        ])
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state", "-a", "v2"])
         assert args.api == "v2"
 
 
@@ -197,7 +182,7 @@ class TestMainFunction:
         """Test that unimplemented commands return UNKNOWN"""
         # Use a fictitious command that doesn't exist
         # Note: All original commands are now implemented!
-        from unittest.mock import patch, Mock
+        from unittest.mock import Mock
 
         mock_client_class = Mock()
         mock_client = Mock()

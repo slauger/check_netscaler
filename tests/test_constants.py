@@ -1,16 +1,17 @@
 """
 Tests for constants module
 """
+
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
-    STATE_CRITICAL,
-    STATE_UNKNOWN,
-    STATE_NAMES,
-    DEFAULT_USERNAME,
+    DEFAULT_API_VERSION,
     DEFAULT_PASSWORD,
     DEFAULT_TIMEOUT,
-    DEFAULT_API_VERSION,
+    DEFAULT_USERNAME,
+    STATE_CRITICAL,
+    STATE_NAMES,
+    STATE_OK,
+    STATE_UNKNOWN,
+    STATE_WARNING,
 )
 
 

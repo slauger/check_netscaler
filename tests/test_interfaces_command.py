@@ -1,12 +1,12 @@
 """
 Tests for interfaces command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.interfaces import InterfacesCommand
-from check_netscaler.constants import STATE_OK, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN
 
 
 class TestInterfacesCommand:
@@ -165,7 +165,7 @@ class TestInterfacesCommand:
                     "actualmtu": "1500",
                     "vlan": "2",
                     "intftype": "Ethernet",
-                }
+                },
             ]
         }
 
@@ -201,7 +201,7 @@ class TestInterfacesCommand:
                     "actualmtu": "1500",
                     "vlan": "2",
                     "intftype": "Ethernet",
-                }
+                },
             ]
         }
 
@@ -265,7 +265,7 @@ class TestInterfacesCommand:
                     "actualmtu": "1500",
                     "vlan": "2",
                     "intftype": "Ethernet",
-                }
+                },
             ]
         }
 
@@ -303,7 +303,7 @@ class TestInterfacesCommand:
                     "actualmtu": "1500",
                     "vlan": "2",
                     "intftype": "Ethernet",
-                }
+                },
             ]
         }
 
@@ -651,7 +651,7 @@ class TestInterfacesCommand:
                 {
                     "devicename": "0/1",
                     "linkstate": "1",  # Already a string
-                    "intfstate": 1,     # As integer
+                    "intfstate": 1,  # As integer
                     "state": "ENABLED",
                     "actspeed": "1000",
                     "actualmtu": "1500",

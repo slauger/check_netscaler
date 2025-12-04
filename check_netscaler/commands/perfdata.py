@@ -1,14 +1,15 @@
 """
 Generic performance data collection command
 """
-from typing import Dict, List
 
+from typing import Dict
+
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
     STATE_OK,
     STATE_UNKNOWN,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class PerfdataCommand(BaseCommand):
@@ -81,7 +82,6 @@ class PerfdataCommand(BaseCommand):
 
             # Collect performance data
             perfdata: Dict[str, float] = {}
-            messages: List[str] = []
 
             for idx, obj in enumerate(response):
                 # Determine label for this object

@@ -1,10 +1,10 @@
 """
 Tests for debug command
 """
-import pytest
+
 import json
-from unittest.mock import Mock
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.debug import DebugCommand
 from check_netscaler.constants import STATE_OK, STATE_UNKNOWN
@@ -245,10 +245,7 @@ class TestDebugCommand:
         client = self.create_mock_client()
         # Create a response with many items
         test_data = {
-            "service": [
-                {"name": f"service{i}", "state": "UP", "port": 80 + i}
-                for i in range(100)
-            ]
+            "service": [{"name": f"service{i}", "state": "UP", "port": 80 + i} for i in range(100)]
         }
         client.get_stat.return_value = test_data
 

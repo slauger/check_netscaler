@@ -1,12 +1,12 @@
 """
 Tests for staserver command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.staserver import STAServerCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestSTAServerCommand:
@@ -141,10 +141,7 @@ class TestSTAServerCommand:
         """Test when single STA server is returned as dict instead of list"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "vpnglobal_staserver_binding": {
-                "staserver": "sta1.example.com",
-                "staauthid": "auth123"
-            }
+            "vpnglobal_staserver_binding": {"staserver": "sta1.example.com", "staauthid": "auth123"}
         }
 
         args = self.create_args()
@@ -157,9 +154,7 @@ class TestSTAServerCommand:
     def test_no_staservers_found(self):
         """Test when no STA servers are found"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "vpnglobal_staserver_binding": []
-        }
+        client.get_config.return_value = {"vpnglobal_staserver_binding": []}
 
         args = self.create_args()
         command = STAServerCommand(client, args)

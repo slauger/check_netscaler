@@ -1,17 +1,19 @@
 """
 NITRO API client for NetScaler
 """
-import requests
-from typing import Optional, Dict, Any, List
 
-from check_netscaler.client.session import NITROSession
+from typing import Any, Dict, Optional
+
+import requests
+
 from check_netscaler.client.exceptions import (
     NITROAPIError,
     NITROConnectionError,
-    NITROTimeoutError,
-    NITROResourceNotFoundError,
     NITROPermissionError,
+    NITROResourceNotFoundError,
+    NITROTimeoutError,
 )
+from check_netscaler.client.session import NITROSession
 
 
 class NITROClient:
@@ -114,9 +116,7 @@ class NITROClient:
                 )
 
             if response.status_code == 403:
-                raise NITROPermissionError(
-                    f"Insufficient permissions to access {resource_type}"
-                )
+                raise NITROPermissionError(f"Insufficient permissions to access {resource_type}")
 
             if response.status_code >= 400:
                 raise NITROAPIError(
@@ -140,11 +140,11 @@ class NITROClient:
             return data
 
         except requests.exceptions.Timeout as e:
-            raise NITROTimeoutError(f"Request timed out: {e}")
+            raise NITROTimeoutError(f"Request timed out: {e}") from e
         except requests.exceptions.ConnectionError as e:
-            raise NITROConnectionError(f"Connection failed: {e}")
+            raise NITROConnectionError(f"Connection failed: {e}") from e
         except requests.exceptions.RequestException as e:
-            raise NITROConnectionError(f"Request failed: {e}")
+            raise NITROConnectionError(f"Request failed: {e}") from e
 
     def get_stat(
         self,

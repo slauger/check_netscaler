@@ -1,16 +1,17 @@
 """
 String matching command - matches and matches_not
 """
-from typing import List, Dict, Any
 
+from typing import Any, Dict, List
+
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class MatchesCommand(BaseCommand):
@@ -95,8 +96,7 @@ class MatchesCommand(BaseCommand):
 
                     value = str(response[field])
                     status, msg = self._check_value(
-                        mode, field, value, objecttype,
-                        self.args.warning, self.args.critical
+                        mode, field, value, objecttype, self.args.warning, self.args.critical
                     )
 
                     if status > worst_status:
@@ -126,8 +126,7 @@ class MatchesCommand(BaseCommand):
                         description = f"{objecttype}.{field}[{label}]"
 
                         status, msg = self._check_value_with_desc(
-                            mode, description, value,
-                            self.args.warning, self.args.critical
+                            mode, description, value, self.args.warning, self.args.critical
                         )
 
                         if status > worst_status:
@@ -140,7 +139,6 @@ class MatchesCommand(BaseCommand):
                 )
 
             # Build final message
-            separator = getattr(self.args, "separator", ".")
             final_message = f"keyword {mode}: " + "; ".join(messages)
 
             return CheckResult(
@@ -167,8 +165,7 @@ class MatchesCommand(BaseCommand):
         return str(idx)
 
     def _check_value(
-        self, mode: str, field: str, value: str,
-        objecttype: str, warning: str, critical: str
+        self, mode: str, field: str, value: str, objecttype: str, warning: str, critical: str
     ) -> tuple:
         """Check a single value and return status and message"""
         separator = getattr(self.args, "separator", ".")
@@ -176,41 +173,22 @@ class MatchesCommand(BaseCommand):
         return self._check_value_with_desc(mode, description, value, warning, critical)
 
     def _check_value_with_desc(
-        self, mode: str, description: str, value: str,
-        warning: str, critical: str
+        self, mode: str, description: str, value: str, warning: str, critical: str
     ) -> tuple:
         """Check a value with description and return status and message"""
         if mode == "matches":
             # matches: value EQUALS critical/warning → CRITICAL/WARNING
             if value == critical:
-                return (
-                    STATE_CRITICAL,
-                    f'{description}: "{value}" {mode} keyword "{critical}"'
-                )
+                return (STATE_CRITICAL, f'{description}: "{value}" {mode} keyword "{critical}"')
             elif value == warning:
-                return (
-                    STATE_WARNING,
-                    f'{description}: "{value}" {mode} keyword "{warning}"'
-                )
+                return (STATE_WARNING, f'{description}: "{value}" {mode} keyword "{warning}"')
             else:
-                return (
-                    STATE_OK,
-                    f'{description}: "{value}"'
-                )
+                return (STATE_OK, f'{description}: "{value}"')
         else:  # matches_not
             # matches_not: value NOT EQUALS critical/warning → CRITICAL/WARNING
             if value != critical:
-                return (
-                    STATE_CRITICAL,
-                    f'{description}: "{value}" {mode} keyword "{critical}"'
-                )
+                return (STATE_CRITICAL, f'{description}: "{value}" {mode} keyword "{critical}"')
             elif value != warning:
-                return (
-                    STATE_WARNING,
-                    f'{description}: "{value}" {mode} keyword "{warning}"'
-                )
+                return (STATE_WARNING, f'{description}: "{value}" {mode} keyword "{warning}"')
             else:
-                return (
-                    STATE_OK,
-                    f'{description}: "{value}"'
-                )
+                return (STATE_OK, f'{description}: "{value}"')

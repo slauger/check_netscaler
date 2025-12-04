@@ -1,16 +1,17 @@
 """
 Command-line interface for check_netscaler
 """
+
 import argparse
 import sys
 from typing import List, Optional
 
 from check_netscaler import __version__
 from check_netscaler.constants import (
-    DEFAULT_USERNAME,
+    DEFAULT_API_VERSION,
     DEFAULT_PASSWORD,
     DEFAULT_TIMEOUT,
-    DEFAULT_API_VERSION,
+    DEFAULT_USERNAME,
     STATE_UNKNOWN,
 )
 
@@ -25,50 +26,58 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Version
     parser.add_argument(
-        "-V", "--version",
+        "-V",
+        "--version",
         action="version",
         version=f"%(prog)s {__version__}",
     )
 
     # Connection arguments
     parser.add_argument(
-        "-H", "--hostname",
+        "-H",
+        "--hostname",
         required=True,
         help="Hostname or IP address of the NetScaler appliance",
     )
 
     parser.add_argument(
-        "-u", "--username",
+        "-u",
+        "--username",
         default=DEFAULT_USERNAME,
         help=f"Username for authentication (default: {DEFAULT_USERNAME})",
     )
 
     parser.add_argument(
-        "-p", "--password",
+        "-p",
+        "--password",
         default=DEFAULT_PASSWORD,
         help=f"Password for authentication (default: {DEFAULT_PASSWORD})",
     )
 
     parser.add_argument(
-        "-s", "--ssl",
+        "-s",
+        "--ssl",
         action="store_true",
         help="Use HTTPS instead of HTTP",
     )
 
     parser.add_argument(
-        "-P", "--port",
+        "-P",
+        "--port",
         type=int,
         help="TCP port to connect to (default: 80 for HTTP, 443 for HTTPS)",
     )
 
     parser.add_argument(
-        "-a", "--api",
+        "-a",
+        "--api",
         default=DEFAULT_API_VERSION,
         help=f"NITRO API version (default: {DEFAULT_API_VERSION})",
     )
 
     parser.add_argument(
-        "-t", "--timeout",
+        "-t",
+        "--timeout",
         type=int,
         default=DEFAULT_TIMEOUT,
         help=f"Connection timeout in seconds (default: {DEFAULT_TIMEOUT})",
@@ -76,56 +85,78 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Check command arguments
     parser.add_argument(
-        "-C", "--command",
+        "-C",
+        "--command",
         required=True,
         choices=[
-            "state", "sslcert", "above", "below", "matches", "matches_not",
-            "nsconfig", "hastatus", "servicegroup", "hwinfo", "interfaces",
-            "perfdata", "license", "staserver", "ntp", "debug"
+            "state",
+            "sslcert",
+            "above",
+            "below",
+            "matches",
+            "matches_not",
+            "nsconfig",
+            "hastatus",
+            "servicegroup",
+            "hwinfo",
+            "interfaces",
+            "perfdata",
+            "license",
+            "staserver",
+            "ntp",
+            "debug",
         ],
         help="Check command to execute",
     )
 
     parser.add_argument(
-        "-o", "--objecttype",
+        "-o",
+        "--objecttype",
         help="Object type to check (e.g., lbvserver, service, servicegroup)",
     )
 
     parser.add_argument(
-        "-n", "--objectname",
+        "-n",
+        "--objectname",
         help="Filter by specific object name",
     )
 
     parser.add_argument(
-        "-e", "--endpoint",
+        "-e",
+        "--endpoint",
         choices=["stat", "config"],
         help="API endpoint type (stat or config)",
     )
 
     # Threshold arguments
     parser.add_argument(
-        "-w", "--warning",
+        "-w",
+        "--warning",
         help="Warning threshold",
     )
 
     parser.add_argument(
-        "-c", "--critical",
+        "-c",
+        "--critical",
         help="Critical threshold",
     )
 
     # Additional options
     parser.add_argument(
-        "-f", "--filter",
+        "-f",
+        "--filter",
         help="Filter objects using regular expression",
     )
 
     parser.add_argument(
-        "-l", "--limit",
+        "-l",
+        "--limit",
         help="Limit check to objects matching pattern (regex)",
     )
 
     parser.add_argument(
-        "-L", "--label",
+        "-L",
+        "--label",
         help="Field name to use as label in output",
     )
 
@@ -136,12 +167,14 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-x", "--urlopts",
+        "-x",
+        "--urlopts",
         help="Additional URL options for API requests",
     )
 
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="count",
         default=0,
         help="Increase output verbosity (can be repeated)",
@@ -180,54 +213,67 @@ def main(args: Optional[List[str]] = None) -> int:
                 result = command.execute()
             elif parsed_args.command in ["above", "below"]:
                 from check_netscaler.commands.threshold import ThresholdCommand
+
                 command = ThresholdCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "nsconfig":
                 from check_netscaler.commands.nsconfig import NSConfigCommand
+
                 command = NSConfigCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "hwinfo":
                 from check_netscaler.commands.hwinfo import HWInfoCommand
+
                 command = HWInfoCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "sslcert":
                 from check_netscaler.commands.sslcert import SSLCertCommand
+
                 command = SSLCertCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "servicegroup":
                 from check_netscaler.commands.servicegroup import ServiceGroupCommand
+
                 command = ServiceGroupCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command in ["matches", "matches_not"]:
                 from check_netscaler.commands.matches import MatchesCommand
+
                 command = MatchesCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "staserver":
                 from check_netscaler.commands.staserver import STAServerCommand
+
                 command = STAServerCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "hastatus":
                 from check_netscaler.commands.hastatus import HAStatusCommand
+
                 command = HAStatusCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "license":
                 from check_netscaler.commands.license import LicenseCommand
+
                 command = LicenseCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "interfaces":
                 from check_netscaler.commands.interfaces import InterfacesCommand
+
                 command = InterfacesCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "perfdata":
                 from check_netscaler.commands.perfdata import PerfdataCommand
+
                 command = PerfdataCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "ntp":
                 from check_netscaler.commands.ntp import NTPCommand
+
                 command = NTPCommand(client, parsed_args)
                 result = command.execute()
             elif parsed_args.command == "debug":
                 from check_netscaler.commands.debug import DebugCommand
+
                 command = DebugCommand(client, parsed_args)
                 result = command.execute()
             else:
@@ -253,6 +299,7 @@ def main(args: Optional[List[str]] = None) -> int:
         print(f"UNKNOWN - Unexpected error: {e}")
         if parsed_args.verbose > 0:
             import traceback
+
             traceback.print_exc()
         return STATE_UNKNOWN
 

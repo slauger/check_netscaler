@@ -1,17 +1,17 @@
 """
 NTP synchronization status check command
 """
-import re
-from typing import Dict, Optional
 
+from typing import Dict
+
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class NTPCommand(BaseCommand):

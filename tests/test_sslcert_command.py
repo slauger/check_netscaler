@@ -1,12 +1,12 @@
 """
 Tests for sslcert command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.sslcert import SSLCertCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestSSLCertCommand:

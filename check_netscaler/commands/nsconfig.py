@@ -1,15 +1,14 @@
 """
 NS Config check command - detects unsaved configuration changes
 """
-from typing import Dict, Any
 
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
     STATE_OK,
-    STATE_WARNING,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class NSConfigCommand(BaseCommand):

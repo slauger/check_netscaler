@@ -2,17 +2,17 @@
 Threshold check commands - above and below
 Used for monitoring system resources like CPU, memory, disk usage
 """
-from typing import Dict, Any, List, Optional
-import re
 
+from typing import Any, Dict, List
+
+from check_netscaler.client.exceptions import NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROResourceNotFoundError
 
 
 class ThresholdCommand(BaseCommand):
@@ -30,7 +30,6 @@ class ThresholdCommand(BaseCommand):
             CheckResult with threshold evaluation
         """
         objecttype = self.args.objecttype
-        objectname = self.args.objectname
         field_names = self.args.objectname  # Field names are passed via -n/--objectname
         warning = self.args.warning
         critical = self.args.critical

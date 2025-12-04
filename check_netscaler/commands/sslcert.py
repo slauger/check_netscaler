@@ -1,17 +1,18 @@
 """
 SSL certificate expiration monitoring command
 """
-import re
-from typing import List, Dict, Any
 
+import re
+from typing import List
+
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class SSLCertCommand(BaseCommand):
@@ -144,7 +145,9 @@ class SSLCertCommand(BaseCommand):
                 status = STATE_OK
                 message = "certificate lifetime OK"
                 if total_checked > 0:
-                    message = f"{total_checked} certificate(s) OK (warn={warning}d, crit={critical}d)"
+                    message = (
+                        f"{total_checked} certificate(s) OK (warn={warning}d, crit={critical}d)"
+                    )
 
             # Build long output if there are issues
             long_output: List[str] = []

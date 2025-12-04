@@ -1,7 +1,8 @@
 """
 Nagios/Icinga plugin output formatter
 """
-from typing import Dict, Any, List, Optional
+
+from typing import Any, Dict, List, Optional
 
 from check_netscaler.constants import STATE_NAMES
 

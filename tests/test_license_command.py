@@ -1,14 +1,14 @@
 """
 Tests for license command
 """
-import pytest
+
 import base64
-from unittest.mock import Mock
 from argparse import Namespace
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+from unittest.mock import Mock
 
 from check_netscaler.commands.license import LicenseCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestLicenseCommand:
@@ -60,11 +60,15 @@ class TestLicenseCommand:
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
             # Second call: get license content
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("CNS_V1000_ServerPlatinum", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("CNS_V1000_ServerPlatinum", expiry_str)]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -84,11 +88,15 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("CNS_V1000_ServerPlatinum", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("CNS_V1000_ServerPlatinum", expiry_str)]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -108,11 +116,15 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("CNS_V1000_ServerPlatinum", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("CNS_V1000_ServerPlatinum", expiry_str)]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -128,11 +140,15 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("CNS_V1000_ServerPlatinum", "permanent")
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("CNS_V1000_ServerPlatinum", "permanent")]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -151,13 +167,19 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("CNS_V1000_ServerPlatinum", expiry_str),
-                    ("CNS_SSLVPN_CONCURRENT_USERS_5000", expiry_str),
-                    ("CNS_AppFW", "permanent")
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [
+                                ("CNS_V1000_ServerPlatinum", expiry_str),
+                                ("CNS_SSLVPN_CONCURRENT_USERS_5000", expiry_str),
+                                ("CNS_AppFW", "permanent"),
+                            ]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -180,12 +202,15 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", ok_str),
-                    ("Feature2", warning_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("Feature1", ok_str), ("Feature2", warning_str)]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -207,12 +232,15 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", ok_str),
-                    ("Feature2", critical_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {
+                        "filecontent": self.create_license_content(
+                            [("Feature1", ok_str), ("Feature2", critical_str)]
+                        )
+                    }
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -235,11 +263,11 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args(warning="50", critical="25")
@@ -257,11 +285,7 @@ class TestLicenseCommand:
 
         # Only one call - directly fetch the specified file
         client.get_config.return_value = {
-            "systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]
+            "systemfile": [{"filecontent": self.create_license_content([("Feature1", expiry_str)])}]
         }
 
         args = self.create_args(objectname="specific.lic")
@@ -281,16 +305,16 @@ class TestLicenseCommand:
 
         # Multiple files specified via objectname
         client.get_config.side_effect = [
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature2", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature2", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args(objectname="file1.lic,file2.lic")
@@ -322,7 +346,7 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": encoded}]}
+            {"systemfile": [{"filecontent": encoded}]},
         ]
 
         args = self.create_args()
@@ -338,7 +362,7 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": ""}]}
+            {"systemfile": [{"filecontent": ""}]},
         ]
 
         args = self.create_args()
@@ -354,7 +378,7 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": "invalid!!!base64"}]}
+            {"systemfile": [{"filecontent": "invalid!!!base64"}]},
         ]
 
         args = self.create_args()
@@ -373,7 +397,7 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": encoded}]}
+            {"systemfile": [{"filecontent": encoded}]},
         ]
 
         args = self.create_args()
@@ -448,11 +472,11 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": {"filename": "license.lic"}},  # Dict instead of list
-            {"systemfile": {
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }}
+            {
+                "systemfile": {
+                    "filecontent": self.create_license_content([("Feature1", expiry_str)])
+                }
+            },
         ]
 
         args = self.create_args()
@@ -470,21 +494,23 @@ class TestLicenseCommand:
         expiry_str = future_date.strftime("%d-%b-%Y").lower()
 
         client.get_config.side_effect = [
-            {"systemfile": [
-                {"filename": "license.lic"},
-                {"filename": "readme.txt"},  # Should be filtered out
-                {"filename": "backup.lic"}
-            ]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature2", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filename": "license.lic"},
+                    {"filename": "readme.txt"},  # Should be filtered out
+                    {"filename": "backup.lic"},
+                ]
+            },
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature2", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -518,7 +544,7 @@ class TestLicenseCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            NITROAPIError("API Error reading file")
+            NITROAPIError("API Error reading file"),
         ]
 
         args = self.create_args()
@@ -549,11 +575,11 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -575,11 +601,11 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args()
@@ -599,11 +625,11 @@ class TestLicenseCommand:
 
         client.get_config.side_effect = [
             {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{
-                "filecontent": self.create_license_content([
-                    ("Feature1", expiry_str)
-                ])
-            }]}
+            {
+                "systemfile": [
+                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
+                ]
+            },
         ]
 
         args = self.create_args()

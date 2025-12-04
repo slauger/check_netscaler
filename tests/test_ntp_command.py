@@ -1,12 +1,12 @@
 """
 Tests for ntp command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.ntp import NTPCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestNTPCommand:
@@ -28,7 +28,9 @@ class TestNTPCommand:
         defaults.update(kwargs)
         return Namespace(**defaults)
 
-    def create_ntp_response(self, synced_source="192.168.1.1", stratum=2, offset=5.0, jitter=2.5, truechimers=3):
+    def create_ntp_response(
+        self, synced_source="192.168.1.1", stratum=2, offset=5.0, jitter=2.5, truechimers=3
+    ):
         """Create mock NTP status response"""
         response = """     remote           refid      st t when poll reach   delay   offset  jitter
 ==============================================================================
@@ -47,7 +49,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response()}}
+            {"ntpstatus": {"response": self.create_ntp_response()}},
         ]
 
         args = self.create_args()
@@ -87,7 +89,7 @@ class TestNTPCommand:
 """
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": response}}
+            {"ntpstatus": {"response": response}},
         ]
 
         args = self.create_args()
@@ -102,7 +104,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=35.0)}}  # 35ms
+            {"ntpstatus": {"response": self.create_ntp_response(offset=35.0)}},  # 35ms
         ]
 
         # Warning at 30ms (0.03s)
@@ -119,7 +121,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=55.0)}}  # 55ms
+            {"ntpstatus": {"response": self.create_ntp_response(offset=55.0)}},  # 55ms
         ]
 
         # Critical at 50ms (0.05s)
@@ -135,7 +137,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=-35.0)}}
+            {"ntpstatus": {"response": self.create_ntp_response(offset=-35.0)}},
         ]
 
         args = self.create_args(warning="o=0.03")
@@ -150,7 +152,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(jitter=150.0)}}
+            {"ntpstatus": {"response": self.create_ntp_response(jitter=150.0)}},
         ]
 
         # Warning at 100ms
@@ -166,7 +168,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(jitter=250.0)}}
+            {"ntpstatus": {"response": self.create_ntp_response(jitter=250.0)}},
         ]
 
         args = self.create_args(critical="j=200")
@@ -181,7 +183,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(stratum=5)}}
+            {"ntpstatus": {"response": self.create_ntp_response(stratum=5)}},
         ]
 
         # Warning if stratum > 3
@@ -197,7 +199,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(stratum=10)}}
+            {"ntpstatus": {"response": self.create_ntp_response(stratum=10)}},
         ]
 
         args = self.create_args(critical="s=5")
@@ -212,7 +214,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(truechimers=2)}}
+            {"ntpstatus": {"response": self.create_ntp_response(truechimers=2)}},
         ]
 
         # Warning if truechimers <= 3
@@ -228,7 +230,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(truechimers=1)}}
+            {"ntpstatus": {"response": self.create_ntp_response(truechimers=1)}},
         ]
 
         args = self.create_args(critical="t=2")
@@ -243,7 +245,13 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=35.0, jitter=150.0, stratum=5, truechimers=2)}}
+            {
+                "ntpstatus": {
+                    "response": self.create_ntp_response(
+                        offset=35.0, jitter=150.0, stratum=5, truechimers=2
+                    )
+                }
+            },
         ]
 
         # Multiple warnings
@@ -260,7 +268,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=55.0, jitter=150.0)}}
+            {"ntpstatus": {"response": self.create_ntp_response(offset=55.0, jitter=150.0)}},
         ]
 
         # Offset critical, jitter warning
@@ -277,7 +285,13 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=5.0, jitter=2.5, stratum=2, truechimers=3)}}
+            {
+                "ntpstatus": {
+                    "response": self.create_ntp_response(
+                        offset=5.0, jitter=2.5, stratum=2, truechimers=3
+                    )
+                }
+            },
         ]
 
         args = self.create_args()
@@ -295,7 +309,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": [{"state": "ENABLED"}]},
-            {"ntpstatus": {"response": self.create_ntp_response()}}
+            {"ntpstatus": {"response": self.create_ntp_response()}},
         ]
 
         args = self.create_args()
@@ -309,7 +323,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": [{"response": self.create_ntp_response()}]}
+            {"ntpstatus": [{"response": self.create_ntp_response()}]},
         ]
 
         args = self.create_args()
@@ -333,10 +347,7 @@ class TestNTPCommand:
     def test_ntp_ntpstatus_not_found(self):
         """Test when ntpstatus is not in API response"""
         client = self.create_mock_client()
-        client.get_config.side_effect = [
-            {"ntpsync": {"state": "ENABLED"}},
-            {}
-        ]
+        client.get_config.side_effect = [{"ntpsync": {"state": "ENABLED"}}, {}]
 
         args = self.create_args()
         command = NTPCommand(client, args)
@@ -350,7 +361,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": ""}}
+            {"ntpstatus": {"response": ""}},
         ]
 
         args = self.create_args()
@@ -369,7 +380,7 @@ class TestNTPCommand:
 """
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": response}}
+            {"ntpstatus": {"response": response}},
         ]
 
         args = self.create_args()
@@ -385,7 +396,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=35.0)}}
+            {"ntpstatus": {"response": self.create_ntp_response(offset=35.0)}},
         ]
 
         # Spaces around values
@@ -400,7 +411,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response()}}
+            {"ntpstatus": {"response": self.create_ntp_response()}},
         ]
 
         # Invalid values should be ignored
@@ -442,7 +453,7 @@ class TestNTPCommand:
         client = self.create_mock_client()
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response()}}
+            {"ntpstatus": {"response": self.create_ntp_response()}},
         ]
 
         args = self.create_args()
@@ -469,7 +480,7 @@ class TestNTPCommand:
 """
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": response}}
+            {"ntpstatus": {"response": response}},
         ]
 
         args = self.create_args()
@@ -485,7 +496,7 @@ class TestNTPCommand:
         # 123.456 ms should become 0.123456 seconds
         client.get_config.side_effect = [
             {"ntpsync": {"state": "ENABLED"}},
-            {"ntpstatus": {"response": self.create_ntp_response(offset=123.456)}}
+            {"ntpstatus": {"response": self.create_ntp_response(offset=123.456)}},
         ]
 
         args = self.create_args()

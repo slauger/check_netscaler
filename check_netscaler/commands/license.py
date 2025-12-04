@@ -1,19 +1,19 @@
 """
 License expiration check command
 """
-import base64
-import re
-from datetime import datetime, timezone
-from typing import Dict, List
 
+import base64
+from datetime import datetime, timezone
+from typing import List
+
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class LicenseCommand(BaseCommand):
@@ -120,10 +120,7 @@ class LicenseCommand(BaseCommand):
 
         # Get all .lic files from /nsconfig/license
         try:
-            data = self.client.get_config(
-                "systemfile",
-                args="filelocation:/nsconfig/license"
-            )
+            data = self.client.get_config("systemfile", args="filelocation:/nsconfig/license")
 
             if "systemfile" not in data:
                 return []
@@ -144,9 +141,7 @@ class LicenseCommand(BaseCommand):
         except NITROException:
             return []
 
-    def _check_license_file(
-        self, filename: str, warning_days: int, critical_days: int
-    ) -> tuple:
+    def _check_license_file(self, filename: str, warning_days: int, critical_days: int) -> tuple:
         """
         Check a single license file
 
@@ -156,8 +151,7 @@ class LicenseCommand(BaseCommand):
         try:
             # Get license file content
             data = self.client.get_config(
-                "systemfile",
-                args=f"filelocation:/nsconfig/license,filename:{filename}"
+                "systemfile", args=f"filelocation:/nsconfig/license,filename:{filename}"
             )
 
             if "systemfile" not in data:

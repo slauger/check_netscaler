@@ -1,8 +1,10 @@
 """
 Session management for NITRO API
 """
-import requests
+
 from typing import Optional
+
+import requests
 
 from check_netscaler.client.exceptions import (
     NITROAuthenticationError,
@@ -85,17 +87,12 @@ class NITROSession:
 
             # Check HTTP status
             if response.status_code == 401:
-                raise NITROAuthenticationError(
-                    f"Authentication failed for user '{self.username}'"
-                )
+                raise NITROAuthenticationError(f"Authentication failed for user '{self.username}'")
 
             if response.status_code != 201:
                 raise NITROAuthenticationError(
                     f"Login failed with status {response.status_code}: {response.text}"
                 )
-
-            # Parse response
-            data = response.json()
 
             # Extract session ID from Set-Cookie header or response
             if "Set-Cookie" in response.headers:
@@ -108,11 +105,11 @@ class NITROSession:
             self.is_logged_in = True
 
         except requests.exceptions.Timeout as e:
-            raise NITROTimeoutError(f"Login request timed out: {e}")
+            raise NITROTimeoutError(f"Login request timed out: {e}") from e
         except requests.exceptions.ConnectionError as e:
-            raise NITROConnectionError(f"Connection failed: {e}")
+            raise NITROConnectionError(f"Connection failed: {e}") from e
         except requests.exceptions.RequestException as e:
-            raise NITROConnectionError(f"Request failed: {e}")
+            raise NITROConnectionError(f"Request failed: {e}") from e
 
     def logout(self) -> None:
         """

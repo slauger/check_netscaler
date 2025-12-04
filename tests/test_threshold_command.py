@@ -1,12 +1,12 @@
 """
 Tests for threshold commands (above/below)
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.threshold import ThresholdCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestThresholdCommand:
@@ -36,9 +36,7 @@ class TestThresholdCommand:
     def test_above_ok(self):
         """Test value below warning threshold (OK)"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 50}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 50}]}
 
         args = self.create_args(command="above")
         command = ThresholdCommand(client, args)
@@ -51,9 +49,7 @@ class TestThresholdCommand:
     def test_above_warning(self):
         """Test value above warning threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 80}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 80}]}
 
         args = self.create_args(command="above")
         command = ThresholdCommand(client, args)
@@ -66,9 +62,7 @@ class TestThresholdCommand:
     def test_above_critical(self):
         """Test value above critical threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 95}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 95}]}
 
         args = self.create_args(command="above")
         command = ThresholdCommand(client, args)
@@ -81,9 +75,7 @@ class TestThresholdCommand:
     def test_above_at_warning_threshold(self):
         """Test value exactly at warning threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 75}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 75}]}
 
         args = self.create_args(command="above")
         command = ThresholdCommand(client, args)
@@ -94,9 +86,7 @@ class TestThresholdCommand:
     def test_above_at_critical_threshold(self):
         """Test value exactly at critical threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 90}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 90}]}
 
         args = self.create_args(command="above")
         command = ThresholdCommand(client, args)
@@ -109,9 +99,7 @@ class TestThresholdCommand:
     def test_below_ok(self):
         """Test value above warning threshold (OK for below)"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "servicegroup": [{"activemembers": 10}]
-        }
+        client.get_stat.return_value = {"servicegroup": [{"activemembers": 10}]}
 
         args = self.create_args(
             command="below",
@@ -129,9 +117,7 @@ class TestThresholdCommand:
     def test_below_warning(self):
         """Test value below warning threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "servicegroup": [{"activemembers": 4}]
-        }
+        client.get_stat.return_value = {"servicegroup": [{"activemembers": 4}]}
 
         args = self.create_args(
             command="below",
@@ -149,9 +135,7 @@ class TestThresholdCommand:
     def test_below_critical(self):
         """Test value below critical threshold"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "servicegroup": [{"activemembers": 1}]
-        }
+        client.get_stat.return_value = {"servicegroup": [{"activemembers": 1}]}
 
         args = self.create_args(
             command="below",
@@ -172,11 +156,13 @@ class TestThresholdCommand:
         """Test multiple fields, all OK"""
         client = self.create_mock_client()
         client.get_stat.return_value = {
-            "system": [{
-                "cpuusagepcnt": 50,
-                "memusagepcnt": 60,
-                "disk0perusage": 40,
-            }]
+            "system": [
+                {
+                    "cpuusagepcnt": 50,
+                    "memusagepcnt": 60,
+                    "disk0perusage": 40,
+                }
+            ]
         }
 
         args = self.create_args(
@@ -194,11 +180,13 @@ class TestThresholdCommand:
         """Test multiple fields, one WARNING"""
         client = self.create_mock_client()
         client.get_stat.return_value = {
-            "system": [{
-                "cpuusagepcnt": 50,
-                "memusagepcnt": 80,  # WARNING
-                "disk0perusage": 40,
-            }]
+            "system": [
+                {
+                    "cpuusagepcnt": 50,
+                    "memusagepcnt": 80,  # WARNING
+                    "disk0perusage": 40,
+                }
+            ]
         }
 
         args = self.create_args(
@@ -216,11 +204,13 @@ class TestThresholdCommand:
         """Test multiple fields, one CRITICAL"""
         client = self.create_mock_client()
         client.get_stat.return_value = {
-            "system": [{
-                "cpuusagepcnt": 95,  # CRITICAL
-                "memusagepcnt": 60,
-                "disk0perusage": 40,
-            }]
+            "system": [
+                {
+                    "cpuusagepcnt": 95,  # CRITICAL
+                    "memusagepcnt": 60,
+                    "disk0perusage": 40,
+                }
+            ]
         }
 
         args = self.create_args(
@@ -238,11 +228,13 @@ class TestThresholdCommand:
         """Test multiple fields with mixed states"""
         client = self.create_mock_client()
         client.get_stat.return_value = {
-            "system": [{
-                "cpuusagepcnt": 95,   # CRITICAL
-                "memusagepcnt": 80,   # WARNING
-                "disk0perusage": 40,  # OK
-            }]
+            "system": [
+                {
+                    "cpuusagepcnt": 95,  # CRITICAL
+                    "memusagepcnt": 80,  # WARNING
+                    "disk0perusage": 40,  # OK
+                }
+            ]
         }
 
         args = self.create_args(
@@ -305,9 +297,7 @@ class TestThresholdCommand:
     def test_field_not_found(self):
         """Test with field that doesn't exist"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 50}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 50}]}
 
         args = self.create_args(objectname="nonexistent_field")
         command = ThresholdCommand(client, args)
@@ -319,9 +309,7 @@ class TestThresholdCommand:
     def test_field_invalid_value(self):
         """Test with field that has non-numeric value"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": "invalid"}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": "invalid"}]}
 
         args = self.create_args()
         command = ThresholdCommand(client, args)
@@ -360,9 +348,7 @@ class TestThresholdCommand:
     def test_thresholds_in_message(self):
         """Test that thresholds appear in message"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "system": [{"cpuusagepcnt": 50}]
-        }
+        client.get_stat.return_value = {"system": [{"cpuusagepcnt": 50}]}
 
         args = self.create_args()
         command = ThresholdCommand(client, args)

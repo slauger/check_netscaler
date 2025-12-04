@@ -1,19 +1,21 @@
 """
 Tests for NITRO API client
 """
+
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 import requests
 
 from check_netscaler.client import (
-    NITROClient,
-    NITROSession,
-    NITROAuthenticationError,
-    NITROConnectionError,
-    NITROTimeoutError,
     NITROAPIError,
-    NITROResourceNotFoundError,
+    NITROAuthenticationError,
+    NITROClient,
+    NITROConnectionError,
     NITROPermissionError,
+    NITROResourceNotFoundError,
+    NITROSession,
+    NITROTimeoutError,
 )
 
 
@@ -200,9 +202,7 @@ class TestNITROClient:
         # Mock GET request
         mock_get_response = Mock()
         mock_get_response.status_code = 200
-        mock_get_response.json.return_value = {
-            "lbvserver": [{"name": "test", "state": "UP"}]
-        }
+        mock_get_response.json.return_value = {"lbvserver": [{"name": "test", "state": "UP"}]}
         mock_get.return_value = mock_get_response
 
         client = NITROClient(
@@ -232,9 +232,7 @@ class TestNITROClient:
         # Mock GET request
         mock_get_response = Mock()
         mock_get_response.status_code = 200
-        mock_get_response.json.return_value = {
-            "lbvserver": [{"name": "test", "ipv46": "10.0.0.1"}]
-        }
+        mock_get_response.json.return_value = {"lbvserver": [{"name": "test", "ipv46": "10.0.0.1"}]}
         mock_get.return_value = mock_get_response
 
         client = NITROClient(
@@ -263,9 +261,7 @@ class TestNITROClient:
         # Mock GET request
         mock_get_response = Mock()
         mock_get_response.status_code = 200
-        mock_get_response.json.return_value = {
-            "lbvserver": [{"name": "my_vserver", "state": "UP"}]
-        }
+        mock_get_response.json.return_value = {"lbvserver": [{"name": "my_vserver", "state": "UP"}]}
         mock_get.return_value = mock_get_response
 
         client = NITROClient(
@@ -275,7 +271,7 @@ class TestNITROClient:
         )
         client.login()
 
-        result = client.get_stat("lbvserver", "my_vserver")
+        client.get_stat("lbvserver", "my_vserver")
 
         # Verify URL contains resource name
         call_url = mock_get.call_args[0][0]

@@ -1,17 +1,18 @@
 """
 STA Server availability check command
 """
+
 import re
 from typing import List
 
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROException
 
 
 class STAServerCommand(BaseCommand):
@@ -33,7 +34,9 @@ class STAServerCommand(BaseCommand):
                 objecttype = getattr(self.args, "objecttype", None) or "vpnglobal_staserver_binding"
             else:
                 # STA servers bound to specific vServer
-                objecttype = getattr(self.args, "objecttype", None) or "vpnvserver_staserver_binding"
+                objecttype = (
+                    getattr(self.args, "objecttype", None) or "vpnvserver_staserver_binding"
+                )
 
             # Get endpoint (default to config)
             endpoint = getattr(self.args, "endpoint", None) or "config"

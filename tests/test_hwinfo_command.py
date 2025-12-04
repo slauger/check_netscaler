@@ -1,9 +1,9 @@
 """
 Tests for hwinfo command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.hwinfo import HWInfoCommand
 from check_netscaler.constants import STATE_OK, STATE_UNKNOWN

@@ -1,12 +1,12 @@
 """
 Tests for hastatus command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.hastatus import HAStatusCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestHAStatusCommand:
@@ -416,9 +416,7 @@ class TestHAStatusCommand:
     def test_ha_empty_response_list(self):
         """Test when hanode is an empty list"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "hanode": []
-        }
+        client.get_stat.return_value = {"hanode": []}
 
         args = self.create_args()
         command = HAStatusCommand(client, args)

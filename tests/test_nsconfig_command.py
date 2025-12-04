@@ -1,12 +1,12 @@
 """
 Tests for nsconfig command
 """
-import pytest
-from unittest.mock import Mock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.nsconfig import NSConfigCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_UNKNOWN
+from check_netscaler.constants import STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestNSConfigCommand:
@@ -28,9 +28,7 @@ class TestNSConfigCommand:
     def test_no_unsaved_changes(self):
         """Test when there are no unsaved changes"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": {"configchanged": False}
-        }
+        client.get_config.return_value = {"nsconfig": {"configchanged": False}}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -43,9 +41,7 @@ class TestNSConfigCommand:
     def test_unsaved_changes(self):
         """Test when there are unsaved changes"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": {"configchanged": True}
-        }
+        client.get_config.return_value = {"nsconfig": {"configchanged": True}}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -57,9 +53,7 @@ class TestNSConfigCommand:
     def test_configchanged_field_missing(self):
         """Test when configchanged field is not present"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": {}  # No configchanged field
-        }
+        client.get_config.return_value = {"nsconfig": {}}  # No configchanged field
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -72,9 +66,7 @@ class TestNSConfigCommand:
     def test_nsconfig_as_list(self):
         """Test when nsconfig is returned as a list"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": [{"configchanged": False}]
-        }
+        client.get_config.return_value = {"nsconfig": [{"configchanged": False}]}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -85,9 +77,7 @@ class TestNSConfigCommand:
     def test_nsconfig_list_with_changes(self):
         """Test when nsconfig list has unsaved changes"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": [{"configchanged": True}]
-        }
+        client.get_config.return_value = {"nsconfig": [{"configchanged": True}]}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -98,9 +88,7 @@ class TestNSConfigCommand:
     def test_empty_nsconfig_list(self):
         """Test when nsconfig list is empty"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": []
-        }
+        client.get_config.return_value = {"nsconfig": []}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)
@@ -164,9 +152,7 @@ class TestNSConfigCommand:
     def test_configchanged_zero(self):
         """Test when configchanged is 0 (falsy)"""
         client = self.create_mock_client()
-        client.get_config.return_value = {
-            "nsconfig": {"configchanged": 0}
-        }
+        client.get_config.return_value = {"nsconfig": {"configchanged": 0}}
 
         args = self.create_args()
         command = NSConfigCommand(client, args)

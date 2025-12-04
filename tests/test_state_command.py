@@ -1,12 +1,12 @@
 """
 Tests for state command
 """
-import pytest
-from unittest.mock import Mock, MagicMock
+
 from argparse import Namespace
+from unittest.mock import Mock
 
 from check_netscaler.commands.state import StateCommand
-from check_netscaler.constants import STATE_OK, STATE_WARNING, STATE_CRITICAL, STATE_UNKNOWN
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
 
 class TestStateCommand:
@@ -53,9 +53,7 @@ class TestStateCommand:
     def test_state_single_up(self):
         """Test single object UP"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vserver1", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vserver1", "state": "UP"}]}
 
         args = self.create_args()
         command = StateCommand(client, args)

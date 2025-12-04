@@ -1,17 +1,18 @@
 """
 State check command - monitors vServer, service, servicegroup, and server states
 """
-from typing import Dict, Any, List, Optional
-import re
 
+import re
+from typing import Any, Dict, List
+
+from check_netscaler.client.exceptions import NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
-    STATE_OK,
-    STATE_WARNING,
     STATE_CRITICAL,
+    STATE_OK,
     STATE_UNKNOWN,
+    STATE_WARNING,
 )
-from check_netscaler.client.exceptions import NITROResourceNotFoundError
 
 
 class StateCommand(BaseCommand):
@@ -72,8 +73,7 @@ class StateCommand(BaseCommand):
         except NITROResourceNotFoundError:
             return CheckResult(
                 status=STATE_CRITICAL,
-                message=f"{objecttype} not found"
-                + (f": {objectname}" if objectname else ""),
+                message=f"{objecttype} not found" + (f": {objectname}" if objectname else ""),
             )
         except Exception as e:
             return CheckResult(
@@ -97,11 +97,7 @@ class StateCommand(BaseCommand):
         """Filter out objects matching regex pattern"""
         try:
             regex = re.compile(filter_pattern)
-            return [
-                obj
-                for obj in objects
-                if not regex.search(obj.get("name", ""))
-            ]
+            return [obj for obj in objects if not regex.search(obj.get("name", ""))]
         except re.error:
             # Invalid regex, return all objects
             return objects
@@ -110,18 +106,12 @@ class StateCommand(BaseCommand):
         """Limit to objects matching regex pattern"""
         try:
             regex = re.compile(limit_pattern)
-            return [
-                obj
-                for obj in objects
-                if regex.search(obj.get("name", ""))
-            ]
+            return [obj for obj in objects if regex.search(obj.get("name", ""))]
         except re.error:
             # Invalid regex, return all objects
             return objects
 
-    def _evaluate_states(
-        self, objects: List[Dict], objecttype: str
-    ) -> CheckResult:
+    def _evaluate_states(self, objects: List[Dict], objecttype: str) -> CheckResult:
         """
         Evaluate state for all objects and aggregate results
 
