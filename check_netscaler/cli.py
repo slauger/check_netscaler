@@ -218,6 +218,10 @@ def main(args: Optional[List[str]] = None) -> int:
                 from check_netscaler.commands.interfaces import InterfacesCommand
                 command = InterfacesCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command == "perfdata":
+                from check_netscaler.commands.perfdata import PerfdataCommand
+                command = PerfdataCommand(client, parsed_args)
+                result = command.execute()
             elif parsed_args.command == "debug":
                 from check_netscaler.commands.debug import DebugCommand
                 command = DebugCommand(client, parsed_args)

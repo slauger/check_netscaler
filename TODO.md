@@ -6,15 +6,15 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 
 **Code:**
 - ~3000 lines of Python code
-- 281 tests passing
-- **12 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`, `interfaces`**
+- 308 tests passing
+- **13 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`, `interfaces`, `perfdata`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~80% of commands implemented (12/15)
+**Progress:** ~87% of commands implemented (13/15)
 
 ## 🎯 Implementation Tasks
 
@@ -153,20 +153,23 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** ✅ `check_netscaler/commands/interfaces.py`
 
-##### 2.8 `perfdata` Command
+##### 2.8 `perfdata` Command ✅ DONE
 **Generic performance data collection**
 
-- [ ] Arbitrary field collection
-- [ ] Support for multiple fields
-- [ ] Object type specification
-- [ ] Label support
-- [ ] Common use cases:
+- [x] Arbitrary field collection
+- [x] Support for multiple fields (comma-separated)
+- [x] Object type specification
+- [x] Label support (custom field as label)
+- [x] Multiple object support (with index or label)
+- [x] Custom separator support
+- [x] Both stat and config endpoints
+- [x] Common use cases:
   - Cache hits/misses
   - TCP connections
   - Network throughput
   - AAA sessions
 
-**File:** `check_netscaler/commands/perfdata.py`
+**File:** ✅ `check_netscaler/commands/perfdata.py`
 
 #### Priority: LOW
 
