@@ -5,16 +5,16 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- ~2100 lines of Python code
-- 84 tests passing
-- **3 commands fully implemented: `state`, `above`/`below`, `nsconfig`**
+- ~2200 lines of Python code
+- 94 tests passing
+- **4 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~20% of commands implemented (3/15)
+**Progress:** ~27% of commands implemented (4/15)
 
 ## 🎯 Implementation Tasks
 
@@ -172,14 +172,14 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** `check_netscaler/commands/matches.py`
 
-##### 2.10 `hwinfo` Command
+##### 2.10 `hwinfo` Command ✅ DONE
 **Hardware information display**
 
-- [ ] System information retrieval
-- [ ] Simple info output (always OK)
-- [ ] No thresholds
+- [x] System information retrieval
+- [x] Simple info output (always OK)
+- [x] No thresholds
 
-**File:** `check_netscaler/commands/hwinfo.py`
+**File:** ✅ `check_netscaler/commands/hwinfo.py`
 
 ##### 2.11 `license` Command
 **License expiration monitoring**
