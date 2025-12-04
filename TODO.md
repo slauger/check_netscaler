@@ -6,15 +6,15 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 
 **Code:**
 - ~3000 lines of Python code
-- 227 tests passing
-- **10 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`**
+- 255 tests passing
+- **11 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~67% of commands implemented (10/15)
+**Progress:** ~73% of commands implemented (11/15)
 
 ## 🎯 Implementation Tasks
 
@@ -186,15 +186,20 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** ✅ `check_netscaler/commands/hwinfo.py`
 
-##### 2.11 `license` Command
+##### 2.11 `license` Command ✅ DONE
 **License expiration monitoring**
 
-- [ ] License file reading via systemfile API
-- [ ] Expiration date parsing
-- [ ] Warning/Critical thresholds
-- [ ] Multiple license support
+- [x] License file reading via systemfile API
+- [x] Expiration date parsing (dd-mmm-yyyy format)
+- [x] Warning/Critical thresholds (in days)
+- [x] Multiple license support
+- [x] Base64 content decoding
+- [x] INCREMENT line parsing
+- [x] Permanent license support
+- [x] Automatic .lic file discovery
+- [x] Specific license file support via objectname
 
-**File:** `check_netscaler/commands/license.py`
+**File:** ✅ `check_netscaler/commands/license.py`
 
 ##### 2.12 `staserver` Command ✅ DONE
 **STA server availability check**
