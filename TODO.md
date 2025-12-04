@@ -6,15 +6,15 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 
 **Code:**
 - ~3000 lines of Python code
-- 255 tests passing
-- **11 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`**
+- 281 tests passing
+- **12 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`, `staserver`, `hastatus`, `license`, `interfaces`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~73% of commands implemented (11/15)
+**Progress:** ~80% of commands implemented (12/15)
 
 ## 🎯 Implementation Tasks
 
@@ -138,15 +138,20 @@ All commands from the Perl script need to be ported to Python.
 
 **File:** ✅ `check_netscaler/commands/servicegroup.py`
 
-##### 2.7 `interfaces` Command
+##### 2.7 `interfaces` Command ✅ DONE
 **Network interface monitoring**
 
-- [ ] Interface state (UP, DOWN)
-- [ ] Interface statistics
-- [ ] Performance data per interface
-- [ ] Filter by interface name/pattern
+- [x] Interface state (UP, DOWN)
+- [x] Interface statistics (speed, MTU, VLAN, type)
+- [x] Performance data per interface (rxbytes, txbytes, rxerrors, txerrors)
+- [x] Filter by interface name/pattern
+- [x] Limit by interface name/pattern
+- [x] linkstate checking (1 = UP, 0 = DOWN)
+- [x] intfstate checking (1 = UP, 0 = DOWN)
+- [x] state checking (ENABLED/DISABLED)
+- [x] Custom separator support
 
-**File:** `check_netscaler/commands/interfaces.py`
+**File:** ✅ `check_netscaler/commands/interfaces.py`
 
 ##### 2.8 `perfdata` Command
 **Generic performance data collection**
