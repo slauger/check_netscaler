@@ -195,7 +195,7 @@ class TestMainFunction:
 
     def test_main_unimplemented_command(self, capsys):
         """Test that unimplemented commands return UNKNOWN"""
-        # Use a command that's not implemented yet
+        # Use a command that's not implemented yet (debug is still unimplemented)
         from unittest.mock import patch, Mock
 
         mock_client_class = Mock()
@@ -205,7 +205,7 @@ class TestMainFunction:
         mock_client_class.return_value = mock_client
 
         with patch("check_netscaler.client.NITROClient", mock_client_class):
-            exit_code = main(["-H", "192.168.1.1", "-C", "sslcert"])
+            exit_code = main(["-H", "192.168.1.1", "-C", "debug"])
 
             captured = capsys.readouterr()
             assert "not yet implemented" in captured.out.lower()
