@@ -198,6 +198,10 @@ def main(args: Optional[List[str]] = None) -> int:
                 from check_netscaler.commands.servicegroup import ServiceGroupCommand
                 command = ServiceGroupCommand(client, parsed_args)
                 result = command.execute()
+            elif parsed_args.command in ["matches", "matches_not"]:
+                from check_netscaler.commands.matches import MatchesCommand
+                command = MatchesCommand(client, parsed_args)
+                result = command.execute()
             elif parsed_args.command == "debug":
                 from check_netscaler.commands.debug import DebugCommand
                 command = DebugCommand(client, parsed_args)

@@ -5,16 +5,16 @@ This document tracks all tasks for the complete rewrite from Perl to Python.
 ## 📊 Current Status
 
 **Code:**
-- ~2700 lines of Python code
-- 149 tests passing
-- **7 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`**
+- ~2900 lines of Python code
+- 174 tests passing
+- **8 commands fully implemented: `state`, `above`/`below`, `nsconfig`, `hwinfo`, `sslcert`, `debug`, `servicegroup`, `matches`/`matches_not`**
 
 **Original Perl Script:**
 - 1,449 lines of code
 - 12 check functions
 - 15 different commands
 
-**Progress:** ~47% of commands implemented (7/15)
+**Progress:** ~53% of commands implemented (8/15)
 
 ## 🎯 Implementation Tasks
 
@@ -162,15 +162,17 @@ All commands from the Perl script need to be ported to Python.
 
 #### Priority: LOW
 
-##### 2.9 `matches` / `matches_not` Commands
+##### 2.9 `matches` / `matches_not` Commands ✅ DONE
 **String matching in API responses**
 
-- [ ] Field value retrieval
-- [ ] String comparison (exact match)
-- [ ] WARNING/CRITICAL on match/not match
-- [ ] Support for HA status checks
+- [x] Field value retrieval
+- [x] String comparison (exact match)
+- [x] WARNING/CRITICAL on match/not match
+- [x] Support for HA status checks
+- [x] Multiple fields support
+- [x] Array support with custom labels
 
-**File:** `check_netscaler/commands/matches.py`
+**File:** ✅ `check_netscaler/commands/matches.py`
 
 ##### 2.10 `hwinfo` Command ✅ DONE
 **Hardware information display**
