@@ -249,28 +249,33 @@ All commands from the Perl script need to be ported to Python.
 
 ---
 
-### Phase 3: Advanced Features
+### Phase 3: Advanced Features ✅ COMPLETE
 
-#### 3.1 Filter/Limit Support
-- [ ] Regex filter implementation (`--filter`)
-- [ ] Regex limit implementation (`--limit`)
-- [ ] Apply to all commands supporting multiple objects
+#### 3.1 Filter/Limit Support ✅ DONE
+- [x] Regex filter implementation (`--filter`)
+- [x] Regex limit implementation (`--limit`)
+- [x] Applied to all commands supporting multiple objects:
+  - `state` - filter/limit on object names
+  - `sslcert` - filter/limit on certificate names
+  - `interfaces` - filter/limit on devicename
+  - `staserver` - filter/limit on server names
 
-**File:** `check_netscaler/utils/filters.py`
+#### 3.2 Label Support ✅ DONE
+- [x] Custom label for performance data (`--label`)
+- [x] Use object field as label
+- [x] Default to array index if no label
+- [x] Implemented in:
+  - `perfdata` - custom field as label
+  - `matches` - label support for arrays
 
-#### 3.2 Label Support
-- [ ] Custom label for performance data (`--label`)
-- [ ] Use object field as label
-- [ ] Default to array index if no label
-
-**Enhancement to:** `check_netscaler/output/perfdata.py`
-
-#### 3.3 Separator Customization
-- [ ] Custom separator for perfdata (`--separator`)
-- [ ] Default to dot (.)
-- [ ] Apply to all perfdata output
-
-**Enhancement to:** `check_netscaler/output/perfdata.py`
+#### 3.3 Separator Customization ✅ DONE
+- [x] Custom separator for perfdata (`--separator`)
+- [x] Default to dot (.)
+- [x] Applied to all perfdata output where needed:
+  - `interfaces` - {devicename}{sep}{metric}
+  - `servicegroup` - {objectname}{sep}member_quorum
+  - `perfdata` - {label}{sep}{field}
+  - `matches` - {label}{sep}{field}
 
 ---
 
