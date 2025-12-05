@@ -281,14 +281,14 @@ All commands from the Perl script need to be ported to Python.
 
 ### Phase 4: Testing & Quality
 
-#### 4.1 Unit Tests
-- [ ] NITRO client tests
-- [ ] Output formatter tests
-- [ ] Each command implementation tests
-- [ ] Utility function tests
-- [ ] Target: >80% code coverage
+#### 4.1 Unit Tests ✅ DONE
+- [x] NITRO client tests (17 tests)
+- [x] Output formatter tests
+- [x] Each command implementation tests (336 tests total)
+- [x] Utility function tests
+- [ ] Target: >80% code coverage (coverage reporting pending)
 
-**Files:** `tests/test_*.py`
+**Files:** `tests/test_*.py` (all implemented)
 
 #### 4.2 Integration Tests
 - [ ] End-to-end tests with mock server
@@ -296,16 +296,18 @@ All commands from the Perl script need to be ported to Python.
 - [ ] Error scenarios
 - [ ] Edge cases
 
-**Files:** `tests/integration/test_*.py`
+**Files:** `tests/integration/test_*.py` (to be created)
 
-#### 4.3 CI/CD
-- [ ] GitHub Actions workflow
-- [ ] Test on multiple Python versions (3.8, 3.9, 3.10, 3.11, 3.12)
-- [ ] Linting (ruff, black)
-- [ ] Type checking (mypy)
-- [ ] Coverage reporting
+#### 4.3 CI/CD ✅ DONE
+- [x] GitHub Actions workflow
+- [x] Test on multiple Python versions (3.8, 3.9, 3.10, 3.11, 3.12)
+- [x] Linting (ruff)
+- [x] Code formatting (black)
+- [x] Type checking (mypy - soft fail)
+- [x] Automated test execution
+- [ ] Coverage reporting (pending)
 
-**File:** `.github/workflows/test.yml`
+**File:** `.github/workflows/lint-and-type-check.yml` ✅ Created
 
 ---
 
