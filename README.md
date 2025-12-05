@@ -1,83 +1,35 @@
-# check_netscaler v2.0 (Python Rewrite)
+# check_netscaler
 
-> **Nearly Complete - 93% Implemented!** 🎉
->
-> This branch contains a complete rewrite of check_netscaler in Python.
-> **14 out of 15 commands are fully implemented with 336 passing tests and CI/CD pipeline.**
->
-> **Looking for the stable Perl version?** See the [master branch](../../tree/master).
+Nagios/Icinga monitoring plugin for Citrix NetScaler (ADC) using the NITRO REST API.
 
-## Why v2.0?
+## Version 2.0 - Python Rewrite
 
-This is a ground-up rewrite with the following goals:
+This is a complete Python rewrite of check_netscaler. **All 16 check commands are implemented** with 336 passing tests and full CI/CD integration.
 
-- **Modern Language**: Python 3.8+ instead of Perl for better maintainability and wider adoption
-- **Mock-based Testing**: NetScaler CPX container image is no longer publicly available, requiring a new testing approach with comprehensive mock services
-- **Improved Architecture**: Cleaner code structure, better error handling, type hints
-- **Enhanced Features**: Building on the solid foundation of v1.x with new capabilities
+> **Looking for the stable Perl version (v1.x)?**
+> See the [master branch](../../tree/master) or tags < 2.0.0 for the legacy Perl implementation.
 
-## Original Project
+## Features
 
-check_netscaler is a Nagios/Icinga monitoring plugin for Citrix NetScaler Application Delivery Controllers. It uses the NITRO REST API (no SNMP required) to monitor:
+Monitor your NetScaler without SNMP:
 
-- Virtual Servers (LB, VPN, GSLB, AAA, CS)
-- Services and Service Groups
-- SSL Certificates
-- High Availability Status
-- System Resources (CPU, Memory, Disk)
-- Network Interfaces
-- Configuration Changes
-- License Expiration
-- NTP Synchronization
-- And much more...
+- **Virtual Servers** - Load balancer, VPN, GSLB, Content Switching, AAA
+- **Services & Service Groups** - State and member quorum monitoring
+- **SSL Certificates** - Expiration warnings
+- **High Availability** - HA status and sync monitoring
+- **System Resources** - CPU, memory, disk usage thresholds
+- **Network Interfaces** - Interface status and statistics
+- **License Management** - License expiration tracking
+- **NTP Synchronization** - Time sync validation
+- **Configuration** - Unsaved config detection
+- **Performance Data** - Generic metric collection for any NITRO object
 
-## Development Status
+### Advanced Features
 
-**Progress: 14/15 commands (93%) - 336 tests passing ✅**
-
-### Core Infrastructure ✅ COMPLETE
-- [x] Python project setup (pyproject.toml, dependencies)
-- [x] NITRO API client implementation
-- [x] Mock testing framework (pytest-based)
-- [x] CLI argument parser (argparse)
-- [x] Plugin output formatting (Nagios/Icinga compatible)
-
-### Check Commands (14/15 implemented)
-- [x] `state` - Check vServer/service/servicegroup/server states
-- [x] `sslcert` - SSL certificate expiration
-- [x] `above/below` - Threshold checks
-- [x] `matches/matches_not` - String matching
-- [x] `nsconfig` - Unsaved configuration changes
-- [x] `hastatus` - High availability status
-- [x] `servicegroup` - ServiceGroup with quorum checks
-- [x] `hwinfo` - Hardware information
-- [x] `interfaces` - Network interface status
-- [x] `perfdata` - Performance data collection
-- [x] `license` - License expiration
-- [x] `staserver` - STA server availability
-- [x] `ntp` - NTP synchronization status
-- [x] `debug` - Debug output
-
-### Advanced Features ✅ COMPLETE
-- [x] Filter/Limit support (regex-based filtering)
-- [x] Label support (custom perfdata labels)
-- [x] Separator customization (perfdata formatting)
-
-### Testing & CI/CD ✅ COMPLETE
-- [x] 336 unit tests with pytest
-- [x] Mock NITRO API responses
-- [x] GitHub Actions CI/CD pipeline
-- [x] Linting with ruff
-- [x] Code formatting with black
-- [x] Type checking with mypy
-- [ ] Integration tests
-- [ ] Code coverage reporting
-
-### Documentation 🚧 IN PROGRESS
-- [ ] API client documentation
-- [ ] Usage examples for all commands
-- [ ] Migration guide from v1.x
-- [ ] Contributing guidelines
+- Regex-based filtering (`--filter` / `--limit`)
+- Custom performance data labels
+- Flexible threshold formats
+- Multiple Python versions supported (3.8-3.12)
 
 ## Requirements
 
@@ -86,116 +38,96 @@ Python >= 3.8
 requests >= 2.31.0
 ```
 
-**Development dependencies:**
-```
-pytest >= 7.4.0
-pytest-cov >= 4.1.0
-pytest-mock >= 3.11.0
-black >= 23.7.0
-ruff >= 0.0.285
-mypy >= 1.5.0
-```
-
 ## Installation
 
 ```bash
-# Clone repository
 git clone https://github.com/slauger/check_netscaler.git
 cd check_netscaler
 git checkout v2-python-rewrite
 
-# Install dependencies
+# Install
 pip install -e .
 
 # For development
 pip install -e ".[dev]"
 ```
 
-## Usage
+## Quick Start
 
 ```bash
-# Check load balancer vServer state
-check_netscaler --hostname 192.168.1.10 --ssl --command state --objecttype lbvserver
+# Check all load balancer vServers
+check_netscaler -H 192.168.1.10 -s -u nsroot -p nsroot -C state -o lbvserver
 
-# Check SSL certificates expiring in 30 days
-check_netscaler -H 192.168.1.10 -s -C sslcert -w 30 -c 10
+# Check SSL certificate expiration
+check_netscaler -H 192.168.1.10 -s -C sslcert -w 60 -c 30
 
-# Check system CPU usage
+# Check CPU usage
 check_netscaler -H 192.168.1.10 -s -C above -o system -n cpuusagepcnt -w 75 -c 90
 
 # Check HA status
 check_netscaler -H 192.168.1.10 -s -C hastatus
 
-# Check NTP synchronization
-check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03,s=2,j=100,t=3" -c "o=0.05,s=3,j=200,t=2"
-
-# Check interface status with filter
-check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^(1/1|10/1)"
-
-# Generic perfdata collection
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits,totalrequests --label name
+# Check NTP sync
+check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03" -c "o=0.05"
 ```
 
-## Running Tests
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `state` | vServer/service/servicegroup/server state monitoring |
+| `above`/`below` | Threshold-based checks (CPU, memory, disk, etc.) |
+| `sslcert` | SSL certificate expiration |
+| `hastatus` | High availability status |
+| `interfaces` | Network interface monitoring |
+| `servicegroup` | Service group member quorum |
+| `perfdata` | Generic performance data collection |
+| `license` | License expiration |
+| `ntp` | NTP synchronization status |
+| `nsconfig` | Unsaved configuration detection |
+| `matches`/`matches_not` | String matching in API responses |
+| `staserver` | STA server availability |
+| `hwinfo` | Hardware information |
+| `debug` | Raw API output for troubleshooting |
+
+## Documentation
+
+- **[Command Examples](examples/commands/)** - Detailed usage for every command
+- **[Icinga 2 Integration](examples/icinga2/)** - CheckCommand definitions
+- **[Nagios Integration](examples/nagios/)** - Command and service configurations
+
+## Development
+
+### Running Tests
 
 ```bash
 # Run all tests
 pytest tests/
 
-# Run with coverage
+# With coverage
 pytest tests/ --cov=check_netscaler --cov-report=html
 
-# Run linting
+# Linting
 ruff check check_netscaler/ tests/
 
-# Format code
+# Formatting
 black check_netscaler/ tests/
 ```
 
-## Architecture
+### CI/CD
 
-```
-check_netscaler/
-├── __init__.py
-├── __main__.py           # CLI entry point
-├── client/
-│   ├── __init__.py
-│   ├── nitro.py          # NITRO API client
-│   └── session.py        # Session management
-├── commands/
-│   ├── __init__.py
-│   ├── base.py           # Base command class
-│   ├── state.py          # State checks
-│   ├── sslcert.py        # SSL certificate checks
-│   ├── threshold.py      # Above/below checks
-│   └── ...               # Other check commands
-├── output/
-│   ├── __init__.py
-│   └── nagios.py         # Nagios plugin output formatter
-└── utils/
-    ├── __init__.py
-    └── helpers.py        # Utility functions
+GitHub Actions pipeline runs automatically on every push:
+- Matrix testing on Python 3.8, 3.9, 3.10, 3.11, 3.12
+- Linting with ruff
+- Code formatting with black
+- Type checking with mypy
+- Full test suite (336 tests)
 
-tests/
-├── __init__.py
-├── conftest.py           # pytest fixtures
-├── mocks/
-│   └── responses.json    # Mock NITRO API responses
-├── test_client.py
-├── test_commands.py
-└── ...
-```
+## License
 
-## Contributing
+MIT License - See [LICENSE](LICENSE)
 
-This is a work in progress. Contributions are welcome! Please:
-
-1. Check existing issues or create a new one to discuss your idea
-2. Fork the repository and create a feature branch
-3. Write tests for your changes
-4. Submit a pull request against the `v2-python-rewrite` branch
-
-## Original Authors & Contributors
+## Contributors
 
 - [slauger](https://github.com/slauger) - Original author
 - [macampo](https://github.com/macampo)
@@ -203,19 +135,8 @@ This is a work in progress. Contributions are welcome! Please:
 - [bb-ricardo](https://github.com/bb-ricardo)
 - [DerInti](https://github.com/DerInti)
 
-## License
+## Links
 
-MIT License - See [LICENSE](LICENSE)
-
-## Related Projects
-
-- [check_netscaler_gateway](https://github.com/slauger/check_netscaler_gateway) - NetScaler Gateway and Storefront testing
-
-## NITRO API Documentation
-
-Full NITRO API documentation is available on your NetScaler appliance:
-`http://NSIP/nitro-rest.tgz`
-
----
-
-**Note**: This v2.0 rewrite is being developed to ensure the long-term viability of this monitoring plugin with modern tooling and testing approaches.
+- [Issue Tracker](https://github.com/slauger/check_netscaler/issues)
+- [Pull Requests](https://github.com/slauger/check_netscaler/pulls)
+- [NetScaler NITRO API Documentation](http://docs.citrix.com/en-us/netscaler/)
