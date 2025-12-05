@@ -1,0 +1,178 @@
+/*
+ * Icinga 2 Service Examples for check_netscaler v2.0
+ *
+ * Copy and adapt these examples to your Icinga 2 configuration.
+ * File location: /etc/icinga2/conf.d/services/netscaler.conf
+ */
+
+// Apply Services to all NetScaler hosts
+// (hosts with vars.netscaler = true)
+
+apply Service "netscaler-lbvservers" {
+  import "generic-service"
+  check_command = "netscaler_state"
+
+  vars.netscaler_objecttype = "lbvserver"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-services" {
+  import "generic-service"
+  check_command = "netscaler_state"
+
+  vars.netscaler_objecttype = "service"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-cpu" {
+  import "generic-service"
+  check_command = "netscaler_above"
+
+  vars.netscaler_objecttype = "system"
+  vars.netscaler_field = "cpuusagepcnt"
+  vars.netscaler_warning = "75"
+  vars.netscaler_critical = "90"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-memory" {
+  import "generic-service"
+  check_command = "netscaler_above"
+
+  vars.netscaler_objecttype = "system"
+  vars.netscaler_field = "memusagepcnt"
+  vars.netscaler_warning = "80"
+  vars.netscaler_critical = "95"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-disk" {
+  import "generic-service"
+  check_command = "netscaler_above"
+
+  vars.netscaler_objecttype = "system"
+  vars.netscaler_field = "disk0perusage"
+  vars.netscaler_warning = "70"
+  vars.netscaler_critical = "85"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-sslcerts" {
+  import "generic-service"
+  check_command = "netscaler_sslcert"
+
+  vars.netscaler_warning = 60
+  vars.netscaler_critical = 30
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-ha-status" {
+  import "generic-service"
+  check_command = "netscaler_hastatus"
+
+  assign where host.vars.netscaler == true && host.vars.netscaler_ha == true
+}
+
+apply Service "netscaler-interfaces" {
+  import "generic-service"
+  check_command = "netscaler_interfaces"
+
+  // Exclude management interface
+  vars.netscaler_limit = "^0/"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-ntp" {
+  import "generic-service"
+  check_command = "netscaler_ntp"
+
+  vars.netscaler_warning = "o=0.03,s=2,j=100,t=3"
+  vars.netscaler_critical = "o=0.05,s=3,j=200,t=2"
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-license" {
+  import "generic-service"
+  check_command = "netscaler_license"
+
+  vars.netscaler_warning = 60
+  vars.netscaler_critical = 30
+
+  assign where host.vars.netscaler == true
+}
+
+apply Service "netscaler-config-saved" {
+  import "generic-service"
+  check_command = "netscaler_nsconfig"
+
+  check_interval = 5m
+  retry_interval = 1m
+
+  assign where host.vars.netscaler == true
+}
+
+// Specific ServiceGroup Examples
+
+object Service "web-servicegroup" {
+  import "generic-service"
+  host_name = "netscaler01"
+  check_command = "netscaler_servicegroup"
+
+  vars.netscaler_objectname = "web_sg"
+  vars.netscaler_warning = 50
+  vars.netscaler_critical = 25
+}
+
+object Service "db-servicegroup" {
+  import "generic-service"
+  host_name = "netscaler01"
+  check_command = "netscaler_servicegroup"
+
+  vars.netscaler_objectname = "db_cluster_sg"
+  vars.netscaler_warning = 66
+  vars.netscaler_critical = 33
+}
+
+// Performance Data Collection Examples
+
+object Service "netscaler-perfdata-lbvserver" {
+  import "generic-service"
+  host_name = "netscaler01"
+  check_command = "netscaler_perfdata"
+
+  vars.netscaler_objecttype = "lbvserver"
+  vars.netscaler_field = "totalhits,totalrequests,requestsrate"
+  vars.netscaler_label = "name"
+}
+
+// STA Server Monitoring (for NetScaler Gateway)
+
+apply Service "netscaler-staservers" {
+  import "generic-service"
+  check_command = "netscaler_staserver"
+
+  // Only monitor production STA servers
+  vars.netscaler_filter = "^prod-"
+
+  assign where host.vars.netscaler_gateway == true
+}
+
+// Hardware Info (Run Once)
+
+apply Service "netscaler-hwinfo" {
+  import "generic-service"
+  check_command = "netscaler_hwinfo"
+
+  check_interval = 24h
+  retry_interval = 1h
+
+  assign where host.vars.netscaler == true
+}

@@ -1,0 +1,84 @@
+/*
+ * Icinga 2 Host Example for NetScaler
+ *
+ * Copy and adapt this example to your Icinga 2 configuration.
+ * File location: /etc/icinga2/conf.d/hosts/netscaler01.conf
+ */
+
+object Host "netscaler01" {
+  import "generic-host"
+
+  address = "192.168.1.10"
+  check_command = "hostalive"
+
+  // NetScaler-specific variables
+  vars.netscaler = true
+  vars.netscaler_ssl = true
+  vars.netscaler_username = "monitoring"
+  vars.netscaler_password = "SecurePassword123"
+
+  // Optional: HA configuration
+  vars.netscaler_ha = true
+
+  // Optional: NetScaler Gateway
+  // vars.netscaler_gateway = true
+
+  // Credentials from constants.conf (recommended)
+  // vars.netscaler_username = NetScalerUsername
+  // vars.netscaler_password = NetScalerPassword
+}
+
+// Template for NetScaler hosts
+template Host "netscaler-template" {
+  import "generic-host"
+
+  check_command = "hostalive"
+
+  vars.netscaler = true
+  vars.netscaler_ssl = true
+  vars.netscaler_username = NetScalerUsername
+  vars.netscaler_password = NetScalerPassword
+  vars.netscaler_timeout = 15
+
+  // Host groups
+  groups += [ "netscaler" ]
+}
+
+// Example using template
+object Host "netscaler-prod-01" {
+  import "netscaler-template"
+
+  address = "10.1.1.10"
+  display_name = "NetScaler Production 01"
+
+  vars.netscaler_ha = true
+
+  // Override defaults if needed
+  // vars.netscaler_timeout = 20
+}
+
+object Host "netscaler-prod-02" {
+  import "netscaler-template"
+
+  address = "10.1.1.11"
+  display_name = "NetScaler Production 02 (HA Peer)"
+
+  vars.netscaler_ha = true
+}
+
+// NetScaler Gateway
+object Host "netscaler-gateway" {
+  import "netscaler-template"
+
+  address = "10.2.1.10"
+  display_name = "NetScaler Gateway"
+
+  vars.netscaler_gateway = true
+}
+
+/*
+ * constants.conf example:
+ *
+ * const NetScalerUsername = "monitoring"
+ * const NetScalerPassword = "SecurePassword123"
+ */

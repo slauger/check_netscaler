@@ -1,0 +1,197 @@
+# Nagios Host Examples for check_netscaler v2.0
+# https://github.com/slauger/check_netscaler
+#
+# Copy and adapt these examples to your Nagios configuration.
+# File location: /usr/local/nagios/etc/objects/netscaler-hosts.cfg
+
+# Basic NetScaler Host
+
+define host {
+    use                     generic-host
+    host_name               netscaler01
+    alias                   NetScaler Production 01
+    address                 192.168.1.10
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+}
+
+# NetScaler HA Pair
+
+define host {
+    use                     generic-host
+    host_name               netscaler-prod-01
+    alias                   NetScaler Production 01 (Primary)
+    address                 10.1.1.10
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+    hostgroups              netscaler-hosts,netscaler-ha-hosts
+}
+
+define host {
+    use                     generic-host
+    host_name               netscaler-prod-02
+    alias                   NetScaler Production 02 (Secondary)
+    address                 10.1.1.11
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+    hostgroups              netscaler-hosts,netscaler-ha-hosts
+}
+
+# NetScaler Gateway
+
+define host {
+    use                     generic-host
+    host_name               netscaler-gateway
+    alias                   NetScaler Gateway
+    address                 10.2.1.10
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+    hostgroups              netscaler-hosts,netscaler-gateway-hosts
+}
+
+# NetScaler with Custom Port
+
+define host {
+    use                     generic-host
+    host_name               netscaler-dev
+    alias                   NetScaler Development
+    address                 192.168.100.10
+    _netscaler_user         nsroot
+    _netscaler_pass         nsroot
+    _netscaler_port         8443
+    hostgroups              netscaler-hosts
+}
+
+# NetScaler Host Template
+
+define host {
+    name                    netscaler-template
+    use                     generic-host
+    check_command           check-host-alive
+    max_check_attempts      3
+    check_interval          5
+    retry_interval          1
+    notification_interval   60
+    notification_period     24x7
+    notification_options    d,u,r
+    contact_groups          netscaler-admins
+    register                0
+}
+
+# Using the Template
+
+define host {
+    use                     netscaler-template
+    host_name               netscaler-app-01
+    alias                   NetScaler Application 01
+    address                 10.10.1.10
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+    hostgroups              netscaler-hosts
+}
+
+define host {
+    use                     netscaler-template
+    host_name               netscaler-app-02
+    alias                   NetScaler Application 02
+    address                 10.10.1.11
+    _netscaler_user         monitoring
+    _netscaler_pass         SecurePassword123
+    hostgroups              netscaler-hosts
+}
+
+# Host Groups
+
+define hostgroup {
+    hostgroup_name          netscaler-hosts
+    alias                   NetScaler Appliances
+    members                 netscaler01,netscaler-prod-01,netscaler-prod-02,netscaler-gateway
+}
+
+define hostgroup {
+    hostgroup_name          netscaler-ha-hosts
+    alias                   NetScaler HA Pairs
+    members                 netscaler-prod-01,netscaler-prod-02
+}
+
+define hostgroup {
+    hostgroup_name          netscaler-gateway-hosts
+    alias                   NetScaler Gateways
+    members                 netscaler-gateway
+}
+
+# Contact Groups
+
+define contactgroup {
+    contactgroup_name       netscaler-admins
+    alias                   NetScaler Administrators
+    members                 admin
+}
+
+# Example with Shared Credentials from resource.cfg
+
+define host {
+    use                     generic-host
+    host_name               netscaler-secure-01
+    alias                   NetScaler Secure 01
+    address                 10.20.1.10
+    _netscaler_user         $USER10$
+    _netscaler_pass         $USER11$
+    hostgroups              netscaler-hosts
+}
+
+#
+# Add to resource.cfg:
+#
+# $USER10$=monitoring_user
+# $USER11$=SecurePasswordFromVault
+#
+
+# Multiple Environments
+
+define host {
+    use                     netscaler-template
+    host_name               netscaler-prod
+    alias                   NetScaler Production
+    address                 10.1.1.10
+    _netscaler_user         prod_monitor
+    _netscaler_pass         ProdPassword123
+    hostgroups              netscaler-hosts,production
+}
+
+define host {
+    use                     netscaler-template
+    host_name               netscaler-staging
+    alias                   NetScaler Staging
+    address                 10.2.1.10
+    _netscaler_user         staging_monitor
+    _netscaler_pass         StagingPassword123
+    hostgroups              netscaler-hosts,staging
+}
+
+define host {
+    use                     netscaler-template
+    host_name               netscaler-dev
+    alias                   NetScaler Development
+    address                 10.3.1.10
+    _netscaler_user         nsroot
+    _netscaler_pass         nsroot
+    hostgroups              netscaler-hosts,development
+}
+
+# Environment Host Groups
+
+define hostgroup {
+    hostgroup_name          production
+    alias                   Production Environment
+}
+
+define hostgroup {
+    hostgroup_name          staging
+    alias                   Staging Environment
+}
+
+define hostgroup {
+    hostgroup_name          development
+    alias                   Development Environment
+}
