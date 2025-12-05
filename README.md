@@ -1,9 +1,9 @@
 # check_netscaler v2.0 (Python Rewrite)
 
-> **Work in Progress - Complete Rewrite**
+> **Nearly Complete - 93% Implemented!** 🎉
 >
 > This branch contains a complete rewrite of check_netscaler in Python.
-> This is **not production-ready** and under active development.
+> **14 out of 15 commands are fully implemented with 336 passing tests and CI/CD pipeline.**
 >
 > **Looking for the stable Perl version?** See the [master branch](../../tree/master).
 
@@ -33,39 +33,49 @@ check_netscaler is a Nagios/Icinga monitoring plugin for Citrix NetScaler Applic
 
 ## Development Status
 
-### Core Infrastructure
-- [ ] Python project setup (pyproject.toml, dependencies)
-- [ ] NITRO API client implementation
-- [ ] Mock testing framework
-- [ ] CLI argument parser
-- [ ] Plugin output formatting (Nagios/Icinga compatible)
+**Progress: 14/15 commands (93%) - 336 tests passing ✅**
 
-### Check Commands
-- [ ] `state` - Check vServer/service/servicegroup/server states
-- [ ] `sslcert` - SSL certificate expiration
-- [ ] `above/below` - Threshold checks
-- [ ] `matches/matches_not` - String matching
-- [ ] `nsconfig` - Unsaved configuration changes
-- [ ] `hastatus` - High availability status
-- [ ] `servicegroup` - ServiceGroup with quorum checks
-- [ ] `hwinfo` - Hardware information
-- [ ] `interfaces` - Network interface status
-- [ ] `perfdata` - Performance data collection
-- [ ] `license` - License expiration
-- [ ] `staserver` - STA server availability
-- [ ] `ntp` - NTP synchronization status
-- [ ] `debug` - Debug output
+### Core Infrastructure ✅ COMPLETE
+- [x] Python project setup (pyproject.toml, dependencies)
+- [x] NITRO API client implementation
+- [x] Mock testing framework (pytest-based)
+- [x] CLI argument parser (argparse)
+- [x] Plugin output formatting (Nagios/Icinga compatible)
 
-### Testing & CI/CD
-- [ ] Unit tests with pytest
-- [ ] Mock NITRO API responses
+### Check Commands (14/15 implemented)
+- [x] `state` - Check vServer/service/servicegroup/server states
+- [x] `sslcert` - SSL certificate expiration
+- [x] `above/below` - Threshold checks
+- [x] `matches/matches_not` - String matching
+- [x] `nsconfig` - Unsaved configuration changes
+- [x] `hastatus` - High availability status
+- [x] `servicegroup` - ServiceGroup with quorum checks
+- [x] `hwinfo` - Hardware information
+- [x] `interfaces` - Network interface status
+- [x] `perfdata` - Performance data collection
+- [x] `license` - License expiration
+- [x] `staserver` - STA server availability
+- [x] `ntp` - NTP synchronization status
+- [x] `debug` - Debug output
+
+### Advanced Features ✅ COMPLETE
+- [x] Filter/Limit support (regex-based filtering)
+- [x] Label support (custom perfdata labels)
+- [x] Separator customization (perfdata formatting)
+
+### Testing & CI/CD ✅ COMPLETE
+- [x] 336 unit tests with pytest
+- [x] Mock NITRO API responses
+- [x] GitHub Actions CI/CD pipeline
+- [x] Linting with ruff
+- [x] Code formatting with black
+- [x] Type checking with mypy
 - [ ] Integration tests
-- [ ] GitHub Actions CI/CD pipeline
 - [ ] Code coverage reporting
 
-### Documentation
+### Documentation 🚧 IN PROGRESS
 - [ ] API client documentation
-- [ ] Usage examples
+- [ ] Usage examples for all commands
 - [ ] Migration guide from v1.x
 - [ ] Contributing guidelines
 
@@ -73,25 +83,35 @@ check_netscaler is a Nagios/Icinga monitoring plugin for Citrix NetScaler Applic
 
 ```
 Python >= 3.8
-requests
-pytest (for testing)
-pytest-mock (for testing)
+requests >= 2.31.0
 ```
 
-## Installation (Future)
+**Development dependencies:**
+```
+pytest >= 7.4.0
+pytest-cov >= 4.1.0
+pytest-mock >= 3.11.0
+black >= 23.7.0
+ruff >= 0.0.285
+mypy >= 1.5.0
+```
+
+## Installation
 
 ```bash
-# Via pip (not yet available)
-pip install check_netscaler
-
-# Or from source
+# Clone repository
 git clone https://github.com/slauger/check_netscaler.git
 cd check_netscaler
 git checkout v2-python-rewrite
+
+# Install dependencies
 pip install -e .
+
+# For development
+pip install -e ".[dev]"
 ```
 
-## Planned Usage
+## Usage
 
 ```bash
 # Check load balancer vServer state
@@ -101,10 +121,38 @@ check_netscaler --hostname 192.168.1.10 --ssl --command state --objecttype lbvse
 check_netscaler -H 192.168.1.10 -s -C sslcert -w 30 -c 10
 
 # Check system CPU usage
-check_netscaler -H 192.168.1.10 -s -C above -o system -n cpuusagepcnt -w 75 -c 80
+check_netscaler -H 192.168.1.10 -s -C above -o system -n cpuusagepcnt -w 75 -c 90
+
+# Check HA status
+check_netscaler -H 192.168.1.10 -s -C hastatus
+
+# Check NTP synchronization
+check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03,s=2,j=100,t=3" -c "o=0.05,s=3,j=200,t=2"
+
+# Check interface status with filter
+check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^(1/1|10/1)"
+
+# Generic perfdata collection
+check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits,totalrequests --label name
 ```
 
-## Architecture (Planned)
+## Running Tests
+
+```bash
+# Run all tests
+pytest tests/
+
+# Run with coverage
+pytest tests/ --cov=check_netscaler --cov-report=html
+
+# Run linting
+ruff check check_netscaler/ tests/
+
+# Format code
+black check_netscaler/ tests/
+```
+
+## Architecture
 
 ```
 check_netscaler/
