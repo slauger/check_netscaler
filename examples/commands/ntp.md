@@ -1,5 +1,14 @@
 # ntp - NTP Synchronization Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor NTP synchronization status on NetScaler (compatible with check_ntp_peer format).
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor NTP synchronization status on NetScaler (compatible with check_ntp_peer 
 ### Check NTP synchronization
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp
+check_netscaler -C ntp
 ```
 
 **Output (OK):**
@@ -44,7 +53,7 @@ o=offset,s=stratum,j=jitter,t=truechimers
 ### Default check with offset only
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03" -c "o=0.05"
+check_netscaler -C ntp -w "o=0.03" -c "o=0.05"
 ```
 
 - WARNING if offset > 30ms
@@ -53,7 +62,7 @@ check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03" -c "o=0.05"
 ### Check all metrics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp \
+check_netscaler -C ntp \
   -w "o=0.03,s=2,j=100,t=3" \
   -c "o=0.05,s=3,j=200,t=2"
 ```
@@ -96,7 +105,7 @@ Number of valid NTP peers being used.
 ### Strict offset monitoring
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.01" -c "o=0.02"
+check_netscaler -C ntp -w "o=0.01" -c "o=0.02"
 ```
 
 Very tight offset requirements (10ms/20ms).
@@ -104,7 +113,7 @@ Very tight offset requirements (10ms/20ms).
 ### Stratum monitoring only
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp -w "s=2" -c "s=3"
+check_netscaler -C ntp -w "s=2" -c "s=3"
 ```
 
 Alert if stratum is too high.
@@ -112,7 +121,7 @@ Alert if stratum is too high.
 ### Complete monitoring
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp \
+check_netscaler -C ntp \
   -w "o=0.03,s=2,j=100,t=4" \
   -c "o=0.05,s=3,j=200,t=2"
 ```
@@ -145,13 +154,13 @@ Example:
 ### 1. Basic offset monitoring
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03" -c "o=0.05"
+check_netscaler -C ntp -w "o=0.03" -c "o=0.05"
 ```
 
 ### 2. Recommended full monitoring
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp \
+check_netscaler -C ntp \
   -w "o=0.03,s=2,j=100,t=3" \
   -c "o=0.05,s=3,j=200,t=2"
 ```
@@ -159,7 +168,7 @@ check_netscaler -H 192.168.1.10 -s -C ntp \
 ### 3. Strict requirements
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C ntp \
+check_netscaler -C ntp \
   -w "o=0.01,s=1,j=50,t=4" \
   -c "o=0.02,s=2,j=100,t=3"
 ```

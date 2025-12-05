@@ -1,11 +1,20 @@
 # nsconfig - Unsaved Configuration Detection
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Check if there are unsaved configuration changes on the NetScaler.
 
 ## Basic Usage
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C nsconfig
+check_netscaler -C nsconfig
 ```
 
 **Output (OK - No unsaved changes):**
@@ -33,7 +42,7 @@ The check queries the NetScaler configuration status to detect if there are pend
 Run after making configuration changes to ensure they've been saved:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C nsconfig
+check_netscaler -C nsconfig
 ```
 
 ### 2. Scheduled monitoring
@@ -42,7 +51,7 @@ Monitor regularly to detect accidental unsaved changes:
 
 ```bash
 # In cron or monitoring system
-*/15 * * * * check_netscaler -H 192.168.1.10 -s -C nsconfig
+*/15 * * * * check_netscaler -C nsconfig
 ```
 
 ### 3. Change management compliance

@@ -1,5 +1,14 @@
 # servicegroup - ServiceGroup Member Quorum Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor ServiceGroup member availability and quorum (percentage of active members).
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor ServiceGroup member availability and quorum (percentage of active member
 ### Check servicegroup quorum
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n web_sg -w 50 -c 25
+check_netscaler -C servicegroup -n web_sg -w 50 -c 25
 ```
 
 **Output (OK):**
@@ -42,7 +51,7 @@ Example with `-w 50 -c 25`:
 ### Custom separator for perfdata
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n web_sg -w 50 -c 25 --separator "_"
+check_netscaler -C servicegroup -n web_sg -w 50 -c 25 --separator "_"
 ```
 
 **Output:**
@@ -53,7 +62,7 @@ OK: servicegroup web_sg: 8/10 members UP (80%) | web_sg_member_quorum=80;50;25
 ### Check without thresholds
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n web_sg
+check_netscaler -C servicegroup -n web_sg
 ```
 
 Returns OK with member count, no threshold checking.
@@ -85,7 +94,7 @@ Example:
 ### 1. Production services (strict quorum)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n prod_web_sg -w 75 -c 50
+check_netscaler -C servicegroup -n prod_web_sg -w 75 -c 50
 ```
 
 Requires at least 75% healthy, critical below 50%.
@@ -93,7 +102,7 @@ Requires at least 75% healthy, critical below 50%.
 ### 2. Development services (relaxed quorum)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n dev_web_sg -w 25 -c 10
+check_netscaler -C servicegroup -n dev_web_sg -w 25 -c 10
 ```
 
 More tolerant of member failures.
@@ -101,7 +110,7 @@ More tolerant of member failures.
 ### 3. Database cluster (high availability)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n db_cluster_sg -w 66 -c 33
+check_netscaler -C servicegroup -n db_cluster_sg -w 66 -c 33
 ```
 
 2 out of 3 nodes minimum (66%), critical if only 1 node (33%).
@@ -109,7 +118,7 @@ check_netscaler -H 192.168.1.10 -s -C servicegroup -n db_cluster_sg -w 66 -c 33
 ### 4. Information only (no thresholds)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C servicegroup -n monitoring_sg
+check_netscaler -C servicegroup -n monitoring_sg
 ```
 
 ## Quorum Calculation

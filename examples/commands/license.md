@@ -1,5 +1,14 @@
 # license - License Expiration Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor NetScaler license file expiration dates.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor NetScaler license file expiration dates.
 ### Check all licenses
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license
+check_netscaler -C license
 ```
 
 **Output (OK):**
@@ -28,7 +37,7 @@ CRITICAL: license.lic expires in 5 days | license.lic=5;30;10
 ### Check with custom thresholds
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license -w 60 -c 30
+check_netscaler -C license -w 60 -c 30
 ```
 
 **Default thresholds:** `-w 30 -c 10` (30 days warning, 10 days critical)
@@ -38,7 +47,7 @@ check_netscaler -H 192.168.1.10 -s -C license -w 60 -c 30
 ### Check specific license file
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license -n license.lic
+check_netscaler -C license -n license.lic
 ```
 
 ### Multiple license files
@@ -46,7 +55,7 @@ check_netscaler -H 192.168.1.10 -s -C license -n license.lic
 NetScaler may have multiple `.lic` files:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license
+check_netscaler -C license
 ```
 
 Checks all `.lic` files automatically.
@@ -98,25 +107,25 @@ For permanent licenses:
 ### 1. Production environment (60/30 day thresholds)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license -w 60 -c 30
+check_netscaler -C license -w 60 -c 30
 ```
 
 ### 2. Default monitoring (30/10 days)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license
+check_netscaler -C license
 ```
 
 ### 3. Specific license file
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license -n CNS_V3000_SERVER_PLT_Retail.lic
+check_netscaler -C license -n CNS_V3000_SERVER_PLT_Retail.lic
 ```
 
 ### 4. Check all licenses in /nsconfig/license/
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C license
+check_netscaler -C license
 ```
 
 Auto-discovers all `.lic` files.

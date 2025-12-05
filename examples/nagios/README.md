@@ -50,7 +50,7 @@ systemctl reload nagios
 ```
 define command {
     command_name    check_netscaler_state
-    command_line    /usr/local/nagios/libexec/check_netscaler.py -H $HOSTADDRESS$ -s -u $ARG1$ -p $ARG2$ -C state -o $ARG3$
+    command_line    /usr/local/nagios/libexec/check_netscaler.py -H $HOSTADDRESS$ -u $ARG1$ -p $ARG2$ -C state -o $ARG3$
 }
 ```
 

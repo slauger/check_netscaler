@@ -2,6 +2,7 @@
 Tests for CLI argument parsing and basic functionality
 """
 
+import os
 import pytest
 
 from check_netscaler.cli import create_parser, main
@@ -28,9 +29,10 @@ class TestArgumentParser:
         with pytest.raises(SystemExit):
             parser.parse_args(["-H", "192.168.1.1"])
 
-        # Missing hostname should fail
+        # Missing hostname is allowed at parse time (checked in main())
+        # but command is still required
         with pytest.raises(SystemExit):
-            parser.parse_args(["-C", "state"])
+            parser.parse_args([])
 
     def test_minimal_valid_arguments(self):
         """Test parsing with minimal required arguments"""
@@ -41,15 +43,15 @@ class TestArgumentParser:
         assert args.command == "state"
         assert args.username == "nsroot"  # default
         assert args.password == "nsroot"  # default
-        assert args.ssl is False
+        assert args.ssl is True  # SSL is now default
         assert args.timeout == 15
 
-    def test_ssl_flag(self):
-        """Test SSL flag parsing"""
+    def test_no_ssl_flag(self):
+        """Test --no-ssl flag to disable SSL"""
         parser = create_parser()
-        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state", "-s"])
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state", "--no-ssl"])
 
-        assert args.ssl is True
+        assert args.ssl is False
 
     def test_custom_credentials(self):
         """Test custom username and password"""
@@ -195,3 +197,80 @@ class TestMainFunction:
         with pytest.raises(SystemExit):
             # Try with invalid command (will be caught by argparse)
             main(["-H", "192.168.1.1", "-C", "fictitious"])
+
+    def test_main_missing_hostname_no_env(self):
+        """Test that main fails when hostname is missing and no ENV set"""
+        with pytest.raises(SystemExit) as exc_info:
+            main(["-C", "state"])
+        # Should exit with error about missing hostname
+
+
+class TestEnvironmentVariables:
+    """Test environment variable support"""
+
+    def test_hostname_from_env(self, monkeypatch):
+        """Test hostname from NETSCALER_HOST environment variable"""
+        monkeypatch.setenv("NETSCALER_HOST", "10.0.0.1")
+        parser = create_parser()
+        args = parser.parse_args(["-C", "state"])
+
+        assert args.hostname == "10.0.0.1"
+
+    def test_username_from_env(self, monkeypatch):
+        """Test username from NETSCALER_USER environment variable"""
+        monkeypatch.setenv("NETSCALER_USER", "admin")
+        parser = create_parser()
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state"])
+
+        assert args.username == "admin"
+
+    def test_password_from_env(self, monkeypatch):
+        """Test password from NETSCALER_PASS environment variable"""
+        monkeypatch.setenv("NETSCALER_PASS", "secret123")
+        parser = create_parser()
+        args = parser.parse_args(["-H", "192.168.1.1", "-C", "state"])
+
+        assert args.password == "secret123"
+
+    def test_all_credentials_from_env(self, monkeypatch):
+        """Test all connection parameters from environment variables"""
+        monkeypatch.setenv("NETSCALER_HOST", "10.1.1.10")
+        monkeypatch.setenv("NETSCALER_USER", "monitoring")
+        monkeypatch.setenv("NETSCALER_PASS", "MonitorPass123")
+
+        parser = create_parser()
+        args = parser.parse_args(["-C", "state", "-o", "lbvserver"])
+
+        assert args.hostname == "10.1.1.10"
+        assert args.username == "monitoring"
+        assert args.password == "MonitorPass123"
+        assert args.command == "state"
+        assert args.objecttype == "lbvserver"
+
+    def test_cli_args_override_env(self, monkeypatch):
+        """Test that CLI arguments override environment variables"""
+        monkeypatch.setenv("NETSCALER_HOST", "10.0.0.1")
+        monkeypatch.setenv("NETSCALER_USER", "envuser")
+        monkeypatch.setenv("NETSCALER_PASS", "envpass")
+
+        parser = create_parser()
+        args = parser.parse_args(
+            ["-H", "192.168.1.1", "-u", "cliuser", "-p", "clipass", "-C", "state"]
+        )
+
+        # CLI args should take precedence
+        assert args.hostname == "192.168.1.1"
+        assert args.username == "cliuser"
+        assert args.password == "clipass"
+
+    def test_partial_env_with_defaults(self, monkeypatch):
+        """Test partial environment variables with defaults"""
+        monkeypatch.setenv("NETSCALER_HOST", "10.0.0.1")
+        # USER and PASS should fall back to defaults
+
+        parser = create_parser()
+        args = parser.parse_args(["-C", "state"])
+
+        assert args.hostname == "10.0.0.1"
+        assert args.username == "nsroot"  # default
+        assert args.password == "nsroot"  # default

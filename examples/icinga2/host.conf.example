@@ -13,7 +13,6 @@ object Host "netscaler01" {
 
   // NetScaler-specific variables
   vars.netscaler = true
-  vars.netscaler_ssl = true
   vars.netscaler_username = "monitoring"
   vars.netscaler_password = "SecurePassword123"
 
@@ -35,7 +34,6 @@ template Host "netscaler-template" {
   check_command = "hostalive"
 
   vars.netscaler = true
-  vars.netscaler_ssl = true
   vars.netscaler_username = NetScalerUsername
   vars.netscaler_password = NetScalerPassword
   vars.netscaler_timeout = 15

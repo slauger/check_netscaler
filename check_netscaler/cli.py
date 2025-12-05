@@ -3,6 +3,7 @@ Command-line interface for check_netscaler
 """
 
 import argparse
+import os
 import sys
 from typing import List, Optional
 
@@ -36,29 +37,30 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-H",
         "--hostname",
-        required=True,
-        help="Hostname or IP address of the NetScaler appliance",
+        default=os.getenv("NETSCALER_HOST"),
+        help="Hostname or IP address of the NetScaler appliance (env: NETSCALER_HOST)",
     )
 
     parser.add_argument(
         "-u",
         "--username",
-        default=DEFAULT_USERNAME,
-        help=f"Username for authentication (default: {DEFAULT_USERNAME})",
+        default=os.getenv("NETSCALER_USER", DEFAULT_USERNAME),
+        help=f"Username for authentication (env: NETSCALER_USER, default: {DEFAULT_USERNAME})",
     )
 
     parser.add_argument(
         "-p",
         "--password",
-        default=DEFAULT_PASSWORD,
-        help=f"Password for authentication (default: {DEFAULT_PASSWORD})",
+        default=os.getenv("NETSCALER_PASS", DEFAULT_PASSWORD),
+        help=f"Password for authentication (env: NETSCALER_PASS, default: {DEFAULT_PASSWORD})",
     )
 
     parser.add_argument(
-        "-s",
-        "--ssl",
-        action="store_true",
-        help="Use HTTPS instead of HTTP",
+        "--no-ssl",
+        dest="ssl",
+        action="store_false",
+        default=True,
+        help="Use HTTP instead of HTTPS (default: HTTPS)",
     )
 
     parser.add_argument(
@@ -187,6 +189,10 @@ def main(args: Optional[List[str]] = None) -> int:
     """Main entry point for CLI"""
     parser = create_parser()
     parsed_args = parser.parse_args(args)
+
+    # Validate required arguments
+    if not parsed_args.hostname:
+        parser.error("argument -H/--hostname is required (or set NETSCALER_HOST)")
 
     try:
         # Import here to avoid circular dependencies

@@ -1,5 +1,14 @@
 # perfdata - Generic Performance Data Collection
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Collect arbitrary performance data from any NetScaler object type.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Collect arbitrary performance data from any NetScaler object type.
 ### Collect specific metrics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits,totalrequests
+check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests
 ```
 
 **Output:**
@@ -18,7 +27,7 @@ OK: perfdata collected | 0.totalhits=12345 0.totalrequests=67890 1.totalhits=234
 ### Single object with label
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits,totalrequests --label name
+check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests --label name
 ```
 
 **Output:**
@@ -31,7 +40,7 @@ OK: perfdata collected | web_lb.totalhits=12345 web_lb.totalrequests=67890 api_l
 ### Custom separator
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits --label name --separator "_"
+check_netscaler -C perfdata -o lbvserver -n totalhits --label name --separator "_"
 ```
 
 **Output:**
@@ -42,17 +51,17 @@ OK: perfdata collected | web_lb_totalhits=12345 api_lb_totalhits=23456
 ### Multiple fields
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o system -n cpuusagepcnt,memusagepcnt,disk0perusage
+check_netscaler -C perfdata -o system -n cpuusagepcnt,memusagepcnt,disk0perusage
 ```
 
 ### Specific API endpoint
 
 ```bash
 # Using stat endpoint (default, for performance counters)
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n totalhits --api stat
+check_netscaler -C perfdata -o lbvserver -n totalhits --api stat
 
 # Using config endpoint (for configuration data)
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n ipv46 --api config
+check_netscaler -C perfdata -o lbvserver -n ipv46 --api config
 ```
 
 ## Common Use Cases
@@ -60,35 +69,35 @@ check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver -n ipv46 --api confi
 ### 1. Load balancer metrics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o lbvserver \
+check_netscaler -C perfdata -o lbvserver \
   -n totalhits,totalrequests,requestsrate --label name
 ```
 
 ### 2. Service statistics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o service \
+check_netscaler -C perfdata -o service \
   -n totalrequests,requestsrate,avgttfb --label name
 ```
 
 ### 3. System metrics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o system \
+check_netscaler -C perfdata -o system \
   -n tcpcurestablishedconn,tcpcurserverconn,tcpcurclientconn
 ```
 
 ### 4. SSL/TLS statistics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o ssl \
+check_netscaler -C perfdata -o ssl \
   -n ssltotsessions,ssltothwsessions,ssltotswsessions
 ```
 
 ### 5. Cache statistics
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C perfdata -o cache \
+check_netscaler -C perfdata -o cache \
   -n cachenumobjinmemory,cachebytesserved,cacherecentpercen
 ```
 

@@ -19,17 +19,27 @@ examples/
 All commands follow this general pattern:
 
 ```bash
-check_netscaler -H <hostname> -s -u <username> -p <password> -C <command> [options]
+check_netscaler -H <hostname> -u <username> -p <password> -C <command> [options]
 ```
 
 **Common Options:**
-- `-H, --hostname` - NetScaler hostname or IP
-- `-s, --ssl` - Use HTTPS (recommended)
-- `-u, --username` - Username (default: nsroot)
-- `-p, --password` - Password (default: nsroot)
+- `-H, --hostname` - NetScaler hostname or IP (env: `NETSCALER_HOST`)
+- `-u, --username` - Username (env: `NETSCALER_USER`, default: nsroot)
+- `-p, --password` - Password (env: `NETSCALER_PASS`, default: nsroot)
+- `--no-ssl` - Use HTTP instead of HTTPS (HTTPS is default)
 - `-C, --command` - Check command to execute
 - `-w, --warning` - Warning threshold
 - `-c, --critical` - Critical threshold
+
+**Environment Variables:**
+```bash
+export NETSCALER_HOST=192.168.1.10
+export NETSCALER_USER=monitoring
+export NETSCALER_PASS=SecurePassword123
+
+# Now you can omit -H, -u, and -p from commands
+check_netscaler -C state -o lbvserver
+```
 
 ### Example Commands
 

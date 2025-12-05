@@ -1,11 +1,20 @@
 # hwinfo - Hardware Information
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Display NetScaler hardware and software information.
 
 ## Basic Usage
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hwinfo
+check_netscaler -C hwinfo
 ```
 
 **Output:**
@@ -28,7 +37,7 @@ The command retrieves and displays:
 Collect hardware information across NetScaler fleet:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hwinfo
+check_netscaler -C hwinfo
 ```
 
 ### 2. Version verification
@@ -36,7 +45,7 @@ check_netscaler -H 192.168.1.10 -s -C hwinfo
 Verify NetScaler version for compliance or upgrade planning:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hwinfo
+check_netscaler -C hwinfo
 ```
 
 ### 3. Platform identification
@@ -44,7 +53,7 @@ check_netscaler -H 192.168.1.10 -s -C hwinfo
 Identify whether appliance is physical (MPX), virtual (VPX), or containerized (CPX):
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hwinfo
+check_netscaler -C hwinfo
 ```
 
 ## Platform Types

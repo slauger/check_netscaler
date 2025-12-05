@@ -1,5 +1,14 @@
 # hastatus - High Availability Status Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor NetScaler High Availability (HA) configuration and sync status.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor NetScaler High Availability (HA) configuration and sync status.
 ### Check HA status
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hastatus
+check_netscaler -C hastatus
 ```
 
 **Output (OK - PRIMARY):**
@@ -83,16 +92,16 @@ The check monitors:
 
 ```bash
 # Using stat endpoint (default)
-check_netscaler -H 192.168.1.10 -s -C hastatus --api stat
+check_netscaler -C hastatus --api stat
 
 # Using config endpoint
-check_netscaler -H 192.168.1.10 -s -C hastatus --api config
+check_netscaler -C hastatus --api config
 ```
 
 ### Custom object type
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hastatus -o hanode
+check_netscaler -C hastatus -o hanode
 ```
 
 ## Common Use Cases
@@ -100,17 +109,19 @@ check_netscaler -H 192.168.1.10 -s -C hastatus -o hanode
 ### 1. Basic HA health check
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C hastatus
+check_netscaler -C hastatus
 ```
 
 ### 2. Monitor both nodes
 
 ```bash
-# Check primary
-check_netscaler -H 192.168.1.10 -s -C hastatus
+# Check primary (using default NETSCALER_HOST)
+check_netscaler -C hastatus
 
-# Check secondary
-check_netscaler -H 192.168.1.11 -s -C hastatus
+# Check secondary (override host for this check)
+NETSCALER_HOST=192.168.1.11 check_netscaler -C hastatus
+# or use -H to override:
+check_netscaler -H 192.168.1.11 -C hastatus
 ```
 
 ### 3. Sync status monitoring

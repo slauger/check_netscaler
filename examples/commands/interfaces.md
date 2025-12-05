@@ -1,5 +1,14 @@
 # interfaces - Network Interface Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor network interface status and statistics on NetScaler.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor network interface status and statistics on NetScaler.
 ### Check all interfaces
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces
+check_netscaler -C interfaces
 ```
 
 **Output (OK):**
@@ -23,7 +32,7 @@ CRITICAL: 3 UP, 1 DOWN (10/2) | 1/1.rxbytes=... 1/2.rxbytes=... 10/1.rxbytes=...
 ### Check specific interface
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^1/1$"
+check_netscaler -C interfaces --filter "^1/1$"
 ```
 
 ## Interface States
@@ -46,19 +55,19 @@ The check evaluates multiple state indicators:
 Check only uplink interfaces:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^10/"
+check_netscaler -C interfaces --filter "^10/"
 ```
 
 ### Exclude management interfaces
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --limit "^0/"
+check_netscaler -C interfaces --limit "^0/"
 ```
 
 ### Custom separator for perfdata
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --separator "_"
+check_netscaler -C interfaces --separator "_"
 ```
 
 Output: `1_1.rxbytes=...` instead of `1/1.rxbytes=...`
@@ -83,31 +92,31 @@ Example:
 ### 1. Monitor all production interfaces
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces
+check_netscaler -C interfaces
 ```
 
 ### 2. Check 10GbE uplinks only
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^10/"
+check_netscaler -C interfaces --filter "^10/"
 ```
 
 ### 3. Monitor specific interface
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --filter "^1/1$"
+check_netscaler -C interfaces --filter "^1/1$"
 ```
 
 ### 4. Exclude VLAN interfaces
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --limit "^LA/"
+check_netscaler -C interfaces --limit "^LA/"
 ```
 
 ### 5. Custom perfdata separator (for Icinga/Nagios compatibility)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C interfaces --separator "_"
+check_netscaler -C interfaces --separator "_"
 ```
 
 ## Interface Naming

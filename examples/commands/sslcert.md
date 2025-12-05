@@ -1,5 +1,14 @@
 # sslcert - SSL Certificate Expiration Monitoring
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor SSL certificate expiration dates on your NetScaler.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor SSL certificate expiration dates on your NetScaler.
 ### Check all certificates
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert
+check_netscaler -C sslcert
 ```
 
 **Output (OK):**
@@ -28,7 +37,7 @@ CRITICAL: old-cert.example.com expires in 5 days | old-cert.example.com=5;30;10
 ### Check with custom thresholds
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert -w 60 -c 30
+check_netscaler -C sslcert -w 60 -c 30
 ```
 
 Warns if certificate expires within 60 days, critical if within 30 days.
@@ -42,19 +51,19 @@ Warns if certificate expires within 60 days, critical if within 30 days.
 Check only certificates matching a pattern:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert --filter "^wildcard"
+check_netscaler -C sslcert --filter "^wildcard"
 ```
 
 ### Exclude test certificates
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert --limit "^test-"
+check_netscaler -C sslcert --limit "^test-"
 ```
 
 ### Check single certificate
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert --filter "^wildcard.example.com$"
+check_netscaler -C sslcert --filter "^wildcard.example.com$"
 ```
 
 ## Certificate Status
@@ -82,25 +91,25 @@ Example:
 ### 1. Production certificates (60/30 day thresholds)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert -w 60 -c 30 --filter "^prod-"
+check_netscaler -C sslcert -w 60 -c 30 --filter "^prod-"
 ```
 
 ### 2. Wildcard certificates
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert --filter "wildcard"
+check_netscaler -C sslcert --filter "wildcard"
 ```
 
 ### 3. All certificates (default 30/10)
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert
+check_netscaler -C sslcert
 ```
 
 ### 4. Exclude dev/test environments
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C sslcert --limit "^(dev-|test-)"
+check_netscaler -C sslcert --limit "^(dev-|test-)"
 ```
 
 ## Exit Codes

@@ -37,7 +37,7 @@ object Host "netscaler01" {
   import "generic-host"
   address = "192.168.1.10"
 
-  vars.netscaler_ssl = true
+  vars.netscaler = true
   vars.netscaler_username = "nsroot"
   vars.netscaler_password = "password"
 }
@@ -52,7 +52,7 @@ apply Service "netscaler-lbvservers" {
 
   vars.netscaler_objecttype = "lbvserver"
 
-  assign where host.vars.netscaler_ssl
+  assign where host.vars.netscaler
 }
 ```
 
@@ -63,8 +63,8 @@ All CheckCommands support these common variables:
 - `vars.netscaler_hostname` - NetScaler hostname/IP (default: `host.address`)
 - `vars.netscaler_username` - Username (default: `nsroot`)
 - `vars.netscaler_password` - Password (default: `nsroot`)
-- `vars.netscaler_ssl` - Use HTTPS (default: `true`)
-- `vars.netscaler_port` - TCP port (default: auto)
+- `vars.netscaler_no_ssl` - Use HTTP instead of HTTPS (default: HTTPS is used)
+- `vars.netscaler_port` - TCP port (default: auto - 443 for HTTPS, 80 for HTTP)
 - `vars.netscaler_timeout` - Timeout in seconds (default: `10`)
 
 ## Available CheckCommands

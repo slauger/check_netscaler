@@ -9,6 +9,11 @@ This is a complete Python rewrite of check_netscaler. **All 16 check commands ar
 > **Looking for the stable Perl version (v1.x)?**
 > See the [master branch](../../tree/master) or tags < 2.0.0 for the legacy Perl implementation.
 
+### Breaking Changes from v1.x
+
+- **HTTPS is now default** - Use `--no-ssl` for HTTP instead of `-s` for HTTPS
+- Environment variable support added: `NETSCALER_HOST`, `NETSCALER_USER`, `NETSCALER_PASS`
+
 ## Features
 
 Monitor your NetScaler without SNMP:
@@ -56,20 +61,45 @@ pip install -e ".[dev]"
 
 ```bash
 # Check all load balancer vServers
-check_netscaler -H 192.168.1.10 -s -u nsroot -p nsroot -C state -o lbvserver
+check_netscaler -H 192.168.1.10 -u nsroot -p nsroot -C state -o lbvserver
 
 # Check SSL certificate expiration
-check_netscaler -H 192.168.1.10 -s -C sslcert -w 60 -c 30
+check_netscaler -H 192.168.1.10 -C sslcert -w 60 -c 30
 
 # Check CPU usage
-check_netscaler -H 192.168.1.10 -s -C above -o system -n cpuusagepcnt -w 75 -c 90
+check_netscaler -H 192.168.1.10 -C above -o system -n cpuusagepcnt -w 75 -c 90
 
 # Check HA status
-check_netscaler -H 192.168.1.10 -s -C hastatus
+check_netscaler -H 192.168.1.10 -C hastatus
 
 # Check NTP sync
-check_netscaler -H 192.168.1.10 -s -C ntp -w "o=0.03" -c "o=0.05"
+check_netscaler -H 192.168.1.10 -C ntp -w "o=0.03" -c "o=0.05"
 ```
+
+### Using Environment Variables (Recommended)
+
+For improved security and convenience, use environment variables instead of command-line arguments:
+
+```bash
+# Export credentials once
+export NETSCALER_HOST=192.168.1.10
+export NETSCALER_USER=monitoring
+export NETSCALER_PASS=SecurePassword123
+
+# Now run checks without passing credentials
+check_netscaler -C state -o lbvserver
+check_netscaler -C sslcert -w 60 -c 30
+check_netscaler -C hastatus
+```
+
+**Why use environment variables?**
+
+- **Security**: Credentials are not visible in process listings (`ps`, `top`, `/proc`)
+- **Convenience**: Set once, use in multiple commands
+- **Best Practice**: Follows patterns from other monitoring plugins (PostgreSQL, MySQL)
+- **Integration**: Works seamlessly with Icinga 2 `env` attribute, Nagios/systemd environments
+
+Command-line arguments always override environment variables if both are provided.
 
 ## Available Commands
 

@@ -1,5 +1,14 @@
 # staserver - STA Server Availability
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Monitor Secure Ticket Authority (STA) server availability for NetScaler Gateway.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Monitor Secure Ticket Authority (STA) server availability for NetScaler Gateway.
 ### Check all STA servers
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver
+check_netscaler -C staserver
 ```
 
 **Output (OK):**
@@ -39,19 +48,19 @@ Secure Ticket Authority (STA) servers:
 Check STA servers for a specific VPN vServer:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --filter "vpn_gateway_vserver"
+check_netscaler -C staserver --filter "vpn_gateway_vserver"
 ```
 
 ### Check specific STA server
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --filter "^sta01.example.com$"
+check_netscaler -C staserver --filter "^sta01.example.com$"
 ```
 
 ### Exclude test STA servers
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --limit "^test-"
+check_netscaler -C staserver --limit "^test-"
 ```
 
 ## STA Server States
@@ -76,25 +85,25 @@ The check retrieves both binding types.
 ### 1. Monitor all STA servers
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver
+check_netscaler -C staserver
 ```
 
 ### 2. Check production STA servers only
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --filter "^prod-"
+check_netscaler -C staserver --filter "^prod-"
 ```
 
 ### 3. Monitor specific VPN vServer's STAs
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --filter "vpn_prod"
+check_netscaler -C staserver --filter "vpn_prod"
 ```
 
 ### 4. Exclude development STAs
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C staserver --limit "^(dev-|test-)"
+check_netscaler -C staserver --limit "^(dev-|test-)"
 ```
 
 ## Status Logic

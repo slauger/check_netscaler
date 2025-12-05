@@ -1,5 +1,14 @@
 # matches / matches_not - String Matching Checks
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Check if API field values match (or don't match) expected strings.
 
 ## Basic Usage
@@ -7,7 +16,7 @@ Check if API field values match (or don't match) expected strings.
 ### matches - Alert when value EQUALS keyword
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches -o hanode -n hacurstate -w UP -c DOWN
+check_netscaler -C matches -o hanode -n hacurstate -w UP -c DOWN
 ```
 
 **Logic:**
@@ -18,7 +27,7 @@ check_netscaler -H 192.168.1.10 -s -C matches -o hanode -n hacurstate -w UP -c D
 ### matches_not - Alert when value DOES NOT EQUAL keyword
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches_not -o hanode -n hacurmasterstate -w SECONDARY -c PRIMARY
+check_netscaler -C matches_not -o hanode -n hacurmasterstate -w SECONDARY -c PRIMARY
 ```
 
 **Logic:**
@@ -30,10 +39,10 @@ check_netscaler -H 192.168.1.10 -s -C matches_not -o hanode -n hacurmasterstate 
 
 ```bash
 # matches: value EQUALS keyword → alert
-check_netscaler -H <host> -s -C matches -o <objecttype> -n <field> -w <warn_keyword> -c <crit_keyword>
+check_netscaler -C matches -o <objecttype> -n <field> -w <warn_keyword> -c <crit_keyword>
 
 # matches_not: value NOT EQUALS keyword → alert
-check_netscaler -H <host> -s -C matches_not -o <objecttype> -n <field> -w <warn_keyword> -c <crit_keyword>
+check_netscaler -C matches_not -o <objecttype> -n <field> -w <warn_keyword> -c <crit_keyword>
 ```
 
 ## Advanced Usage
@@ -41,7 +50,7 @@ check_netscaler -H <host> -s -C matches_not -o <objecttype> -n <field> -w <warn_
 ### Multiple fields
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches -o hanode \
+check_netscaler -C matches -o hanode \
   -n hacurstate,hacurmasterstate \
   -w "UP,SECONDARY" \
   -c "DOWN,UNKNOWN"
@@ -52,7 +61,7 @@ Checks multiple fields against keywords.
 ### Arrays with labels
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches -o service \
+check_netscaler -C matches -o service \
   -n state \
   -w "OUT OF SERVICE" \
   -c DOWN \
@@ -64,7 +73,7 @@ Checks field in multiple objects, uses `name` field for labeling.
 ### Custom separator
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches -o hanode -n hacurstate -w UP -c DOWN --separator "_"
+check_netscaler -C matches -o hanode -n hacurstate -w UP -c DOWN --separator "_"
 ```
 
 ## Use Cases
@@ -73,7 +82,7 @@ check_netscaler -H 192.168.1.10 -s -C matches -o hanode -n hacurstate -w UP -c D
 
 ```bash
 # Alert if node is not PRIMARY
-check_netscaler -H 192.168.1.10 -s -C matches_not -o hanode \
+check_netscaler -C matches_not -o hanode \
   -n hacurmasterstate \
   -w SECONDARY \
   -c PRIMARY
@@ -83,7 +92,7 @@ check_netscaler -H 192.168.1.10 -s -C matches_not -o hanode \
 
 ```bash
 # Alert if service state matches problem states
-check_netscaler -H 192.168.1.10 -s -C matches -o service \
+check_netscaler -C matches -o service \
   -n state \
   -w "OUT OF SERVICE" \
   -c DOWN \
@@ -94,7 +103,7 @@ check_netscaler -H 192.168.1.10 -s -C matches -o service \
 
 ```bash
 # Check if setting has expected value
-check_netscaler -H 192.168.1.10 -s -C matches_not -o nsparam \
+check_netscaler -C matches_not -o nsparam \
   -n httponlycookieflag \
   -w "" \
   -c ENABLED
@@ -105,7 +114,7 @@ Critical if not ENABLED.
 ### 4. Multiple Services
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C matches -o service \
+check_netscaler -C matches -o service \
   -n state \
   -w "GOING OUT OF SERVICE" \
   -c DOWN \

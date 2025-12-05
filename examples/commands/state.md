@@ -4,6 +4,14 @@ The `state` command checks the operational state of NetScaler objects (vServers,
 
 **Most important command - covers 80% of monitoring use cases!**
 
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 ## Supported Object Types
 
 - `lbvserver` - Load Balancing Virtual Servers
@@ -19,7 +27,7 @@ The `state` command checks the operational state of NetScaler objects (vServers,
 ### Check all load balancing vServers
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver
+check_netscaler -C state -o lbvserver
 ```
 
 **Output:**
@@ -30,7 +38,7 @@ OK: lbvserver - 5 UP (web_lb, app_lb, api_lb, admin_lb, monitoring_lb) | total=5
 ### Check specific vServer by name
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver -n web_lb
+check_netscaler -C state -o lbvserver -n web_lb
 ```
 
 **Output:**
@@ -41,7 +49,7 @@ OK: lbvserver web_lb is UP | web_lb.activeconnections=42
 ### Check all services
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o service
+check_netscaler -C state -o service
 ```
 
 **Output:**
@@ -56,7 +64,7 @@ WARNING: service - 18 UP, 2 DOWN (web_svc_01, db_svc_backup) | total=20 up=18 do
 Check only vServers matching a pattern:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver --filter "^web_"
+check_netscaler -C state -o lbvserver --filter "^web_"
 ```
 
 **Output:**
@@ -69,7 +77,7 @@ OK: lbvserver - 3 UP (web_lb_prod, web_lb_test, web_lb_dev) | total=3 up=3 down=
 Check all vServers EXCEPT those matching a pattern:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver --limit "^test_"
+check_netscaler -C state -o lbvserver --limit "^test_"
 ```
 
 Excludes all vServers starting with "test_".
@@ -80,13 +88,13 @@ Check multiple object types in sequence:
 
 ```bash
 # Check vServers
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver
+check_netscaler -C state -o lbvserver
 
 # Check services
-check_netscaler -H 192.168.1.10 -s -C state -o service
+check_netscaler -C state -o service
 
 # Check service groups
-check_netscaler -H 192.168.1.10 -s -C state -o servicegroup
+check_netscaler -C state -o servicegroup
 ```
 
 ## State Mappings
@@ -122,25 +130,25 @@ For multiple objects:
 ### 1. Monitor production load balancers
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver --filter "^prod_"
+check_netscaler -C state -o lbvserver --filter "^prod_"
 ```
 
 ### 2. Check database services
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o service --filter "^db_"
+check_netscaler -C state -o service --filter "^db_"
 ```
 
 ### 3. Monitor all service groups
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o servicegroup
+check_netscaler -C state -o servicegroup
 ```
 
 ### 4. Exclude test/dev environments
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C state -o lbvserver --limit "^(test_|dev_)"
+check_netscaler -C state -o lbvserver --limit "^(test_|dev_)"
 ```
 
 ## Exit Codes

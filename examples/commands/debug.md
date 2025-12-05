@@ -1,11 +1,20 @@
 # debug - Raw API Output
 
+
+> **Note**: All examples assume environment variables are set:
+> ```bash
+> export NETSCALER_HOST=192.168.1.10
+> export NETSCALER_USER=nsroot
+> export NETSCALER_PASS=nsroot
+> ```
+> See [Environment Variables](../../README.md#using-environment-variables-recommended) for details.
+
 Display raw JSON output from the NITRO API for troubleshooting and discovery.
 
 ## Basic Usage
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver
+check_netscaler -C debug -o lbvserver
 ```
 
 **Output:**
@@ -33,7 +42,7 @@ OK: debug output
 Find out what fields are available for an object type:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o system
+check_netscaler -C debug -o system
 ```
 
 ### 2. Troubleshoot API responses
@@ -41,7 +50,7 @@ check_netscaler -H 192.168.1.10 -s -C debug -o system
 See exactly what the NITRO API returns:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o hanode
+check_netscaler -C debug -o hanode
 ```
 
 ### 3. Check specific object
@@ -49,7 +58,7 @@ check_netscaler -H 192.168.1.10 -s -C debug -o hanode
 View details of a specific named object:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver -n web_lb
+check_netscaler -C debug -o lbvserver -n web_lb
 ```
 
 ### 4. Test API connectivity
@@ -57,7 +66,7 @@ check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver -n web_lb
 Verify API access and authentication:
 
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o nsversion
+check_netscaler -C debug -o nsversion
 ```
 
 ## Advanced Usage
@@ -66,10 +75,10 @@ check_netscaler -H 192.168.1.10 -s -C debug -o nsversion
 
 ```bash
 # Using stat endpoint (performance counters)
-check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver --api stat
+check_netscaler -C debug -o lbvserver --api stat
 
 # Using config endpoint (configuration data)
-check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver --api config
+check_netscaler -C debug -o lbvserver --api config
 ```
 
 ### Pretty-printed JSON
@@ -80,34 +89,34 @@ The output is automatically pretty-printed for readability.
 
 ### System Information
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o nsversion
-check_netscaler -H 192.168.1.10 -s -C debug -o nshardware
-check_netscaler -H 192.168.1.10 -s -C debug -o system
+check_netscaler -C debug -o nsversion
+check_netscaler -C debug -o nshardware
+check_netscaler -C debug -o system
 ```
 
 ### Load Balancing
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o lbvserver
-check_netscaler -H 192.168.1.10 -s -C debug -o service
-check_netscaler -H 192.168.1.10 -s -C debug -o servicegroup
+check_netscaler -C debug -o lbvserver
+check_netscaler -C debug -o service
+check_netscaler -C debug -o servicegroup
 ```
 
 ### SSL/Certificates
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o sslcertkey
-check_netscaler -H 192.168.1.10 -s -C debug -o sslvserver
+check_netscaler -C debug -o sslcertkey
+check_netscaler -C debug -o sslvserver
 ```
 
 ### High Availability
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o hanode
-check_netscaler -H 192.168.1.10 -s -C debug -o hasync
+check_netscaler -C debug -o hanode
+check_netscaler -C debug -o hasync
 ```
 
 ### Network
 ```bash
-check_netscaler -H 192.168.1.10 -s -C debug -o interface
-check_netscaler -H 192.168.1.10 -s -C debug -o vlan
+check_netscaler -C debug -o interface
+check_netscaler -C debug -o vlan
 ```
 
 ## Output Format
