@@ -102,6 +102,7 @@ branch = "master"
 upload_to_pypi = false
 upload_to_release = true
 build_command = "pip install build && python -m build"
+commit_parser = "angular"
 
 [tool.semantic_release.commit_parser_options]
 allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
