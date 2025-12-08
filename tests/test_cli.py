@@ -2,7 +2,6 @@
 Tests for CLI argument parsing and basic functionality
 """
 
-import os
 import pytest
 
 from check_netscaler.cli import create_parser, main
@@ -200,7 +199,7 @@ class TestMainFunction:
 
     def test_main_missing_hostname_no_env(self):
         """Test that main fails when hostname is missing and no ENV set"""
-        with pytest.raises(SystemExit) as exc_info:
+        with pytest.raises(SystemExit):
             main(["-C", "state"])
         # Should exit with error about missing hostname
 
