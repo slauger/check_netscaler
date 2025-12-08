@@ -4,10 +4,10 @@ Nagios/Icinga monitoring plugin for Citrix NetScaler (ADC) using the NITRO REST 
 
 ## Version 2.0 - Python Rewrite
 
-This is a complete Python rewrite of check_netscaler. **All 16 check commands are implemented** with 336 passing tests and full CI/CD integration.
+This is a complete Python rewrite of check_netscaler. **All 16 check commands are implemented** with 343 passing tests and full CI/CD integration.
 
 > **Looking for the stable Perl version (v1.x)?**
-> See the [master branch](../../tree/master) or tags < 2.0.0 for the legacy Perl implementation.
+> See tags < 2.0.0 for the legacy Perl implementation.
 
 ### Breaking Changes from v1.x
 
@@ -151,7 +151,7 @@ GitHub Actions pipeline runs automatically on every push:
 - Linting with ruff
 - Code formatting with black
 - Type checking with mypy
-- Full test suite (336 tests)
+- Full test suite (343 tests)
 
 ## License
 
