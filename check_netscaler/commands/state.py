@@ -153,8 +153,8 @@ class StateCommand(BaseCommand):
                 status_str = "UNKNOWN"
                 warning_objects.append(name)
 
-            # Add to long output
-            long_output.append(f"{name}: {state} ({status_str})")
+            # Add to long output with Icinga2-compatible status tags
+            long_output.append(f"[{status_str}] {name}: {state}")
 
         # Determine overall status
         if critical_count > 0:

@@ -228,8 +228,8 @@ class TestStateCommand:
         result = command.execute()
 
         assert len(result.long_output) == 2
-        assert "svc1: UP" in result.long_output[0]
-        assert "svc2: DOWN" in result.long_output[1]
+        assert "[OK] svc1: UP" in result.long_output[0]
+        assert "[CRITICAL] svc2: DOWN" in result.long_output[1]
 
     def test_state_case_insensitive(self):
         """Test that state matching is case-insensitive"""

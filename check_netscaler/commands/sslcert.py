@@ -149,13 +149,13 @@ class SSLCertCommand(BaseCommand):
                         f"{total_checked} certificate(s) OK (warn={warning}d, crit={critical}d)"
                     )
 
-            # Build long output if there are issues
+            # Build long output with Icinga2-compatible status tags
             long_output: List[str] = []
             if critical_certs or warning_certs:
                 for cert_msg in critical_certs:
-                    long_output.append(f"CRITICAL: {cert_msg}")
+                    long_output.append(f"[CRITICAL] {cert_msg}")
                 for cert_msg in warning_certs:
-                    long_output.append(f"WARNING: {cert_msg}")
+                    long_output.append(f"[WARNING] {cert_msg}")
 
             return CheckResult(
                 status=status,
