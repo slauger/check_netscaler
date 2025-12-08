@@ -117,24 +117,17 @@ class ServiceGroupCommand(BaseCommand):
 
             # Check member health
             member_states: Dict[str, str] = {}
-            member_details: List[str] = []
 
             for member in members:
                 server_name = member.get("servername", "Unknown")
-                server_ip = member.get("ip", "")
-                server_port = member.get("port", "")
-                server_state = member.get("svrstate", "UNKNOWN")
                 member_state_field = member.get("state", "UNKNOWN")
+                server_state = member.get("svrstate", "UNKNOWN")
 
                 # Check member health - both state and svrstate must be healthy
                 is_healthy = member_state_field == "ENABLED" and server_state == "UP"
 
                 # Track member state for quorum calculation
                 member_states[server_name] = "UP" if is_healthy else "DOWN"
-
-                # Build detail string
-                detail = f"{server_name} ({server_ip}:{server_port}) is {server_state}"
-                member_details.append(detail)
 
             # Count states
             members_up = sum(1 for state in member_states.values() if state == "UP")
@@ -166,15 +159,27 @@ class ServiceGroupCommand(BaseCommand):
 
             message = f"{sg_info} - {quorum_info}"
 
-            # Build long output
+            # Build long output with Icinga2-compatible status tags
             long_output: List[str] = []
 
             # Add servicegroup errors
             for error in sg_errors:
-                long_output.append(f"CRITICAL: {error}")
+                long_output.append(f"[CRITICAL] {error}")
 
-            # Add member details
-            for detail in member_details:
+            # Add member details with status tags
+            for idx, member in enumerate(members):
+                server_name = member.get("servername", "Unknown")
+                server_ip = member.get("ip", "")
+                server_port = member.get("port", "")
+                member_state = member_states.get(server_name, "UNKNOWN")
+
+                # Determine status tag
+                if member_state == "UP":
+                    status_tag = "[OK]"
+                else:
+                    status_tag = "[CRITICAL]"
+
+                detail = f"{status_tag} {server_name} ({server_ip}:{server_port}) is {member.get('svrstate', 'UNKNOWN')}"
                 long_output.append(detail)
 
             # Build performance data

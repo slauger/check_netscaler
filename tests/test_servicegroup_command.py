@@ -239,6 +239,7 @@ class TestServiceGroupCommand:
 
         # Should be CRITICAL due to servicegroup state
         assert result.status == STATE_CRITICAL
+        assert "[CRITICAL]" in str(result.long_output)
         assert "state is DISABLED" in str(result.long_output)
 
     def test_servicegroup_effective_state_down(self):
@@ -277,6 +278,7 @@ class TestServiceGroupCommand:
         result = command.execute()
 
         assert result.status == STATE_CRITICAL
+        assert "[CRITICAL]" in str(result.long_output)
         assert "effective state is DOWN" in str(result.long_output)
 
     def test_custom_quorum_thresholds(self):
@@ -555,12 +557,10 @@ class TestServiceGroupCommand:
         command = ServiceGroupCommand(client, args)
         result = command.execute()
 
-        # Check that long output contains member details
+        # Check that long output contains member details with status tags
         long_output_str = "\n".join(result.long_output)
-        assert "server1 (192.168.1.10:80)" in long_output_str
-        assert "server2 (192.168.1.11:8080)" in long_output_str
-        assert "is UP" in long_output_str
-        assert "is DOWN" in long_output_str
+        assert "[OK] server1 (192.168.1.10:80) is UP" in long_output_str
+        assert "[CRITICAL] server2 (192.168.1.11:8080) is DOWN" in long_output_str
 
     def test_custom_separator_in_perfdata(self):
         """Test that custom separator is used in perfdata"""
