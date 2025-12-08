@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v2.1.0 (2025-12-08)
+
+### Feature
+
+* feat: Add Icinga2-compatible status tags to multiline output
+
+Add [OK], [WARNING], and [CRITICAL] status tags to long_output in
+state, servicegroup, and sslcert commands. These tags enable automatic
+color-coding in Icinga Web 2 for improved visibility of issues.
+
+Changes:
+- state: Add status tags to each object&#39;s state line
+- servicegroup: Add status tags to member health details
+- sslcert: Add status tags to certificate expiration warnings
+
+This implements the feature requested in issue #28 for better
+multiline output formatting in Icinga Web 2.
+
+Refs: #28 ([`4dc7454`](https://github.com/slauger/check_netscaler/commit/4dc7454441ffe288f7e2dd3990b5717c4342e0a1))
+
+### Fix
+
+* fix: Remove unused loop variable idx in servicegroup command
+
+Remove unused enumerate index to fix ruff B007 linting error. ([`a1b6315`](https://github.com/slauger/check_netscaler/commit/a1b631512354832f162985b15c4b61531734e425))
+
+### Unknown
+
+* Merge pull request #137 from slauger/feature/icinga-status-tags
+
+feat: Add Icinga2-compatible status tags to multiline output ([`05bf4bb`](https://github.com/slauger/check_netscaler/commit/05bf4bb66205e70cdbf7cff587b7b00888d93418))
+
 ## v2.0.0 (2025-12-08)
 
 ### Breaking
