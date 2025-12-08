@@ -30,22 +30,22 @@ class InterfacesCommand(BaseCommand):
 
             # Fetch data
             if endpoint == "config":
-                data = self.client.get_config("Interface")
+                data = self.client.get_config("interface")
             elif endpoint == "stat":
-                data = self.client.get_stat("Interface")
+                data = self.client.get_stat("interface")
             else:
                 return CheckResult(
                     status=STATE_UNKNOWN,
                     message=f"Invalid endpoint: {endpoint}",
                 )
 
-            if "Interface" not in data:
+            if "interface" not in data:
                 return CheckResult(
                     status=STATE_UNKNOWN,
-                    message="interfaces: 'Interface' not found in API response",
+                    message="interfaces: 'interface' not found in API response",
                 )
 
-            response = data["Interface"]
+            response = data["interface"]
 
             # Handle both single object and list
             if not isinstance(response, list):

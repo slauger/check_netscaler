@@ -35,7 +35,7 @@ class TestInterfacesCommand:
         """Test when all interfaces are UP"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -70,7 +70,7 @@ class TestInterfacesCommand:
         """Test interface with linkstate DOWN"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "0",  # DOWN
@@ -95,7 +95,7 @@ class TestInterfacesCommand:
         """Test interface with intfstate DOWN"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -120,7 +120,7 @@ class TestInterfacesCommand:
         """Test interface with state DISABLED"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -145,7 +145,7 @@ class TestInterfacesCommand:
         """Test multiple interfaces, all OK"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -181,7 +181,7 @@ class TestInterfacesCommand:
         """Test multiple interfaces with one DOWN"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -218,7 +218,7 @@ class TestInterfacesCommand:
         """Test interface with multiple errors"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "0",  # DOWN
@@ -245,7 +245,7 @@ class TestInterfacesCommand:
         """Test filtering out interfaces by regex"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "0",  # Would be DOWN
@@ -283,7 +283,7 @@ class TestInterfacesCommand:
         """Test limiting to specific interfaces by regex"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -321,7 +321,7 @@ class TestInterfacesCommand:
         """Test when Interface is returned as dict instead of list"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": {
+            "interface": {
                 "devicename": "0/1",
                 "linkstate": "1",
                 "intfstate": "1",
@@ -343,7 +343,7 @@ class TestInterfacesCommand:
     def test_no_interfaces_found(self):
         """Test when no interfaces are found"""
         client = self.create_mock_client()
-        client.get_config.return_value = {"Interface": []}
+        client.get_config.return_value = {"interface": []}
 
         args = self.create_args()
         command = InterfacesCommand(client, args)
@@ -368,7 +368,7 @@ class TestInterfacesCommand:
         """Test with stat endpoint"""
         client = self.create_mock_client()
         client.get_stat.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -405,7 +405,7 @@ class TestInterfacesCommand:
         """Test with invalid filter regex"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -430,7 +430,7 @@ class TestInterfacesCommand:
         """Test with invalid limit regex"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -455,7 +455,7 @@ class TestInterfacesCommand:
         """Test that performance data is included"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -489,7 +489,7 @@ class TestInterfacesCommand:
         """Test with custom separator for perfdata"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -515,7 +515,7 @@ class TestInterfacesCommand:
         """Test interface with missing optional fields"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -537,7 +537,7 @@ class TestInterfacesCommand:
         """Test with invalid perfdata values (non-numeric)"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -593,7 +593,7 @@ class TestInterfacesCommand:
         """Test message format when there are errors"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "0",
@@ -620,7 +620,7 @@ class TestInterfacesCommand:
         """Test message format when there are no errors"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",
@@ -647,7 +647,7 @@ class TestInterfacesCommand:
         """Test linkstate as string value"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     "linkstate": "1",  # Already a string
@@ -671,7 +671,7 @@ class TestInterfacesCommand:
         """Test when linkstate field is missing"""
         client = self.create_mock_client()
         client.get_config.return_value = {
-            "Interface": [
+            "interface": [
                 {
                     "devicename": "0/1",
                     # Missing linkstate
