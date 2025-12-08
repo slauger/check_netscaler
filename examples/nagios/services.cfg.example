@@ -1,0 +1,252 @@
+# Nagios Service Examples for check_netscaler v2.0
+# https://github.com/slauger/check_netscaler
+#
+# Copy and adapt these examples to your Nagios configuration.
+# File location: /usr/local/nagios/etc/objects/netscaler-services.cfg
+
+# Basic State Checks
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - LB vServers
+    check_command           check_netscaler_state!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!lbvserver
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Services
+    check_command           check_netscaler_state!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!service
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - ServiceGroups
+    check_command           check_netscaler_state!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!servicegroup
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Servers
+    check_command           check_netscaler_state!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!server
+}
+
+# Filtered State Checks
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - Production vServers
+    check_command           check_netscaler_state_filter!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!lbvserver!^prod-
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - Web Services
+    check_command           check_netscaler_state_filter!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!service!^web_
+}
+
+# Resource Monitoring
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - CPU Usage
+    check_command           check_netscaler_above!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!system!cpuusagepcnt!75!90
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Memory Usage
+    check_command           check_netscaler_above!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!system!memusagepcnt!80!95
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Disk Usage
+    check_command           check_netscaler_above!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!system!disk0perusage!70!85
+}
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Management CPU
+    check_command           check_netscaler_above!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!system!mgmtcpuusagepcnt!60!80
+}
+
+# SSL Certificate Monitoring
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - SSL Certificates
+    check_command           check_netscaler_sslcert!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!60!30
+    check_interval          60
+    retry_interval          30
+}
+
+# HA Status (only for HA pairs)
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-ha-hosts
+    service_description     NetScaler - HA Status
+    check_command           check_netscaler_hastatus!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$
+}
+
+# Network Interfaces
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Network Interfaces
+    check_command           check_netscaler_interfaces!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - Production Interfaces
+    check_command           check_netscaler_interfaces_filter!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!^1/
+}
+
+# ServiceGroup Quorum
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - Web ServiceGroup
+    check_command           check_netscaler_servicegroup!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!web_sg!50!25
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - DB ServiceGroup
+    check_command           check_netscaler_servicegroup!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!db_cluster_sg!66!33
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - API ServiceGroup
+    check_command           check_netscaler_servicegroup!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!api_sg!75!50
+}
+
+# License Expiration
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - License Expiration
+    check_command           check_netscaler_license!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!60!30
+    check_interval          120
+    retry_interval          60
+}
+
+# NTP Synchronization
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - NTP Sync
+    check_command           check_netscaler_ntp!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!o=0.03,s=2,j=100,t=3!o=0.05,s=3,j=200,t=2
+    check_interval          15
+}
+
+# Configuration Status
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Config Saved
+    check_command           check_netscaler_nsconfig!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$
+    check_interval          5
+    retry_interval          1
+}
+
+# String Matching Examples
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - HA Node State
+    check_command           check_netscaler_matches!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!hanode!hacurstatus!UP!UP
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - System State
+    check_command           check_netscaler_matches_not!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!nslicense!f_cluster_instance_!1!1
+}
+
+# STA Server Monitoring (NetScaler Gateway)
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-gateway-hosts
+    service_description     NetScaler - STA Servers
+    check_command           check_netscaler_staserver!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$
+}
+
+# Hardware Information (low frequency check)
+
+define service {
+    use                     generic-service
+    hostgroup_name          netscaler-hosts
+    service_description     NetScaler - Hardware Info
+    check_command           check_netscaler_hwinfo!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$
+    check_interval          1440
+    retry_interval          60
+}
+
+# Performance Data Collection
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - LB vServer Metrics
+    check_command           check_netscaler_perfdata!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!lbvserver!totalhits,totalrequests,requestsrate!name
+    check_interval          5
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - System Metrics
+    check_command           check_netscaler_perfdata!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!system!cpuusagepcnt,memusagepcnt,disk0perusage!hostname
+    check_interval          5
+}
+
+# Service Templates for Common Patterns
+
+define service {
+    name                    netscaler-5min-check
+    use                     generic-service
+    check_interval          5
+    retry_interval          1
+    register                0
+}
+
+define service {
+    name                    netscaler-hourly-check
+    use                     generic-service
+    check_interval          60
+    retry_interval          15
+    register                0
+}
+
+define service {
+    name                    netscaler-daily-check
+    use                     generic-service
+    check_interval          1440
+    retry_interval          60
+    register                0
+}

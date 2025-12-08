@@ -1,0 +1,84 @@
+name: Lint and Type Check
+
+on:
+  push:
+    branches:
+      - v2-python-rewrite
+      - master
+  pull_request:
+    branches:
+      - v2-python-rewrite
+      - master
+
+jobs:
+  lint-and-type-check:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install ruff black mypy types-requests pytest
+
+      - name: Run ruff (linting)
+        run: |
+          echo "Running ruff linter..."
+          ruff check check_netscaler/ tests/ --output-format=github
+        continue-on-error: false
+
+      - name: Run black (code formatting check)
+        run: |
+          echo "Checking code formatting with black..."
+          black --check --diff check_netscaler/ tests/
+        continue-on-error: false
+
+      - name: Run mypy (type checking)
+        run: |
+          echo "Running mypy type checker..."
+          mypy check_netscaler/ --ignore-missing-imports --no-strict-optional
+        continue-on-error: true
+        # Note: mypy is set to continue-on-error for now since type hints may not be complete
+
+      - name: Run tests
+        run: |
+          echo "Running pytest..."
+          pytest tests/ -v --tb=short
+        continue-on-error: false
+
+  summary:
+    name: Lint and Type Check Summary
+    runs-on: ubuntu-latest
+    needs: lint-and-type-check
+    if: always()
+    steps:
+      - name: Check status
+        run: |
+          if [ "${{ needs.lint-and-type-check.result }}" == "success" ]; then
+            echo "✅ All lint and type checks passed!"
+          else
+            echo "❌ Some checks failed. Please review the logs above."
+            exit 1
+          fi
