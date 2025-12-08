@@ -68,6 +68,14 @@ class StateCommand(BaseCommand):
             # Evaluate state for all objects
             result = self._evaluate_states(objects, objecttype)
 
+            # Check backup vServer status if requested (only for lbvserver)
+            if (
+                hasattr(self.args, "check_backup")
+                and self.args.check_backup
+                and objecttype == "lbvserver"
+            ):
+                result = self._check_backup_status(result, objectname)
+
             return result
 
         except NITROResourceNotFoundError:
@@ -224,3 +232,66 @@ class StateCommand(BaseCommand):
                 parts.append(f"All {total} {objecttype} are UP")
 
         return " ".join(parts) if parts else f"{total} {objecttype} checked"
+
+    def _check_backup_status(self, result: CheckResult, objectname: str) -> CheckResult:
+        """
+        Check backup vServer status for lbvserver objects
+
+        Args:
+            result: Current check result
+            objectname: Name of the lbvserver to check
+
+        Returns:
+            Modified CheckResult with backup status evaluation
+        """
+        try:
+            # Get config data to check backup status
+            config_data = self.client.get_config("lbvserver", objectname)
+
+            if "lbvserver" not in config_data:
+                # No config data found, return original result
+                return result
+
+            lb_objects = config_data["lbvserver"]
+            if not isinstance(lb_objects, list):
+                lb_objects = [lb_objects]
+
+            for lb_obj in lb_objects:
+                # Check if backup vServer is configured
+                backup_vserver = lb_obj.get("backupvserver")
+                if not backup_vserver:
+                    # No backup configured, nothing to check
+                    continue
+
+                # Check if backup is currently active
+                backup_status = lb_obj.get("backupvserverstatus")
+                if backup_status == "(Backup Active)":
+                    # Backup is active - determine severity
+                    backup_severity = (
+                        STATE_CRITICAL
+                        if self.args.check_backup == "critical"
+                        else STATE_WARNING
+                    )
+
+                    # Update status if backup issue is more severe
+                    if backup_severity > result.status:
+                        result.status = backup_severity
+
+                    # Add to message
+                    vserver_name = lb_obj.get("name", "unknown")
+                    backup_msg = f"Backup vServer active: {backup_vserver}"
+                    if backup_msg not in result.message:
+                        result.message = f"{result.message}; {backup_msg}"
+
+                    # Add to long output
+                    severity_tag = "CRITICAL" if backup_severity == STATE_CRITICAL else "WARNING"
+                    long_output_msg = f"[{severity_tag}] {vserver_name}: Backup vServer '{backup_vserver}' is active"
+                    if long_output_msg not in result.long_output:
+                        result.long_output.append(long_output_msg)
+
+            return result
+
+        except Exception:
+            # If backup check fails, return original result
+            # Don't fail the entire check because of backup check issues
+            return result

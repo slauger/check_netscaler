@@ -16,6 +16,7 @@ class TestStateCommand:
         """Create a mock NITRO client"""
         client = Mock()
         client.get_stat = Mock()
+        client.get_config = Mock()
         return client
 
     def create_args(self, **kwargs):
@@ -26,6 +27,7 @@ class TestStateCommand:
             "filter": None,
             "limit": None,
             "separator": ".",
+            "check_backup": None,
         }
         defaults.update(kwargs)
         return Namespace(**defaults)
@@ -247,3 +249,133 @@ class TestStateCommand:
 
         assert result.status == STATE_OK
         assert result.perfdata["ok"] == 2
+
+    def test_backup_vserver_check_disabled_by_default(self):
+        """Test that backup check is disabled by default"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP"}]
+        }
+
+        args = self.create_args(objecttype="lbvserver", objectname="vs_web")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        # Should only call get_stat, not get_config
+        assert client.get_stat.called
+        assert not client.get_config.called
+        assert result.status == STATE_OK
+
+    def test_backup_vserver_active_warning(self):
+        """Test backup vServer active with warning severity"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP"}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": {
+                "name": "vs_web",
+                "curstate": "UP",
+                "backupvserver": "vs_web_backup",
+                "backupvserverstatus": "(Backup Active)",
+            }
+        }
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
+        )
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_WARNING
+        assert "Backup vServer active: vs_web_backup" in result.message
+        assert any("Backup vServer" in line for line in result.long_output)
+        assert any("[WARNING]" in line for line in result.long_output)
+
+    def test_backup_vserver_active_critical(self):
+        """Test backup vServer active with critical severity"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP"}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": {
+                "name": "vs_web",
+                "curstate": "UP",
+                "backupvserver": "vs_web_backup",
+                "backupvserverstatus": "(Backup Active)",
+            }
+        }
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="vs_web", check_backup="critical"
+        )
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_CRITICAL
+        assert "Backup vServer active: vs_web_backup" in result.message
+        assert any("Backup vServer" in line for line in result.long_output)
+        assert any("[CRITICAL]" in line for line in result.long_output)
+
+    def test_backup_vserver_not_active(self):
+        """Test backup vServer configured but not active"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP"}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": {
+                "name": "vs_web",
+                "curstate": "UP",
+                "backupvserver": "vs_web_backup",
+                # No backupvserverstatus field means backup is not active
+            }
+        }
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
+        )
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        # Should remain OK since backup is not active
+        assert result.status == STATE_OK
+        assert "Backup vServer active" not in result.message
+
+    def test_backup_vserver_not_configured(self):
+        """Test vServer without backup configured"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP"}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": {
+                "name": "vs_web",
+                "curstate": "UP",
+                # No backupvserver field
+            }
+        }
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
+        )
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        # Should remain OK since no backup is configured
+        assert result.status == STATE_OK
+        assert "Backup vServer" not in result.message
+
+    def test_backup_check_only_for_lbvserver(self):
+        """Test that backup check only works for lbvserver objecttype"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {"service": [{"name": "svc1", "state": "UP"}]}
+
+        args = self.create_args(objecttype="service", check_backup="warning")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        # Should not call get_config for non-lbvserver types
+        assert not client.get_config.called
+        assert result.status == STATE_OK
