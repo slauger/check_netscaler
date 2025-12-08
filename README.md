@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/slauger/check_netscaler/actions/workflows/lint-and-type-check.yml/badge.svg?branch=master)](https://github.com/slauger/check_netscaler/actions/workflows/lint-and-type-check.yml)
 [![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
-[![License](https://img.shields.io/github/license/slauger/check_netscaler)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Nagios/Icinga monitoring plugin for Citrix NetScaler (ADC) using the NITRO REST API.
 
