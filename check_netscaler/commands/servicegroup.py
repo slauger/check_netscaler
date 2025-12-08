@@ -167,7 +167,7 @@ class ServiceGroupCommand(BaseCommand):
                 long_output.append(f"[CRITICAL] {error}")
 
             # Add member details with status tags
-            for idx, member in enumerate(members):
+            for member in members:
                 server_name = member.get("servername", "Unknown")
                 server_ip = member.get("ip", "")
                 server_port = member.get("port", "")
