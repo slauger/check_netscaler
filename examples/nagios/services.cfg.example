@@ -50,6 +50,22 @@ define service {
     check_command           check_netscaler_state_filter!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!service!^web_
 }
 
+# Backup vServer Monitoring
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - Web LB Backup Status
+    check_command           check_netscaler_state_backup!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!web_lb!critical
+}
+
+define service {
+    use                     generic-service
+    host_name               netscaler01
+    service_description     NetScaler - API LB Backup Status
+    check_command           check_netscaler_state_backup!$_HOSTNETSCALER_USER$!$_HOSTNETSCALER_PASS$!api_lb!warning
+}
+
 # Resource Monitoring
 
 define service {
