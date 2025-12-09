@@ -1,5 +1,42 @@
 # CHANGELOG
 
+## v2.2.0 (2025-12-09)
+
+### Documentation
+
+* docs: add backup vserver monitoring examples to state command ([`507d295`](https://github.com/slauger/check_netscaler/commit/507d295c5161c8dab14ee7fb656c86b9de6ae35b))
+
+### Feature
+
+* feat: Add backup vServer monitoring for lbvserver state checks
+
+Add --check-backup flag to monitor backup vServer status in lbvserver
+state checks. When a backup vServer is active, the check can be
+configured to return WARNING or CRITICAL status.
+
+Features:
+- Optional --check-backup [warning|critical] flag
+- Only active for lbvserver objecttype
+- Checks /config endpoint for backupvserverstatus field
+- Adds backup status to message and long_output
+- Fully backward compatible (opt-in feature)
+
+Tests:
+- 6 new tests covering all backup scenarios
+- All 349 tests passing
+
+Closes #133 ([`2df236e`](https://github.com/slauger/check_netscaler/commit/2df236e7958710671649ad2fe84e7bf02ed526a3))
+
+### Style
+
+* style: Apply black formatting to backup vServer feature ([`ce3dd58`](https://github.com/slauger/check_netscaler/commit/ce3dd58390c645c0ad0c6384cf42566690daa178))
+
+### Unknown
+
+* Merge pull request #138 from slauger/feature/backup-vserver-check
+
+feat: Add backup vServer monitoring for lbvserver state checks ([`884a7c9`](https://github.com/slauger/check_netscaler/commit/884a7c90301a52ab8422651d580a5a26c02edabd))
+
 ## v2.1.0 (2025-12-08)
 
 ### Feature
