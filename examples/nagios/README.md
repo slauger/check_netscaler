@@ -7,11 +7,13 @@ Command and service definitions for check_netscaler in Nagios.
 1. Install check_netscaler on your Nagios server:
 
 ```bash
-cd /usr/local/nagios/libexec
+# From PyPI (recommended)
+pip3 install check_netscaler
+
+# Or from source
 git clone https://github.com/slauger/check_netscaler.git
 cd check_netscaler
-git checkout v2-python-rewrite
-pip3 install -e .
+pip3 install .
 ```
 
 2. Copy configurations to Nagios:
@@ -50,7 +52,7 @@ systemctl reload nagios
 ```
 define command {
     command_name    check_netscaler_state
-    command_line    /usr/local/nagios/libexec/check_netscaler.py -H $HOSTADDRESS$ -u $ARG1$ -p $ARG2$ -C state -o $ARG3$
+    command_line    check_netscaler -H $HOSTADDRESS$ -u $ARG1$ -p $ARG2$ -C state -o $ARG3$
 }
 ```
 

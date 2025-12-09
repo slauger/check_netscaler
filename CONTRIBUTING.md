@@ -104,7 +104,7 @@ Add NTP synchronization monitoring command
 1. **Keep your fork updated**:
    ```bash
    git fetch upstream
-   git rebase upstream/v2-python-rewrite
+   git rebase upstream/master
    ```
 
 2. **Make your changes** in focused, logical commits
@@ -351,7 +351,7 @@ export NETSCALER_USER=monitoring
 export NETSCALER_PASS=password
 
 # Run manual tests
-./check_netscaler.py -H $NETSCALER_HOST -s -u $NETSCALER_USER -p $NETSCALER_PASS -C state -o lbvserver
+check_netscaler -C state -o lbvserver
 ```
 
 ### Adding a New Command
@@ -362,14 +362,14 @@ export NETSCALER_PASS=password
 4. Register in `check_netscaler/commands/__init__.py`
 5. Add CLI arguments in `check_netscaler/cli.py`
 6. Write comprehensive tests in `tests/test_commands/`
-7. Add usage examples in `examples/commands/`
+7. Add usage examples in `docs/commands/`
 8. Update documentation
 
 ### Debugging
 
 ```bash
 # Enable debug output
-./check_netscaler.py -C debug -o system
+check_netscaler -C debug -o system
 
 # Use pytest debugging
 pytest -vv -s tests/test_commands/test_state.py

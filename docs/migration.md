@@ -217,7 +217,7 @@ All 16 commands from v1.x are available in v2.0:
 
 ## Need Help?
 
-- **Documentation:** See [examples/commands/](examples/commands/) for detailed usage examples
+- **Documentation:** See [commands/](commands/) for detailed usage examples
 - **Issues:** Report problems at https://github.com/slauger/check_netscaler/issues
 - **Integration:** See [examples/icinga2/](examples/icinga2/) and [examples/nagios/](examples/nagios/) for configuration examples
 

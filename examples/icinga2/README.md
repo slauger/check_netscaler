@@ -7,11 +7,13 @@ CheckCommand definitions and service examples for check_netscaler in Icinga 2.
 1. Install check_netscaler on your Icinga 2 server or satellite:
 
 ```bash
-cd /opt
+# From PyPI (recommended)
+pip3 install check_netscaler
+
+# Or from source
 git clone https://github.com/slauger/check_netscaler.git
 cd check_netscaler
-git checkout v2-python-rewrite
-pip3 install -e .
+pip3 install .
 ```
 
 2. Copy CheckCommand definitions to your Icinga 2 configuration:
@@ -56,6 +58,20 @@ apply Service "netscaler-lbvservers" {
 }
 ```
 
+### Monitor backup vServer activation
+
+```
+apply Service "netscaler-web-lb-backup" {
+  import "generic-service"
+  check_command = "netscaler_state_backup"
+
+  vars.netscaler_objectname = "web_lb"
+  vars.netscaler_check_backup = "critical"
+
+  assign where host.vars.netscaler
+}
+```
+
 ## Command Variables
 
 All CheckCommands support these common variables:
@@ -72,6 +88,7 @@ All CheckCommands support these common variables:
 | CheckCommand | Description |
 |--------------|-------------|
 | `netscaler_state` | Monitor object states |
+| `netscaler_state_backup` | Monitor backup vServer activation |
 | `netscaler_above` | Threshold checks (high values) |
 | `netscaler_below` | Threshold checks (low values) |
 | `netscaler_sslcert` | SSL certificate expiration |
