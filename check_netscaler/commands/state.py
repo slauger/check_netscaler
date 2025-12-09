@@ -268,9 +268,7 @@ class StateCommand(BaseCommand):
                 if backup_status == "(Backup Active)":
                     # Backup is active - determine severity
                     backup_severity = (
-                        STATE_CRITICAL
-                        if self.args.check_backup == "critical"
-                        else STATE_WARNING
+                        STATE_CRITICAL if self.args.check_backup == "critical" else STATE_WARNING
                     )
 
                     # Update status if backup issue is more severe

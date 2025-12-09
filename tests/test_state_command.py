@@ -253,9 +253,7 @@ class TestStateCommand:
     def test_backup_vserver_check_disabled_by_default(self):
         """Test that backup check is disabled by default"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vs_web", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
 
         args = self.create_args(objecttype="lbvserver", objectname="vs_web")
         command = StateCommand(client, args)
@@ -269,9 +267,7 @@ class TestStateCommand:
     def test_backup_vserver_active_warning(self):
         """Test backup vServer active with warning severity"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vs_web", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
         client.get_config.return_value = {
             "lbvserver": {
                 "name": "vs_web",
@@ -281,9 +277,7 @@ class TestStateCommand:
             }
         }
 
-        args = self.create_args(
-            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
-        )
+        args = self.create_args(objecttype="lbvserver", objectname="vs_web", check_backup="warning")
         command = StateCommand(client, args)
         result = command.execute()
 
@@ -295,9 +289,7 @@ class TestStateCommand:
     def test_backup_vserver_active_critical(self):
         """Test backup vServer active with critical severity"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vs_web", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
         client.get_config.return_value = {
             "lbvserver": {
                 "name": "vs_web",
@@ -321,9 +313,7 @@ class TestStateCommand:
     def test_backup_vserver_not_active(self):
         """Test backup vServer configured but not active"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vs_web", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
         client.get_config.return_value = {
             "lbvserver": {
                 "name": "vs_web",
@@ -333,9 +323,7 @@ class TestStateCommand:
             }
         }
 
-        args = self.create_args(
-            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
-        )
+        args = self.create_args(objecttype="lbvserver", objectname="vs_web", check_backup="warning")
         command = StateCommand(client, args)
         result = command.execute()
 
@@ -346,9 +334,7 @@ class TestStateCommand:
     def test_backup_vserver_not_configured(self):
         """Test vServer without backup configured"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {
-            "lbvserver": [{"name": "vs_web", "state": "UP"}]
-        }
+        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
         client.get_config.return_value = {
             "lbvserver": {
                 "name": "vs_web",
@@ -357,9 +343,7 @@ class TestStateCommand:
             }
         }
 
-        args = self.create_args(
-            objecttype="lbvserver", objectname="vs_web", check_backup="warning"
-        )
+        args = self.create_args(objecttype="lbvserver", objectname="vs_web", check_backup="warning")
         command = StateCommand(client, args)
         result = command.execute()
 
