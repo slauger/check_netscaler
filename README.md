@@ -50,13 +50,20 @@ requests >= 2.31.0
 
 ## Installation
 
+### From PyPI (Recommended)
+
+```bash
+pip install check_netscaler
+```
+
+### From Source
+
 ```bash
 git clone https://github.com/slauger/check_netscaler.git
 cd check_netscaler
-git checkout v2-python-rewrite
 
 # Install
-pip install -e .
+pip install .
 
 # For development
 pip install -e ".[dev]"
