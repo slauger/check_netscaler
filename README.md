@@ -134,7 +134,8 @@ Command-line arguments always override environment variables if both are provide
 
 ## Documentation
 
-- **[Command Examples](examples/commands/)** - Detailed usage for every command
+- **[CLI Reference](docs/cli-reference.md)** - Complete command-line options reference
+- **[Command Examples](docs/commands/)** - Detailed usage for every command
 - **[Icinga 2 Integration](examples/icinga2/)** - CheckCommand definitions
 - **[Nagios Integration](examples/nagios/)** - Command and service configurations
 

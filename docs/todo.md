@@ -329,7 +329,7 @@ All commands from the Perl script need to be ported to Python.
 #### 5.3 Examples ✅ DONE
 - [x] Icinga 2 configuration examples
 - [x] Nagios configuration examples
-- [x] Common use case examples (examples/commands/)
+- [x] Common use case examples (docs/commands/)
 
 **Files:** ✅ `examples/` directory, `CHANGELOG.md`, `CONTRIBUTING.md`
 
