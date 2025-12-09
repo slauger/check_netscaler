@@ -97,6 +97,43 @@ check_netscaler -C state -o service
 check_netscaler -C state -o servicegroup
 ```
 
+### Backup vServer Monitoring
+
+Monitor backup load balancers and alert when they become active (only for `lbvserver` objects):
+
+```bash
+# Alert with WARNING severity when backup is active
+check_netscaler -C state -o lbvserver -n web_lb --check-backup warning
+
+# Alert with CRITICAL severity when backup is active
+check_netscaler -C state -o lbvserver -n api_lb --check-backup critical
+```
+
+**Normal output (backup not active):**
+```
+OK: lbvserver is UP | total=1 ok=1 warning=0 critical=0 unknown=0
+```
+
+**Backup active output (WARNING):**
+```
+WARNING: lbvserver is UP; Backup vServer active: web_lb_backup | total=1 ok=1 warning=0 critical=0 unknown=0
+[OK] web_lb: UP
+[WARNING] web_lb: Backup vServer 'web_lb_backup' is active
+```
+
+**Backup active output (CRITICAL):**
+```
+CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 warning=0 critical=0 unknown=0
+[OK] api_lb: UP
+[CRITICAL] api_lb: Backup vServer 'api_lb_backup' is active
+```
+
+**Use cases:**
+- Detect failover scenarios where primary vServer has failed
+- Monitor high availability configurations
+- Alert when traffic is being served by backup infrastructure
+- Track when primary services have been restored (backup no longer active)
+
 ## State Mappings
 
 ### vServer States
@@ -149,6 +186,16 @@ check_netscaler -C state -o servicegroup
 
 ```bash
 check_netscaler -C state -o lbvserver --limit "^(test_|dev_)"
+```
+
+### 5. Monitor backup vServer status for critical applications
+
+```bash
+# Critical alert when backup becomes active for production web tier
+check_netscaler -C state -o lbvserver -n prod_web_lb --check-backup critical
+
+# Warning alert for less critical applications
+check_netscaler -C state -o lbvserver -n test_api_lb --check-backup warning
 ```
 
 ## Exit Codes

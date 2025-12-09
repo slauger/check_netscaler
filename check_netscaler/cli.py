@@ -169,6 +169,12 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--check-backup",
+        choices=["warning", "critical"],
+        help="Check backup vServer status (only for lbvserver). Set severity when backup is active.",
+    )
+
+    parser.add_argument(
         "-x",
         "--urlopts",
         help="Additional URL options for API requests",
