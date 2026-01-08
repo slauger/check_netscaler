@@ -1,0 +1,139 @@
+name: PyInstaller Builds
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-3.13-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-3.13-
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install ruff black mypy types-requests pytest
+
+    - name: Run ruff (linting)
+      run: |
+        echo "Running ruff linter..."
+        ruff check check_netscaler/ tests/ --output-format=github
+      continue-on-error: false
+
+    - name: Run black (code formatting check)
+      run: |
+        echo "Checking code formatting with black..."
+        black --check --diff check_netscaler/ tests/
+      continue-on-error: false
+
+    - name: Run mypy (type checking)
+      run: |
+        echo "Running mypy type checker..."
+        mypy check_netscaler/ --ignore-missing-imports --no-strict-optional
+      continue-on-error: true
+
+    - name: Run tests
+      run: |
+        echo "Running pytest..."
+        pytest tests/ -v --tb=short
+      continue-on-error: false
+
+  build:
+    name: Build Binary (${{ matrix.os }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: check_netscaler-linux
+            asset_name: check_netscaler-linux
+          - os: windows-latest
+            artifact_name: check_netscaler.exe
+            asset_name: check_netscaler-windows.exe
+          - os: macos-latest
+            artifact_name: check_netscaler-macos
+            asset_name: check_netscaler-macos
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/Library/Caches/pip
+          ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-pyinstaller-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-pyinstaller-
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller check_netscaler.spec
+
+    - name: Smoke test (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x dist/check_netscaler
+        ./dist/check_netscaler --version
+        ./dist/check_netscaler --help
+
+    - name: Smoke test (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        dist\check_netscaler.exe --version
+        dist\check_netscaler.exe --help
+
+    - name: Rename binary (Linux)
+      if: runner.os == 'Linux'
+      run: mv dist/check_netscaler dist/${{ matrix.artifact_name }}
+
+    - name: Rename binary (macOS)
+      if: runner.os == 'macOS'
+      run: mv dist/check_netscaler dist/${{ matrix.artifact_name }}
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: dist/${{ matrix.artifact_name }}
+        if-no-files-found: error
+        retention-days: 30
