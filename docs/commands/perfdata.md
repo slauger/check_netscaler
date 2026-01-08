@@ -13,7 +13,7 @@ Collect arbitrary performance data from any NetScaler object type.
 
 ## Basic Usage
 
-### Collect specific metrics
+### Collect specific metrics from all objects
 
 ```bash
 check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests
@@ -21,10 +21,10 @@ check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests
 
 **Output:**
 ```
-OK: perfdata collected | 0.totalhits=12345 0.totalrequests=67890 1.totalhits=23456 1.totalrequests=89012
+OK: perfdata: collected 4 metrics from lbvserver | '0.totalhits'=12345.0 '0.totalrequests'=67890.0 '1.totalhits'=23456.0 '1.totalrequests'=89012.0
 ```
 
-### Single object with label
+### Collect metrics with custom labels
 
 ```bash
 check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests --label name
@@ -32,7 +32,7 @@ check_netscaler -C perfdata -o lbvserver -n totalhits,totalrequests --label name
 
 **Output:**
 ```
-OK: perfdata collected | web_lb.totalhits=12345 web_lb.totalrequests=67890 api_lb.totalhits=23456
+OK: perfdata: collected 4 metrics from lbvserver | 'web_lb.totalhits'=12345.0 'web_lb.totalrequests'=67890.0 'api_lb.totalhits'=23456.0 'api_lb.totalrequests'=89012.0
 ```
 
 ## Advanced Usage
@@ -48,20 +48,20 @@ check_netscaler -C perfdata -o lbvserver -n totalhits --label name --separator "
 OK: perfdata collected | web_lb_totalhits=12345 api_lb_totalhits=23456
 ```
 
-### Multiple fields
+### Multiple fields from system stats
 
 ```bash
 check_netscaler -C perfdata -o system -n cpuusagepcnt,memusagepcnt,disk0perusage
 ```
 
-### Specific API endpoint
+### Using different API endpoints
 
 ```bash
 # Using stat endpoint (default, for performance counters)
-check_netscaler -C perfdata -o lbvserver -n totalhits --api stat
+check_netscaler -C perfdata -o lbvserver -n totalhits -e stat
 
 # Using config endpoint (for configuration data)
-check_netscaler -C perfdata -o lbvserver -n ipv46 --api config
+check_netscaler -C perfdata -o lbvserver -n ipv46 -e config
 ```
 
 ## Common Use Cases
@@ -103,19 +103,19 @@ check_netscaler -C perfdata -o cache \
 
 ## Performance Data Format
 
-Without label:
+Without label (uses numeric index):
 ```
-| 0.metric1=value 0.metric2=value 1.metric1=value 1.metric2=value
-```
-
-With label:
-```
-| objectname.metric1=value objectname.metric2=value
+| '0.metric1'=value '0.metric2'=value '1.metric1'=value '1.metric2'=value
 ```
 
-With custom separator:
+With label (e.g., `--label name`):
 ```
-| objectname_metric1=value objectname_metric2=value
+| 'objectname.metric1'=value 'objectname.metric2'=value
+```
+
+With custom separator (e.g., `--separator "_"`):
+```
+| 'objectname_metric1'=value 'objectname_metric2'=value
 ```
 
 ## Label Options
@@ -137,12 +137,18 @@ Common object types for perfdata:
 - `aaa` - AAA statistics
 - `gslb` - GSLB statistics
 
+## Important Notes
+
+- **Field Names**: Use `-n` with comma-separated field names (e.g., `-n field1,field2,field3`)
+- **All Objects**: This command queries ALL objects of the specified type and collects the specified fields from each
+- **No Filtering**: Unlike other commands, perfdata does not support filtering by object name (matches Perl v1 behavior)
+
 ## Tips
 
-- Use `--api stat` for performance counters (default)
-- Use `--api config` for configuration values
-- Use `--label` to make perfdata more readable
-- Use `--separator` to avoid special characters in metric names
-- This command is for collecting data only (always returns OK)
-- Combine with threshold checks using `above`/`below` for alerting
-- Query the NITRO API documentation for available fields
+- Use `-e stat` for performance counters (default)
+- Use `-e config` for configuration values
+- Use `--label` to make perfdata more readable (e.g., `--label name` uses object names instead of indices)
+- Use `--separator` to customize the label separator (default is `.`)
+- This command always returns OK status (for data collection only)
+- Combine with `above`/`below` commands for threshold-based alerting
+- Query the NITRO API documentation for available field names

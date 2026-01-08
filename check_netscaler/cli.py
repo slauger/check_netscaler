@@ -120,7 +120,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-n",
         "--objectname",
-        help="Filter by specific object name",
+        help="Filter by specific object name (for perfdata: comma-separated field names)",
     )
 
     parser.add_argument(

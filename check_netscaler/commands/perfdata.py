@@ -31,21 +31,23 @@ class PerfdataCommand(BaseCommand):
                     message="perfdata: objecttype is required",
                 )
 
-            # Get objectname (optional)
-            objectname = getattr(self.args, "objectname", None)
+            # For perfdata command: -n specifies field names (comma-separated)
+            # This matches the Perl version behavior where -n was used for field names
+            # Note: In other commands, -n/--objectname filters by object name
+            fields_str = getattr(self.args, "objectname", None)
+            if not fields_str:
+                return CheckResult(
+                    status=STATE_UNKNOWN,
+                    message="perfdata: field names are required (use -n with comma-separated field names)",
+                )
+
+            fields = [f.strip() for f in fields_str.split(",")]
 
             # Get endpoint (default to stat)
             endpoint = getattr(self.args, "endpoint", None) or "stat"
 
-            # Get fields to collect (from warning parameter, comma-separated)
-            fields_str = getattr(self.args, "warning", None)
-            if not fields_str:
-                return CheckResult(
-                    status=STATE_UNKNOWN,
-                    message="perfdata: fields are required (use --warning parameter with comma-separated field names)",
-                )
-
-            fields = [f.strip() for f in fields_str.split(",")]
+            # For perfdata, we always query all objects (no object name filter)
+            objectname = None
 
             # Fetch data
             if endpoint == "stat":

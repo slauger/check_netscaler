@@ -24,9 +24,8 @@ class TestPerfdataCommand:
         defaults = {
             "command": "perfdata",
             "objecttype": None,
-            "objectname": None,
+            "objectname": None,  # Used for field names in perfdata command
             "endpoint": None,
-            "warning": None,  # Used for field names
             "label": None,
             "separator": ".",
         }
@@ -38,7 +37,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"nscapacity": {"numcpus": "8", "maxbandwidth": "1000"}}
 
-        args = self.create_args(objecttype="nscapacity", warning="numcpus")
+        args = self.create_args(objecttype="nscapacity", objectname="numcpus")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -54,7 +53,7 @@ class TestPerfdataCommand:
         }
 
         args = self.create_args(
-            objecttype="nscapacity", warning="numcpus,maxbandwidth,maxvcpucount"
+            objecttype="nscapacity", objectname="numcpus,maxbandwidth,maxvcpucount"
         )
         command = PerfdataCommand(client, args)
         result = command.execute()
@@ -77,7 +76,7 @@ class TestPerfdataCommand:
         }
 
         args = self.create_args(
-            objecttype="lbvserver", warning="totalpktssent,totalpktsrecvd", label="name"
+            objecttype="lbvserver", objectname="totalpktssent,totalpktsrecvd", label="name"
         )
         command = PerfdataCommand(client, args)
         result = command.execute()
@@ -95,7 +94,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"service": [{"throughput": "100"}, {"throughput": "200"}]}
 
-        args = self.create_args(objecttype="service", warning="throughput")
+        args = self.create_args(objecttype="service", objectname="throughput")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -111,7 +110,7 @@ class TestPerfdataCommand:
         client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "totalpktssent": "12345"}]}
 
         args = self.create_args(
-            objecttype="lbvserver", warning="totalpktssent", label="name", separator="_"
+            objecttype="lbvserver", objectname="totalpktssent", label="name", separator="_"
         )
         command = PerfdataCommand(client, args)
         result = command.execute()
@@ -119,25 +118,26 @@ class TestPerfdataCommand:
         assert result.status == STATE_OK
         assert "lb1_totalpktssent" in result.perfdata
 
-    def test_with_objectname(self):
-        """Test with specific objectname"""
+    def test_single_field_from_object(self):
+        """Test collecting single field (objectname is used for field name)"""
         client = self.create_mock_client()
         client.get_stat.return_value = {"lbvserver": {"name": "lb1", "totalpktssent": "12345"}}
 
-        args = self.create_args(objecttype="lbvserver", objectname="lb1", warning="totalpktssent")
+        args = self.create_args(objecttype="lbvserver", objectname="totalpktssent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
         assert result.status == STATE_OK
         assert "totalpktssent" in result.perfdata
-        assert "lb1" in result.message
 
     def test_config_endpoint(self):
         """Test with config endpoint"""
         client = self.create_mock_client()
         client.get_config.return_value = {"nsconfig": {"configchanges": "5"}}
 
-        args = self.create_args(objecttype="nsconfig", warning="configchanges", endpoint="config")
+        args = self.create_args(
+            objecttype="nsconfig", objectname="configchanges", endpoint="config"
+        )
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -150,7 +150,7 @@ class TestPerfdataCommand:
         """Test when objecttype is not provided"""
         client = self.create_mock_client()
 
-        args = self.create_args(warning="field1")
+        args = self.create_args(objectname="field1")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -166,13 +166,13 @@ class TestPerfdataCommand:
         result = command.execute()
 
         assert result.status == STATE_UNKNOWN
-        assert "fields are required" in result.message
+        assert "field names are required" in result.message
 
     def test_invalid_endpoint(self):
         """Test with invalid endpoint"""
         client = self.create_mock_client()
 
-        args = self.create_args(objecttype="lbvserver", warning="field1", endpoint="invalid")
+        args = self.create_args(objecttype="lbvserver", objectname="field1", endpoint="invalid")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -184,7 +184,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {}
 
-        args = self.create_args(objecttype="lbvserver", warning="field1")
+        args = self.create_args(objecttype="lbvserver", objectname="field1")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -196,7 +196,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"lbvserver": []}
 
-        args = self.create_args(objecttype="lbvserver", warning="field1")
+        args = self.create_args(objecttype="lbvserver", objectname="field1")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -208,7 +208,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"lbvserver": {"name": "lb1", "totalpktssent": "12345"}}
 
-        args = self.create_args(objecttype="lbvserver", warning="nonexistent")
+        args = self.create_args(objecttype="lbvserver", objectname="nonexistent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -226,7 +226,7 @@ class TestPerfdataCommand:
             }
         }
 
-        args = self.create_args(objecttype="lbvserver", warning="state,totalpktssent")
+        args = self.create_args(objecttype="lbvserver", objectname="state,totalpktssent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -243,7 +243,7 @@ class TestPerfdataCommand:
             "nscapacity": {"cpuusagepcnt": "45.5", "memusagepcnt": "67.8"}
         }
 
-        args = self.create_args(objecttype="nscapacity", warning="cpuusagepcnt,memusagepcnt")
+        args = self.create_args(objecttype="nscapacity", objectname="cpuusagepcnt,memusagepcnt")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -257,7 +257,7 @@ class TestPerfdataCommand:
         client.get_stat.return_value = {"nscapacity": {"numcpus": "8", "maxbandwidth": "1000"}}
 
         args = self.create_args(
-            objecttype="nscapacity", warning="numcpus , maxbandwidth"  # Spaces around comma
+            objecttype="nscapacity", objectname="numcpus , maxbandwidth"  # Spaces around comma
         )
         command = PerfdataCommand(client, args)
         result = command.execute()
@@ -271,7 +271,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"nscapacity": {"numcpus": "8"}}  # Dict, not list
 
-        args = self.create_args(objecttype="nscapacity", warning="numcpus")
+        args = self.create_args(objecttype="nscapacity", objectname="numcpus")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -285,7 +285,9 @@ class TestPerfdataCommand:
             "cache": {"cachehits": "150000", "cachemisses": "5000", "cachetotalhits": "1500000"}
         }
 
-        args = self.create_args(objecttype="cache", warning="cachehits,cachemisses,cachetotalhits")
+        args = self.create_args(
+            objecttype="cache", objectname="cachehits,cachemisses,cachetotalhits"
+        )
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -305,7 +307,7 @@ class TestPerfdataCommand:
         }
 
         args = self.create_args(
-            objecttype="nstcpstat", warning="tcpcurclientconn,tcpcurserverconn,tcptotrxpkts"
+            objecttype="nstcpstat", objectname="tcpcurclientconn,tcpcurserverconn,tcptotrxpkts"
         )
         command = PerfdataCommand(client, args)
         result = command.execute()
@@ -321,7 +323,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.side_effect = NITROAPIError("API Error")
 
-        args = self.create_args(objecttype="lbvserver", warning="field1")
+        args = self.create_args(objecttype="lbvserver", objectname="field1")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -333,7 +335,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.side_effect = Exception("Unexpected error")
 
-        args = self.create_args(objecttype="lbvserver", warning="field1")
+        args = self.create_args(objecttype="lbvserver", objectname="field1")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -345,7 +347,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"nscapacity": {"numcpus": "8"}}
 
-        args = self.create_args(objecttype="nscapacity", warning="numcpus")
+        args = self.create_args(objecttype="nscapacity", objectname="numcpus")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -353,24 +355,24 @@ class TestPerfdataCommand:
         assert "collected" in result.message
         assert "nscapacity" in result.message
 
-    def test_message_with_objectname(self):
-        """Test message includes objectname if provided"""
+    def test_message_format_with_field_name(self):
+        """Test message format includes objecttype"""
         client = self.create_mock_client()
         client.get_stat.return_value = {"lbvserver": {"name": "lb1", "totalpktssent": "12345"}}
 
-        args = self.create_args(objecttype="lbvserver", objectname="lb1", warning="totalpktssent")
+        args = self.create_args(objecttype="lbvserver", objectname="totalpktssent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
         assert "lbvserver" in result.message
-        assert "(lb1)" in result.message
+        assert "perfdata:" in result.message
 
     def test_zero_values(self):
         """Test that zero values are collected"""
         client = self.create_mock_client()
         client.get_stat.return_value = {"lbvserver": {"totalpktssent": "0"}}
 
-        args = self.create_args(objecttype="lbvserver", warning="totalpktssent")
+        args = self.create_args(objecttype="lbvserver", objectname="totalpktssent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -383,7 +385,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"custom": {"delta": "-42"}}
 
-        args = self.create_args(objecttype="custom", warning="delta")
+        args = self.create_args(objecttype="custom", objectname="delta")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -395,7 +397,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"nscapacity": {"numcpus": 8}}  # Integer, not string
 
-        args = self.create_args(objecttype="nscapacity", warning="numcpus")
+        args = self.create_args(objecttype="nscapacity", objectname="numcpus")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
@@ -407,7 +409,7 @@ class TestPerfdataCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {"service": [{"throughput": "100"}, {"throughput": "200"}]}
 
-        args = self.create_args(objecttype="service", warning="throughput", label="nonexistent")
+        args = self.create_args(objecttype="service", objectname="throughput", label="nonexistent")
         command = PerfdataCommand(client, args)
         result = command.execute()
 
