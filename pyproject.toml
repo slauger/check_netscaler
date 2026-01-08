@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "check_netscaler"
-version = "2.2.0"
+version = "2.2.1"
 description = "Nagios/Icinga monitoring plugin for Citrix NetScaler ADC using NITRO REST API"
 readme = "README.md"
 requires-python = ">=3.8"

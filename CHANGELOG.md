@@ -1,5 +1,90 @@
 # CHANGELOG
 
+## v2.2.1 (2026-01-08)
+
+### Documentation
+
+* docs: cleanup TODO.md - remove completed v2.0 tasks
+
+Reduced from 390 lines to 37 lines by removing all completed tasks.
+Only future enhancements remain:
+- Integration tests with mock NITRO server
+- Optional features (JSON output, bulk operations, etc.)
+- Additional documentation guides ([`f411896`](https://github.com/slauger/check_netscaler/commit/f411896b1bdd1e0085c7acf22abacf7b6185e35a))
+
+* docs: restructure documentation into docs/ directory
+
+- Create docs/ directory for all technical documentation
+- Move command docs from examples/commands/ to docs/commands/ (14 files)
+- Move MIGRATION.md, ARCHITECTURE.md, TODO.md to docs/
+- Add comprehensive CLI reference (docs/cli-reference.md)
+  * Complete documentation for all 20 CLI options
+  * Environment variable usage
+  * Examples for every option
+  * Use case scenarios
+- Update all internal links in README, CONTRIBUTING, and moved files
+- examples/ now contains only integration configs (Icinga2/Nagios)
+
+New structure:
+  docs/
+  ├── cli-reference.md (NEW - complete CLI options reference)
+  ├── commands/ (14 command-specific guides)
+  ├── migration.md (v1.x → v2.0 guide)
+  ├── architecture.md (technical architecture)
+  └── todo.md (development roadmap) ([`0deb9a6`](https://github.com/slauger/check_netscaler/commit/0deb9a634e2634115405759f52320637d6e76aab))
+
+* docs: remove hardcoded test count from README
+
+Test count is dynamic and changes with each feature - use generic description instead ([`33cc3b0`](https://github.com/slauger/check_netscaler/commit/33cc3b00dd8d384ea6ce83e23678c97d7411d51c))
+
+* docs: add backup vServer monitoring examples to integration configs
+
+- Add netscaler_state_backup CheckCommand for Icinga2 (inherits from netscaler_state)
+- Add check_netscaler_state_backup command for Nagios
+- Include service definition examples for both platforms
+- Update CheckCommand tables in README files ([`5d253c9`](https://github.com/slauger/check_netscaler/commit/5d253c9e6f3ccd3f9a07a98682170a6868db5e7c))
+
+* docs: standardize binary path across all documentation
+
+- Replace all hardcoded paths with &#39;check_netscaler&#39; command
+- Remove /usr/local/nagios/libexec/check_netscaler.py references
+- Remove /opt/check_netscaler/check_netscaler.py references
+- Update CONTRIBUTING.md: v2-python-rewrite -&gt; master branch
+- Update installation instructions in Nagios README
+- Simplify command examples to use PATH binary ([`fadea87`](https://github.com/slauger/check_netscaler/commit/fadea876ebe87389acffd6750cd15fa534273f9e))
+
+* docs: update installation instructions for v2.0 release ([`c496858`](https://github.com/slauger/check_netscaler/commit/c4968586cb6127228f9cb98cd2e6219a20fb8e28))
+
+### Fix
+
+* fix(perfdata): use -n for field names to match Perl v1 behavior
+
+Changes:
+- Use -n/--objectname parameter for comma-separated field names
+- Remove object filtering capability (not present in Perl v1)
+- Query all objects of specified type and collect fields from each
+- Update CLI help text to clarify dual use of -n parameter
+- Update documentation with correct usage examples
+- Update all tests to use objectname for field names
+
+This restores compatibility with Perl v1 where:
+  check_netscaler.pl -H host -s -C perfdata -o aaa -n field1,field2
+
+Now works the same way in Python v2:
+  check_netscaler -C perfdata -o aaa -n field1,field2
+
+Fixes #140 ([`16e10b8`](https://github.com/slauger/check_netscaler/commit/16e10b837103881f712c6f8e50e7963a16711983))
+
+### Unknown
+
+* Merge pull request #141 from slauger/feature/perfdata-fields-argument
+
+fix(perfdata): use -n for field names to match Perl v1 behavior ([`93326dd`](https://github.com/slauger/check_netscaler/commit/93326ddec877ecd7283d70fb7f026277c179f855))
+
+* Merge pull request #139 from slauger/docs/update-installation-and-examples
+
+docs: Complete documentation overhaul and CLI reference ([`222c959`](https://github.com/slauger/check_netscaler/commit/222c95985ed84c34769ec8f1b66cba784e0e6cd7))
+
 ## v2.2.0 (2025-12-09)
 
 ### Documentation
