@@ -1,6 +1,6 @@
 # CHANGELOG
 
-{% for version, release in ctx.history.released.items() %}
+{% for version, release in context.history.released.items() %}
 ## {{ version.as_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
 
 {% for type_, commits in release["elements"] | dictsort if type_ != "unknown" %}
