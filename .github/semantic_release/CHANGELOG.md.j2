@@ -1,0 +1,13 @@
+# CHANGELOG
+
+{% for version, release in ctx.history.released.items() %}
+## {{ version.as_tag() }} ({{ release.tagged_date.strftime("%Y-%m-%d") }})
+
+{% for type_, commits in release["elements"] | dictsort if type_ != "unknown" %}
+### {{ type_ | title }}
+
+{% for commit in commits %}
+* {{ commit.descriptions[0] }}
+{% endfor %}
+{% endfor %}
+{% endfor %}

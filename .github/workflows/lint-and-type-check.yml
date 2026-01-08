@@ -3,12 +3,7 @@ name: Lint and Type Check
 on:
   push:
     branches:
-      - v2-python-rewrite
-      - master
-  pull_request:
-    branches:
-      - v2-python-rewrite
-      - master
+      - '**'
 
 jobs:
   lint-and-type-check:

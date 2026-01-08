@@ -108,3 +108,12 @@ commit_parser = "angular"
 allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.changelog]
+template_dir = ".github/semantic_release"
+exclude_commit_patterns = []
+
+[tool.semantic_release.changelog.environment]
+trim_blocks = true
+lstrip_blocks = true
+keep_trailing_newline = false
