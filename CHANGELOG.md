@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## v2.4.0 (2026-01-09)
+
+### Ci
+
+* increase pytest verbosity to -vv for better test visibility
+* add flask dependency to release workflow
+* add flask dependency to PyInstaller workflow
+### Documentation
+
+* add objectname example for sslcert command
+* link to releases page instead of workflow artifacts
+* add information about pre-built binaries
+### Feature
+
+* add mock NITRO API server for integration testing
+### Fix
+
+* fix ruff linting errors
+* fix integration tests and command bugs
+### Refactor
+
+* split integration tests into separate files
+### Style
+
+* apply black code formatting
+### Test
+
+* add nsconfig, hwinfo, debug tests
+* add above/below threshold command tests
 ## v2.3.1 (2026-01-09)
 
 ### Fix
