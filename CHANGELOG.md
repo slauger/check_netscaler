@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.3.1 (2026-01-09)
+
+### Fix
+
+* use &#39;context&#39; instead of &#39;ctx&#39; in changelog template
 ## v2.3.0 (2026-01-08)
 
 ### Ci
