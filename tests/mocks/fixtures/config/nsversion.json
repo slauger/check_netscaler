@@ -1,0 +1,10 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "nsversion": {
+    "installedversion": "NS14.1: Build 21.48.nc, Date: Jun 17 2024",
+    "version": "NetScaler NS14.1",
+    "mode": "1"
+  }
+}

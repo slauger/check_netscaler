@@ -1,0 +1,18 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "vpnvserver": [
+    {
+      "name": "vpn_gateway",
+      "primaryipaddress": "192.168.2.100",
+      "primaryport": 443,
+      "type": "SSL",
+      "state": "UP",
+      "totalrequests": 5000,
+      "totalresponses": 5000,
+      "totalrequestbytes": 25000000,
+      "totalresponsebytes": 50000000
+    }
+  ]
+}

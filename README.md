@@ -69,6 +69,25 @@ pip install .
 pip install -e ".[dev]"
 ```
 
+### Pre-built Binaries (Standalone)
+
+For systems without Python or pip, download standalone executables from the [Releases page](https://github.com/slauger/check_netscaler/releases):
+
+- **Linux**: `check_netscaler-linux`
+- **macOS**: `check_netscaler-macos`
+- **Windows**: `check_netscaler-windows.exe`
+
+These binaries are built with PyInstaller and include all dependencies. No Python installation required.
+
+```bash
+# Linux/macOS example
+chmod +x check_netscaler-linux
+./check_netscaler-linux --help
+
+# Windows example
+check_netscaler-windows.exe --help
+```
+
 ## Quick Start
 
 ```bash

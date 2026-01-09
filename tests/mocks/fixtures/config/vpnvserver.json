@@ -1,0 +1,20 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "vpnvserver": [
+    {
+      "name": "vpn_gateway",
+      "servicetype": "SSL",
+      "ipv46": "192.168.2.100",
+      "port": 443,
+      "range": 1,
+      "state": "ENABLED",
+      "authentication": "ON",
+      "doublehop": "DISABLED",
+      "icaonly": "OFF",
+      "dtls": "ON",
+      "maxaaausers": 0
+    }
+  ]
+}

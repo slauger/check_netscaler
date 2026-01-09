@@ -1,0 +1,53 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "interface": [
+    {
+      "id": "0/1",
+      "rxpkts": 1000000,
+      "rxbytes": 500000000,
+      "rxerrors": 0,
+      "rxdrops": 0,
+      "txpkts": 950000,
+      "txbytes": 450000000,
+      "txerrors": 0,
+      "txdrops": 0,
+      "indisc": 0,
+      "outdisc": 0,
+      "fctls": 0,
+      "hanums": 0,
+      "stsstalls": 0,
+      "txstalls": 0,
+      "rxstalls": 0,
+      "bdgmacmoved": 0,
+      "bdgmuted": 0,
+      "vmac": 0,
+      "vmac6": 0,
+      "totnetscalerpkts": 1950000
+    },
+    {
+      "id": "1/1",
+      "rxpkts": 5000000,
+      "rxbytes": 2500000000,
+      "rxerrors": 0,
+      "rxdrops": 0,
+      "txpkts": 4800000,
+      "txbytes": 2400000000,
+      "txerrors": 0,
+      "txdrops": 0,
+      "indisc": 0,
+      "outdisc": 0,
+      "fctls": 0,
+      "hanums": 0,
+      "stsstalls": 0,
+      "txstalls": 0,
+      "rxstalls": 0,
+      "bdgmacmoved": 0,
+      "bdgmuted": 0,
+      "vmac": 0,
+      "vmac6": 0,
+      "totnetscalerpkts": 9800000
+    }
+  ]
+}

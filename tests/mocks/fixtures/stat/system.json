@@ -1,0 +1,15 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "system": {
+    "cpuusagepcnt": 15.5,
+    "memoryusagepcnt": 45.2,
+    "disk0perusage": 60.8,
+    "disk1perusage": 25.3,
+    "numcpus": 4,
+    "mgmtcpuusagepcnt": 10.2,
+    "pktcpuusagepcnt": 5.3,
+    "rescpuusagepcnt": 0.0
+  }
+}

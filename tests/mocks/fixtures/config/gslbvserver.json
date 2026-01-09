@@ -1,0 +1,21 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "gslbvserver": [
+    {
+      "name": "gslb_site",
+      "servicetype": "HTTP",
+      "state": "ENABLED",
+      "lbmethod": "ROUNDROBIN",
+      "backuplbmethod": "ROUNDROBIN",
+      "tolerance": 0,
+      "persistencetype": "NONE",
+      "timeout": 2,
+      "mir": "DISABLED",
+      "disableprimaryondown": "DISABLED",
+      "dynamicweight": "DISABLED",
+      "considereffectivestate": "NONE"
+    }
+  ]
+}

@@ -51,7 +51,8 @@ class SSLCertCommand(BaseCommand):
 
             # Get SSL certificates
             objecttype = getattr(self.args, "objecttype", None) or "sslcertkey"
-            data = self.client.get_config(objecttype)
+            objectname = getattr(self.args, "objectname", None)
+            data = self.client.get_config(objecttype, objectname)
 
             if objecttype not in data:
                 return CheckResult(

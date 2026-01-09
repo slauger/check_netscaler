@@ -1,0 +1,55 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "service": [
+    {
+      "name": "svc_web1",
+      "throughput": 1024,
+      "avgsvrttfb": 50,
+      "state": "UP",
+      "totalrequests": 10000,
+      "totalresponses": 10000,
+      "totalrequestbytes": 50000000,
+      "totalresponsebytes": 100000000,
+      "curclntconnections": 5,
+      "surgecount": 0,
+      "cursrvrconnections": 5,
+      "svrestablishedconn": 5,
+      "curreusepool": 0,
+      "maxclients": 0
+    },
+    {
+      "name": "svc_web2",
+      "throughput": 2048,
+      "avgsvrttfb": 45,
+      "state": "UP",
+      "totalrequests": 15000,
+      "totalresponses": 15000,
+      "totalrequestbytes": 75000000,
+      "totalresponsebytes": 150000000,
+      "curclntconnections": 8,
+      "surgecount": 0,
+      "cursrvrconnections": 8,
+      "svrestablishedconn": 8,
+      "curreusepool": 0,
+      "maxclients": 0
+    },
+    {
+      "name": "svc_web_down",
+      "throughput": 0,
+      "avgsvrttfb": 0,
+      "state": "DOWN",
+      "totalrequests": 0,
+      "totalresponses": 0,
+      "totalrequestbytes": 0,
+      "totalresponsebytes": 0,
+      "curclntconnections": 0,
+      "surgecount": 0,
+      "cursrvrconnections": 0,
+      "svrestablishedconn": 0,
+      "curreusepool": 0,
+      "maxclients": 0
+    }
+  ]
+}

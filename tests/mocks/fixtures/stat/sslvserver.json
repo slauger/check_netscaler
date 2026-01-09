@@ -1,0 +1,14 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "sslvserver": [
+    {
+      "vservername": "lb_ssl",
+      "ssltotsessions": 1000,
+      "ssltottransactions": 50000,
+      "ssltotenc": 500000000,
+      "ssltotdec": 500000000
+    }
+  ]
+}

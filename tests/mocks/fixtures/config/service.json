@@ -1,0 +1,61 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "service": [
+    {
+      "name": "svc_web1",
+      "servicetype": "HTTP",
+      "ipaddress": "10.1.1.10",
+      "port": 80,
+      "svrstate": "UP",
+      "state": "ENABLED",
+      "server": "web1.example.com",
+      "maxclient": 0,
+      "maxreq": 0,
+      "cacheable": "NO",
+      "cip": "DISABLED",
+      "usip": "NO",
+      "sp": "OFF",
+      "rtspsessionidremap": "OFF",
+      "clttimeout": 180,
+      "svrtimeout": 360
+    },
+    {
+      "name": "svc_web2",
+      "servicetype": "HTTP",
+      "ipaddress": "10.1.1.11",
+      "port": 80,
+      "svrstate": "UP",
+      "state": "ENABLED",
+      "server": "web2.example.com",
+      "maxclient": 0,
+      "maxreq": 0,
+      "cacheable": "NO",
+      "cip": "DISABLED",
+      "usip": "NO",
+      "sp": "OFF",
+      "rtspsessionidremap": "OFF",
+      "clttimeout": 180,
+      "svrtimeout": 360
+    },
+    {
+      "name": "svc_web_down",
+      "servicetype": "HTTP",
+      "ipaddress": "10.1.1.12",
+      "port": 80,
+      "svrstate": "DOWN",
+      "state": "ENABLED",
+      "server": "web3.example.com",
+      "maxclient": 0,
+      "maxreq": 0,
+      "cacheable": "NO",
+      "cip": "DISABLED",
+      "usip": "NO",
+      "sp": "OFF",
+      "rtspsessionidremap": "OFF",
+      "clttimeout": 180,
+      "svrtimeout": 360
+    }
+  ]
+}

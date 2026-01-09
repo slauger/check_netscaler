@@ -62,6 +62,14 @@ check_netscaler -C sslcert --limit "^test-"
 
 ### Check single certificate
 
+Use `--objectname` to check a specific certificate by its exact name:
+
+```bash
+check_netscaler -C sslcert -n wildcard.example.com
+```
+
+Or use `--filter` with a regex pattern:
+
 ```bash
 check_netscaler -C sslcert --filter "^wildcard.example.com$"
 ```

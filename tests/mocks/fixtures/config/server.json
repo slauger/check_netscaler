@@ -1,0 +1,19 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "server": [
+    {
+      "name": "web1.example.com",
+      "ipaddress": "10.1.1.10",
+      "state": "ENABLED",
+      "domainresolveretry": 5
+    },
+    {
+      "name": "web2.example.com",
+      "ipaddress": "10.1.1.11",
+      "state": "ENABLED",
+      "domainresolveretry": 5
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "servicegroup": {
+    "servicegroupname": "sg_web",
+    "state": "UP",
+    "totalrequests": 50000,
+    "totalresponses": 50000,
+    "totalrequestbytes": 250000000,
+    "totalresponsebytes": 500000000,
+    "activemembers": 3,
+    "avgserverttfb": 45,
+    "primaryipaddress": "0.0.0.0",
+    "primaryport": 0
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "lbvserver": [
+    {
+      "name": "lb_web",
+      "type": "HTTP",
+      "state": "UP",
+      "actsvcs": 3,
+      "inactsvcs": 0,
+      "vslbhealth": 100,
+      "primaryipaddress": "192.168.1.100",
+      "primaryport": 80,
+      "totalpktsrecvd": 125000,
+      "totalpktssent": 125000,
+      "totalrequests": 50000,
+      "totalresponses": 50000,
+      "totalrequestbytes": 250000000,
+      "totalresponsebytes": 500000000,
+      "curclntconnections": 10,
+      "cursrvrconnections": 10
+    },
+    {
+      "name": "lb_ssl",
+      "type": "SSL",
+      "state": "UP",
+      "actsvcs": 5,
+      "inactsvcs": 0,
+      "vslbhealth": 100,
+      "primaryipaddress": "192.168.1.101",
+      "primaryport": 443,
+      "totalpktsrecvd": 250000,
+      "totalpktssent": 250000,
+      "totalrequests": 100000,
+      "totalresponses": 100000,
+      "totalrequestbytes": 500000000,
+      "totalresponsebytes": 1000000000,
+      "curclntconnections": 25,
+      "cursrvrconnections": 25
+    },
+    {
+      "name": "lb_down",
+      "type": "HTTP",
+      "state": "DOWN",
+      "actsvcs": 0,
+      "inactsvcs": 3,
+      "vslbhealth": 0,
+      "primaryipaddress": "192.168.1.102",
+      "primaryport": 80,
+      "totalpktsrecvd": 0,
+      "totalpktssent": 0,
+      "totalrequests": 0,
+      "totalresponses": 0,
+      "totalrequestbytes": 0,
+      "totalresponsebytes": 0,
+      "curclntconnections": 0,
+      "cursrvrconnections": 0
+    }
+  ]
+}

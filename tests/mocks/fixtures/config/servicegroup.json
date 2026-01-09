@@ -1,0 +1,23 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "servicegroup": {
+    "servicegroupname": "sg_web",
+    "servicetype": "HTTP",
+    "state": "ENABLED",
+    "numofconnections": 0,
+    "serviceconftype": 1,
+    "value": "0",
+    "monstate": "ENABLED",
+    "maxclient": 0,
+    "maxreq": 0,
+    "cacheable": "NO",
+    "cip": "DISABLED",
+    "usip": "NO",
+    "sp": "OFF",
+    "rtspsessionidremap": "OFF",
+    "clttimeout": 180,
+    "svrtimeout": 360
+  }
+}
