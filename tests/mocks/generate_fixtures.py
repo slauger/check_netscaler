@@ -849,7 +849,7 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
     write_fixture(config_dir / "nsfeature.json", nsfeature_config)
 
     print("\n✅ All fixtures generated!")
-    print(f"📁 Total fixtures:")
+    print("📁 Total fixtures:")
     print(f"   - config: {len(list(config_dir.glob('*.json')))} files")
     print(f"   - stat: {len(list(stat_dir.glob('*.json')))} files")
 

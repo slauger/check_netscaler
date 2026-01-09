@@ -2,7 +2,6 @@
 Integration tests for Mock NITRO API Server
 """
 
-import pytest
 import requests
 
 

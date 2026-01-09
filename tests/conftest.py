@@ -29,8 +29,9 @@ def mock_nitro_server():
             url = mock_nitro_server.get_url()
             # Test against mock server...
     """
-    from tests.mocks.nitro_server import MockNITROServer
     import socket
+
+    from tests.mocks.nitro_server import MockNITROServer
 
     # Find a free port
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
