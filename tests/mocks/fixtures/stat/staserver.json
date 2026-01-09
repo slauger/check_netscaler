@@ -1,0 +1,23 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "staserver": [
+    {
+      "name": "http://sta1.example.com",
+      "staserver": "http://sta1.example.com",
+      "stastate": "UP",
+      "staauthfailures": 0,
+      "totalrequests": 500,
+      "totalresponses": 500
+    },
+    {
+      "name": "http://sta2.example.com",
+      "staserver": "http://sta2.example.com",
+      "stastate": "UP",
+      "staauthfailures": 0,
+      "totalrequests": 500,
+      "totalresponses": 500
+    }
+  ]
+}

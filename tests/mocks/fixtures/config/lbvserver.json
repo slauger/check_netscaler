@@ -1,0 +1,61 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "lbvserver": [
+    {
+      "name": "lb_web",
+      "servicetype": "HTTP",
+      "ipv46": "192.168.1.100",
+      "port": 80,
+      "curstate": "UP",
+      "effectivestate": "UP",
+      "status": "UP",
+      "lbrrreason": 0,
+      "redirect": "OFF",
+      "precedence": "RULE",
+      "redirecturl": "",
+      "cursrvrconnections": 10,
+      "persistencetype": "SOURCEIP",
+      "timeout": 2,
+      "clttimeout": 180,
+      "svrtimeout": 360
+    },
+    {
+      "name": "lb_ssl",
+      "servicetype": "SSL",
+      "ipv46": "192.168.1.101",
+      "port": 443,
+      "curstate": "UP",
+      "effectivestate": "UP",
+      "status": "UP",
+      "lbrrreason": 0,
+      "redirect": "OFF",
+      "precedence": "RULE",
+      "redirecturl": "",
+      "cursrvrconnections": 25,
+      "persistencetype": "COOKIEINSERT",
+      "timeout": 2,
+      "clttimeout": 180,
+      "svrtimeout": 360
+    },
+    {
+      "name": "lb_down",
+      "servicetype": "HTTP",
+      "ipv46": "192.168.1.102",
+      "port": 80,
+      "curstate": "DOWN",
+      "effectivestate": "DOWN",
+      "status": "DOWN",
+      "lbrrreason": 6,
+      "redirect": "OFF",
+      "precedence": "RULE",
+      "redirecturl": "",
+      "cursrvrconnections": 0,
+      "persistencetype": "NONE",
+      "timeout": 2,
+      "clttimeout": 180,
+      "svrtimeout": 360
+    }
+  ]
+}

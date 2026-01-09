@@ -1,0 +1,16 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "authenticationvserver": [
+    {
+      "name": "auth_vs",
+      "servicetype": "SSL",
+      "ipv46": "192.168.2.101",
+      "port": 443,
+      "state": "ENABLED",
+      "authentication": "ON",
+      "authenticationdomain": "example.com"
+    }
+  ]
+}

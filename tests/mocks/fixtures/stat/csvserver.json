@@ -1,0 +1,18 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "csvserver": [
+    {
+      "name": "cs_web",
+      "primaryipaddress": "192.168.2.102",
+      "primaryport": 80,
+      "type": "CONTENT",
+      "state": "UP",
+      "totalrequests": 25000,
+      "totalresponses": 25000,
+      "totalrequestbytes": 125000000,
+      "totalresponsebytes": 250000000
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "interface": [
+    {
+      "id": "0/1",
+      "devicename": "0/1",
+      "description": "Management Interface",
+      "flags": 224,
+      "mtu": 1500,
+      "vlan": 0,
+      "mac": "00:0c:29:ab:cd:ef",
+      "uptime": 864000,
+      "downtime": 0,
+      "reqmedia": "AUTO",
+      "reqspeed": "AUTO",
+      "reqduplex": "AUTO",
+      "actmedia": "1000_T_FD",
+      "actspeed": "1000",
+      "actduplex": "FULL",
+      "mode": "0",
+      "state": "ENABLED",
+      "autoneg": "ENABLED",
+      "hamonitor": "ON",
+      "haheartbeat": "OFF",
+      "tagall": "OFF"
+    },
+    {
+      "id": "1/1",
+      "devicename": "1/1",
+      "description": "Client Interface",
+      "flags": 224,
+      "mtu": 1500,
+      "vlan": 0,
+      "mac": "00:0c:29:ab:cd:f0",
+      "uptime": 864000,
+      "downtime": 0,
+      "reqmedia": "AUTO",
+      "reqspeed": "AUTO",
+      "reqduplex": "AUTO",
+      "actmedia": "1000_T_FD",
+      "actspeed": "1000",
+      "actduplex": "FULL",
+      "mode": "0",
+      "state": "ENABLED",
+      "autoneg": "ENABLED",
+      "hamonitor": "ON",
+      "haheartbeat": "OFF",
+      "tagall": "OFF"
+    }
+  ]
+}

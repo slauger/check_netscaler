@@ -1,0 +1,22 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "nshardware": {
+    "hwdescription": "NetScaler Virtual Appliance",
+    "sysid": "0x0",
+    "manufactureday": 0,
+    "manufacturemonth": 0,
+    "manufactureyear": 0,
+    "cpufrequncy": 2400,
+    "numcpus": 4,
+    "numcores": 4,
+    "numpe": 1,
+    "host": "ns01.example.com",
+    "serialno": "VM-1234567890",
+    "encodedserialno": "VM-1234567890",
+    "disksize": 160000,
+    "totalmemory": 8192,
+    "additionalpe": 0
+  }
+}

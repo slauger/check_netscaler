@@ -1,0 +1,17 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "staserver": [
+    {
+      "name": "http://sta1.example.com",
+      "staserver": "http://sta1.example.com",
+      "staaddresstype": "IPV4"
+    },
+    {
+      "name": "http://sta2.example.com",
+      "staserver": "http://sta2.example.com",
+      "staaddresstype": "IPV4"
+    }
+  ]
+}

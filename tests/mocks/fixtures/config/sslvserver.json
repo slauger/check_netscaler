@@ -1,0 +1,18 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "sslvserver": [
+    {
+      "vservername": "lb_ssl",
+      "cleartextport": 0,
+      "sslv3": "DISABLED",
+      "tls1": "ENABLED",
+      "tls11": "ENABLED",
+      "tls12": "ENABLED",
+      "tls13": "ENABLED",
+      "dtls1": "DISABLED",
+      "snienable": "DISABLED"
+    }
+  ]
+}

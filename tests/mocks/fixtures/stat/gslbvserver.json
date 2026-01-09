@@ -1,0 +1,14 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "gslbvserver": [
+    {
+      "name": "gslb_site",
+      "type": "HTTP",
+      "state": "UP",
+      "totalrequests": 10000,
+      "totalresponses": 10000
+    }
+  ]
+}

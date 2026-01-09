@@ -1,0 +1,16 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "authenticationvserver": [
+    {
+      "name": "auth_vs",
+      "primaryipaddress": "192.168.2.101",
+      "primaryport": 443,
+      "type": "SSL",
+      "state": "UP",
+      "totalrequests": 1000,
+      "totalresponses": 1000
+    }
+  ]
+}

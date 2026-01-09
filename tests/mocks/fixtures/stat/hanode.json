@@ -1,0 +1,47 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "hanode": [
+    {
+      "name": "Node 0",
+      "hacurstatus": "Primary",
+      "hacurstate": "UP",
+      "hamasterstate": "Primary",
+      "haprop": "ENABLED",
+      "hareceive": "ENABLED",
+      "haheartbeats": "ENABLED",
+      "deadinterval": 3,
+      "hamonitor": "ENABLED",
+      "hasync": "ENABLED",
+      "routemonitor": "DISABLED",
+      "hasyncfailurereason": "",
+      "rsskeymismatch": "NO",
+      "enaifaces": "1/1",
+      "disifaces": "",
+      "hamonifaces": "1/1",
+      "pfifaces": "",
+      "ifaces": "1/1"
+    },
+    {
+      "name": "Node 1",
+      "hacurstatus": "Secondary",
+      "hacurstate": "UP",
+      "hamasterstate": "Secondary",
+      "haprop": "ENABLED",
+      "hareceive": "ENABLED",
+      "haheartbeats": "ENABLED",
+      "deadinterval": 3,
+      "hamonitor": "ENABLED",
+      "hasync": "ENABLED",
+      "routemonitor": "DISABLED",
+      "hasyncfailurereason": "",
+      "rsskeymismatch": "NO",
+      "enaifaces": "1/1",
+      "disifaces": "",
+      "hamonifaces": "1/1",
+      "pfifaces": "",
+      "ifaces": "1/1"
+    }
+  ]
+}

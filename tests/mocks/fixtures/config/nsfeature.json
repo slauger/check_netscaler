@@ -1,0 +1,17 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "nsfeature": {
+    "feature": [
+      "LB",
+      "CS",
+      "SSL",
+      "GSLB",
+      "SSLVPN",
+      "AAA",
+      "RESPONDER",
+      "REWRITE"
+    ]
+  }
+}

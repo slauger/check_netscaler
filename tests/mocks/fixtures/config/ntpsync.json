@@ -1,0 +1,10 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "ntpsync": {
+    "state": "ENABLED",
+    "serverip": "",
+    "servertype": "AUTO"
+  }
+}

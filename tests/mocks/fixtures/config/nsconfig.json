@@ -1,0 +1,28 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "nsconfig": {
+    "ipaddress": "192.168.1.1",
+    "netmask": "255.255.255.0",
+    "nsvlan": 1,
+    "ifnum": [
+      "0/1",
+      "1/1"
+    ],
+    "tagged": "NO",
+    "httpport": 80,
+    "maxconn": 0,
+    "maxreq": 0,
+    "cip": "DISABLED",
+    "cipheader": "",
+    "cookieversion": "0",
+    "securecookie": "ENABLED",
+    "pmtumin": 576,
+    "pmtutimeout": 10,
+    "ftpportrange": "1024-65535",
+    "crportrange": "1024-65535",
+    "timezone": "GMT",
+    "lastconfigchangedtime": "Wed Dec  4 10:30:15 2024"
+  }
+}

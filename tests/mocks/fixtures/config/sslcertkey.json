@@ -1,0 +1,52 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "sslcertkey": [
+    {
+      "certkey": "cert_web",
+      "cert": "/nsconfig/ssl/cert_web.pem",
+      "key": "/nsconfig/ssl/cert_web.key",
+      "inform": "PEM",
+      "expirymonitor": "ENABLED",
+      "notificationperiod": 30,
+      "status": "Valid",
+      "daystoexpiration": 60,
+      "subject": "CN=web.example.com,O=Example Inc,C=US",
+      "issuer": "CN=Example CA,O=Example Inc,C=US",
+      "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
+      "clientcertnotafter": "Mar 10 13:46:52 2026 GMT",
+      "serialnumber": "1234567890ABCDEF"
+    },
+    {
+      "certkey": "cert_warning",
+      "cert": "/nsconfig/ssl/cert_warning.pem",
+      "key": "/nsconfig/ssl/cert_warning.key",
+      "inform": "PEM",
+      "expirymonitor": "ENABLED",
+      "notificationperiod": 30,
+      "status": "Valid",
+      "daystoexpiration": 20,
+      "subject": "CN=warning.example.com,O=Example Inc,C=US",
+      "issuer": "CN=Example CA,O=Example Inc,C=US",
+      "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
+      "clientcertnotafter": "Jan 29 13:46:52 2026 GMT",
+      "serialnumber": "ABCDEF1234567890"
+    },
+    {
+      "certkey": "cert_critical",
+      "cert": "/nsconfig/ssl/cert_critical.pem",
+      "key": "/nsconfig/ssl/cert_critical.key",
+      "inform": "PEM",
+      "expirymonitor": "ENABLED",
+      "notificationperiod": 30,
+      "status": "Valid",
+      "daystoexpiration": 5,
+      "subject": "CN=critical.example.com,O=Example Inc,C=US",
+      "issuer": "CN=Example CA,O=Example Inc,C=US",
+      "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
+      "clientcertnotafter": "Jan 14 13:46:52 2026 GMT",
+      "serialnumber": "FEDCBA0987654321"
+    }
+  ]
+}
