@@ -71,7 +71,7 @@ pip install -e ".[dev]"
 
 ### Pre-built Binaries (Standalone)
 
-For systems without Python or pip, download standalone executables from the [GitHub Actions artifacts](https://github.com/slauger/check_netscaler/actions/workflows/pyinstaller.yml):
+For systems without Python or pip, download standalone executables from the [Releases page](https://github.com/slauger/check_netscaler/releases):
 
 - **Linux**: `check_netscaler-linux`
 - **macOS**: `check_netscaler-macos`
@@ -87,8 +87,6 @@ chmod +x check_netscaler-linux
 # Windows example
 check_netscaler-windows.exe --help
 ```
-
-Binaries are built automatically on every push and are available as workflow artifacts for 30 days.
 
 ## Quick Start
 
