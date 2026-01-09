@@ -418,6 +418,81 @@ class TestBelowCommandWithMockAPI:
             assert "disk1perusage" in result.message
 
 
+class TestNSConfigCommandWithMockAPI:
+    """Test nsconfig command against mock API"""
+
+    def test_nsconfig_no_changes(self, mock_nitro_server):
+        """Test nsconfig when no unsaved changes"""
+        with NITROClient(
+            hostname=mock_nitro_server.host,
+            port=mock_nitro_server.port,
+            username="nsroot",
+            password="nsroot",
+            ssl=False,
+        ) as client:
+            args = Namespace(command="nsconfig")
+
+            from check_netscaler.commands.nsconfig import NSConfigCommand
+
+            command = NSConfigCommand(client, args)
+            result = command.execute()
+
+            assert result.status == STATE_OK
+            assert "No unsaved configuration changes" in result.message
+
+
+class TestHWInfoCommandWithMockAPI:
+    """Test hwinfo command against mock API"""
+
+    def test_hwinfo_display(self, mock_nitro_server):
+        """Test hwinfo displays hardware information"""
+        with NITROClient(
+            hostname=mock_nitro_server.host,
+            port=mock_nitro_server.port,
+            username="nsroot",
+            password="nsroot",
+            ssl=False,
+        ) as client:
+            args = Namespace(command="hwinfo")
+
+            from check_netscaler.commands.hwinfo import HWInfoCommand
+
+            command = HWInfoCommand(client, args)
+            result = command.execute()
+
+            assert result.status == STATE_OK
+            assert "Platform" in result.message or "CPU" in result.message
+
+
+class TestDebugCommandWithMockAPI:
+    """Test debug command against mock API"""
+
+    def test_debug_raw_response(self, mock_nitro_server):
+        """Test debug shows raw API response"""
+        with NITROClient(
+            hostname=mock_nitro_server.host,
+            port=mock_nitro_server.port,
+            username="nsroot",
+            password="nsroot",
+            ssl=False,
+        ) as client:
+            args = Namespace(
+                command="debug",
+                objecttype="lbvserver",
+                objectname="lb_web",
+                endpoint="config",
+            )
+
+            from check_netscaler.commands.debug import DebugCommand
+
+            command = DebugCommand(client, args)
+            result = command.execute()
+
+            assert result.status == STATE_OK
+            # Debug command returns JSON response
+            assert "lbvserver" in result.message or "lb_web" in result.message
+
+
 class TestLicenseCommandWithMockAPI:
     """Test license command against mock API"""
 

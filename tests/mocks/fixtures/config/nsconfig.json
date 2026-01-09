@@ -23,6 +23,7 @@
     "ftpportrange": "1024-65535",
     "crportrange": "1024-65535",
     "timezone": "GMT",
-    "lastconfigchangedtime": "Wed Dec  4 10:30:15 2024"
+    "lastconfigchangedtime": "Wed Dec  4 10:30:15 2024",
+    "configchanged": false
   }
 }
