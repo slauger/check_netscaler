@@ -116,9 +116,10 @@ class MockNITROServer:
         fixture_data = self._load_fixture(endpoint, resource_type, resource_name, query_params)
 
         if fixture_data is None:
-            return jsonify(
-                {"errorcode": 258, "message": f"No such resource [{resource_type}]"}
-            ), 404
+            return (
+                jsonify({"errorcode": 258, "message": f"No such resource [{resource_type}]"}),
+                404,
+            )
 
         return jsonify(fixture_data)
 

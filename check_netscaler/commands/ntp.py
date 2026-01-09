@@ -237,8 +237,7 @@ class NTPCommand(BaseCommand):
             worst_status = STATE_CRITICAL
             offset_text += " (CRITICAL)"
         elif (
-            thresholds["offset_warning"] is not None
-            and abs(offset) >= thresholds["offset_warning"]
+            thresholds["offset_warning"] is not None and abs(offset) >= thresholds["offset_warning"]
         ):
             worst_status = STATE_WARNING
             offset_text += " (WARNING)"
@@ -253,9 +252,7 @@ class NTPCommand(BaseCommand):
             if worst_status != STATE_CRITICAL:
                 worst_status = STATE_CRITICAL
             jitter_text += " (CRITICAL)"
-        elif (
-            thresholds["jitter_warning"] is not None and jitter >= thresholds["jitter_warning"]
-        ):
+        elif thresholds["jitter_warning"] is not None and jitter >= thresholds["jitter_warning"]:
             if worst_status == STATE_OK:
                 worst_status = STATE_WARNING
             jitter_text += " (WARNING)"

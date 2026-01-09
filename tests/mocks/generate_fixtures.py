@@ -43,7 +43,7 @@ def generate_fixtures():
                 "sp": "OFF",
                 "rtspsessionidremap": "OFF",
                 "clttimeout": 180,
-                "svrtimeout": 360
+                "svrtimeout": 360,
             },
             {
                 "name": "svc_web2",
@@ -61,7 +61,7 @@ def generate_fixtures():
                 "sp": "OFF",
                 "rtspsessionidremap": "OFF",
                 "clttimeout": 180,
-                "svrtimeout": 360
+                "svrtimeout": 360,
             },
             {
                 "name": "svc_web_down",
@@ -79,9 +79,9 @@ def generate_fixtures():
                 "sp": "OFF",
                 "rtspsessionidremap": "OFF",
                 "clttimeout": 180,
-                "svrtimeout": 360
-            }
-        ]
+                "svrtimeout": 360,
+            },
+        ],
     }
 
     service_stat = {
@@ -103,7 +103,7 @@ def generate_fixtures():
                 "cursrvrconnections": 5,
                 "svrestablishedconn": 5,
                 "curreusepool": 0,
-                "maxclients": 0
+                "maxclients": 0,
             },
             {
                 "name": "svc_web2",
@@ -119,7 +119,7 @@ def generate_fixtures():
                 "cursrvrconnections": 8,
                 "svrestablishedconn": 8,
                 "curreusepool": 0,
-                "maxclients": 0
+                "maxclients": 0,
             },
             {
                 "name": "svc_web_down",
@@ -135,9 +135,9 @@ def generate_fixtures():
                 "cursrvrconnections": 0,
                 "svrestablishedconn": 0,
                 "curreusepool": 0,
-                "maxclients": 0
-            }
-        ]
+                "maxclients": 0,
+            },
+        ],
     }
 
     write_fixture(config_dir / "service.json", service_config)
@@ -165,8 +165,8 @@ def generate_fixtures():
             "sp": "OFF",
             "rtspsessionidremap": "OFF",
             "clttimeout": 180,
-            "svrtimeout": 360
-        }
+            "svrtimeout": 360,
+        },
     }
 
     servicegroup_stat = {
@@ -183,8 +183,8 @@ def generate_fixtures():
             "activemembers": 3,
             "avgserverttfb": 45,
             "primaryipaddress": "0.0.0.0",
-            "primaryport": 0
-        }
+            "primaryport": 0,
+        },
     }
 
     write_fixture(config_dir / "servicegroup.json", servicegroup_config)
@@ -218,7 +218,7 @@ def generate_fixtures():
                 "autoneg": "ENABLED",
                 "hamonitor": "ON",
                 "haheartbeat": "OFF",
-                "tagall": "OFF"
+                "tagall": "OFF",
             },
             {
                 "id": "1/1",
@@ -241,9 +241,9 @@ def generate_fixtures():
                 "autoneg": "ENABLED",
                 "hamonitor": "ON",
                 "haheartbeat": "OFF",
-                "tagall": "OFF"
-            }
-        ]
+                "tagall": "OFF",
+            },
+        ],
     }
 
     interface_stat = {
@@ -272,7 +272,7 @@ def generate_fixtures():
                 "bdgmuted": 0,
                 "vmac": 0,
                 "vmac6": 0,
-                "totnetscalerpkts": 1950000
+                "totnetscalerpkts": 1950000,
             },
             {
                 "id": "1/1",
@@ -295,9 +295,9 @@ def generate_fixtures():
                 "bdgmuted": 0,
                 "vmac": 0,
                 "vmac6": 0,
-                "totnetscalerpkts": 9800000
-            }
-        ]
+                "totnetscalerpkts": 9800000,
+            },
+        ],
     }
 
     write_fixture(config_dir / "interface.json", interface_config)
@@ -327,7 +327,7 @@ def generate_fixtures():
                 "issuer": "CN=Example CA,O=Example Inc,C=US",
                 "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
                 "clientcertnotafter": expiry_ok,
-                "serialnumber": "1234567890ABCDEF"
+                "serialnumber": "1234567890ABCDEF",
             },
             {
                 "certkey": "cert_warning",
@@ -342,7 +342,7 @@ def generate_fixtures():
                 "issuer": "CN=Example CA,O=Example Inc,C=US",
                 "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
                 "clientcertnotafter": expiry_warning,
-                "serialnumber": "ABCDEF1234567890"
+                "serialnumber": "ABCDEF1234567890",
             },
             {
                 "certkey": "cert_critical",
@@ -357,9 +357,9 @@ def generate_fixtures():
                 "issuer": "CN=Example CA,O=Example Inc,C=US",
                 "clientcertnotbefore": "Jan  1 00:00:00 2024 GMT",
                 "clientcertnotafter": expiry_critical,
-                "serialnumber": "FEDCBA0987654321"
-            }
-        ]
+                "serialnumber": "FEDCBA0987654321",
+            },
+        ],
     }
 
     write_fixture(config_dir / "sslcertkey.json", sslcertkey_config)
@@ -388,8 +388,8 @@ def generate_fixtures():
             "ftpportrange": "1024-65535",
             "crportrange": "1024-65535",
             "timezone": "GMT",
-            "lastconfigchangedtime": "Wed Dec  4 10:30:15 2024"
-        }
+            "lastconfigchangedtime": "Wed Dec  4 10:30:15 2024",
+        },
     }
     write_fixture(config_dir / "nsconfig.json", nsconfig_config)
 
@@ -414,8 +414,8 @@ def generate_fixtures():
             "encodedserialno": "VM-1234567890",
             "disksize": 160000,
             "totalmemory": 8192,
-            "additionalpe": 0
-        }
+            "additionalpe": 0,
+        },
     }
     write_fixture(config_dir / "nshardware.json", nshardware_config)
 
@@ -428,8 +428,8 @@ def generate_fixtures():
         "nsversion": {
             "installedversion": "NS14.1: Build 21.48.nc, Date: Jun 17 2024",
             "version": "NetScaler NS14.1",
-            "mode": "1"
-        }
+            "mode": "1",
+        },
     }
     write_fixture(config_dir / "nsversion.json", nsversion_config)
 
@@ -439,11 +439,7 @@ def generate_fixtures():
         "errorcode": 0,
         "message": "Done",
         "severity": "NONE",
-        "ntpsync": {
-            "state": "ENABLED",
-            "serverip": "",
-            "servertype": "AUTO"
-        }
+        "ntpsync": {"state": "ENABLED", "serverip": "", "servertype": "AUTO"},
     }
     write_fixture(config_dir / "ntpsync.json", ntpsync_config)
 
@@ -460,7 +456,7 @@ def generate_fixtures():
 +192.168.1.2     .GPS.            1 u   64  128  377    1.234  10.000   1.000
 +192.168.1.3     .GPS.            2 u   64  128  377    1.234  15.000   3.000
  192.168.1.4     .GPS.            3 u   64  128  377    1.234  20.000   4.000"""
-        }
+        },
     }
     write_fixture(config_dir / "ntpstatus.json", ntpstatus_config)
 
@@ -493,9 +489,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "filelocation": "/nsconfig/license",
                 "filesize": len(license_content),
                 "filecontent": license_b64,
-                "fileencoding": "BASE64"
+                "fileencoding": "BASE64",
             }
-        ]
+        ],
     }
     write_fixture(config_dir / "systemfile.json", systemfile_config)
 
@@ -524,7 +520,7 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "disifaces": "",
                 "hamonifaces": "1/1",
                 "pfifaces": "",
-                "ifaces": "1/1"
+                "ifaces": "1/1",
             },
             {
                 "name": "Node 1",
@@ -544,9 +540,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "disifaces": "",
                 "hamonifaces": "1/1",
                 "pfifaces": "",
-                "ifaces": "1/1"
-            }
-        ]
+                "ifaces": "1/1",
+            },
+        ],
     }
     write_fixture(stat_dir / "hanode.json", hanode_stat)
 
@@ -571,9 +567,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "doublehop": "DISABLED",
                 "icaonly": "OFF",
                 "dtls": "ON",
-                "maxaaausers": 0
+                "maxaaausers": 0,
             }
-        ]
+        ],
     }
 
     vpnvserver_stat = {
@@ -590,9 +586,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "totalrequests": 5000,
                 "totalresponses": 5000,
                 "totalrequestbytes": 25000000,
-                "totalresponsebytes": 50000000
+                "totalresponsebytes": 50000000,
             }
-        ]
+        ],
     }
 
     write_fixture(config_dir / "vpnvserver.json", vpnvserver_config)
@@ -612,9 +608,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "port": 443,
                 "state": "ENABLED",
                 "authentication": "ON",
-                "authenticationdomain": "example.com"
+                "authenticationdomain": "example.com",
             }
-        ]
+        ],
     }
 
     authenticationvserver_stat = {
@@ -629,9 +625,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "type": "SSL",
                 "state": "UP",
                 "totalrequests": 1000,
-                "totalresponses": 1000
+                "totalresponses": 1000,
             }
-        ]
+        ],
     }
 
     write_fixture(config_dir / "authenticationvserver.json", authenticationvserver_config)
@@ -656,9 +652,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "casesensitive": "ON",
                 "somethod": "CONNECTION",
                 "sopersistence": "DISABLED",
-                "sopersistencetimeout": 2
+                "sopersistencetimeout": 2,
             }
-        ]
+        ],
     }
 
     csvserver_stat = {
@@ -675,9 +671,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "totalrequests": 25000,
                 "totalresponses": 25000,
                 "totalrequestbytes": 125000000,
-                "totalresponsebytes": 250000000
+                "totalresponsebytes": 250000000,
             }
-        ]
+        ],
     }
 
     write_fixture(config_dir / "csvserver.json", csvserver_config)
@@ -702,9 +698,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "mir": "DISABLED",
                 "disableprimaryondown": "DISABLED",
                 "dynamicweight": "DISABLED",
-                "considereffectivestate": "NONE"
+                "considereffectivestate": "NONE",
             }
-        ]
+        ],
     }
 
     gslbvserver_stat = {
@@ -717,9 +713,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "type": "HTTP",
                 "state": "UP",
                 "totalrequests": 10000,
-                "totalresponses": 10000
+                "totalresponses": 10000,
             }
-        ]
+        ],
     }
 
     write_fixture(config_dir / "gslbvserver.json", gslbvserver_config)
@@ -735,14 +731,14 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
             {
                 "name": "http://sta1.example.com",
                 "staserver": "http://sta1.example.com",
-                "staaddresstype": "IPV4"
+                "staaddresstype": "IPV4",
             },
             {
                 "name": "http://sta2.example.com",
                 "staserver": "http://sta2.example.com",
-                "staaddresstype": "IPV4"
-            }
-        ]
+                "staaddresstype": "IPV4",
+            },
+        ],
     }
 
     staserver_stat = {
@@ -756,7 +752,7 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "stastate": "UP",
                 "staauthfailures": 0,
                 "totalrequests": 500,
-                "totalresponses": 500
+                "totalresponses": 500,
             },
             {
                 "name": "http://sta2.example.com",
@@ -764,9 +760,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "stastate": "UP",
                 "staauthfailures": 0,
                 "totalrequests": 500,
-                "totalresponses": 500
-            }
-        ]
+                "totalresponses": 500,
+            },
+        ],
     }
 
     write_fixture(config_dir / "staserver.json", staserver_config)
@@ -788,9 +784,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "tls12": "ENABLED",
                 "tls13": "ENABLED",
                 "dtls1": "DISABLED",
-                "snienable": "DISABLED"
+                "snienable": "DISABLED",
             }
-        ]
+        ],
     }
 
     sslvserver_stat = {
@@ -803,9 +799,9 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "ssltotsessions": 1000,
                 "ssltottransactions": 50000,
                 "ssltotenc": 500000000,
-                "ssltotdec": 500000000
+                "ssltotdec": 500000000,
             }
-        ]
+        ],
     }
 
     write_fixture(config_dir / "sslvserver.json", sslvserver_config)
@@ -822,15 +818,15 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
                 "name": "web1.example.com",
                 "ipaddress": "10.1.1.10",
                 "state": "ENABLED",
-                "domainresolveretry": 5
+                "domainresolveretry": 5,
             },
             {
                 "name": "web2.example.com",
                 "ipaddress": "10.1.1.11",
                 "state": "ENABLED",
-                "domainresolveretry": 5
-            }
-        ]
+                "domainresolveretry": 5,
+            },
+        ],
     }
 
     write_fixture(config_dir / "server.json", server_config)
@@ -843,7 +839,7 @@ INCREMENT CNS_SSL citrix 12.0 permanent 1 \\
         "severity": "NONE",
         "nsfeature": {
             "feature": ["LB", "CS", "SSL", "GSLB", "SSLVPN", "AAA", "RESPONDER", "REWRITE"]
-        }
+        },
     }
 
     write_fixture(config_dir / "nsfeature.json", nsfeature_config)
