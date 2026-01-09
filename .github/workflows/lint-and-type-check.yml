@@ -60,7 +60,7 @@ jobs:
       - name: Run tests
         run: |
           echo "Running pytest..."
-          pytest tests/ -v --tb=short
+          pytest tests/ -vv --tb=short
         continue-on-error: false
 
   summary:
