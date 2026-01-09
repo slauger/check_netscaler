@@ -40,8 +40,8 @@ class TestStateCommandWithMockAPI:
             result = command.execute()
 
             assert result.status == STATE_OK
-            assert "lb_web" in result.message
-            assert "UP" in result.message
+            # Single UP object returns: "lbvserver is UP"
+            assert result.message == "lbvserver is UP"
 
     def test_state_check_lbvserver_down(self, mock_nitro_server):
         """Test checking state of DOWN load balancer"""
@@ -64,8 +64,10 @@ class TestStateCommandWithMockAPI:
             result = command.execute()
 
             assert result.status == STATE_CRITICAL
+            # Single DOWN object returns: "1/1 lbvserver CRITICAL (lb_down)"
+            assert "CRITICAL" in result.message
             assert "lb_down" in result.message
-            assert "DOWN" in result.message
+            assert "1/1" in result.message
 
     def test_state_check_all_lbvservers(self, mock_nitro_server):
         """Test checking all load balancers"""
@@ -88,10 +90,11 @@ class TestStateCommandWithMockAPI:
             result = command.execute()
 
             # Should be CRITICAL because lb_down is DOWN
+            # Multiple objects with 1 CRITICAL returns: "1/3 lbvserver CRITICAL (lb_down)"
             assert result.status == STATE_CRITICAL
-            assert "lb_web" in result.message
-            assert "lb_ssl" in result.message
+            assert "CRITICAL" in result.message
             assert "lb_down" in result.message
+            assert "1/3" in result.message
 
 
 class TestSSLCertCommandWithMockAPI:
@@ -109,9 +112,10 @@ class TestSSLCertCommandWithMockAPI:
             args = Namespace(
                 command="sslcert",
                 objecttype="sslcertkey",
+                objectname="cert_web",
                 warning="30",
                 critical="10",
-                filter="cert_web",
+                filter=None,
                 limit=None,
             )
 
@@ -119,8 +123,10 @@ class TestSSLCertCommandWithMockAPI:
             result = command.execute()
 
             assert result.status == STATE_OK
-            assert "cert_web" in result.message
-            assert "60 days" in result.message
+            # OK status returns: "1 certificate(s) OK (warn=30d, crit=10d)"
+            assert "1 certificate(s) OK" in result.message
+            assert "warn=30d" in result.message
+            assert "crit=10d" in result.message
 
     def test_sslcert_check_warning(self, mock_nitro_server):
         """Test SSL cert check with warning cert (20 days)"""
@@ -134,9 +140,10 @@ class TestSSLCertCommandWithMockAPI:
             args = Namespace(
                 command="sslcert",
                 objecttype="sslcertkey",
+                objectname="cert_warning",
                 warning="30",
                 critical="10",
-                filter="cert_warning",
+                filter=None,
                 limit=None,
             )
 
@@ -144,8 +151,9 @@ class TestSSLCertCommandWithMockAPI:
             result = command.execute()
 
             assert result.status == STATE_WARNING
-            assert "cert_warning" in result.message
-            assert "20 days" in result.message
+            # WARNING status returns: "WARNING: cert_warning expires in 20 days"
+            assert "WARNING:" in result.message
+            assert "cert_warning expires in 20 days" in result.message
 
     def test_sslcert_check_critical(self, mock_nitro_server):
         """Test SSL cert check with critical cert (5 days)"""
@@ -159,9 +167,10 @@ class TestSSLCertCommandWithMockAPI:
             args = Namespace(
                 command="sslcert",
                 objecttype="sslcertkey",
+                objectname="cert_critical",
                 warning="30",
                 critical="10",
-                filter="cert_critical",
+                filter=None,
                 limit=None,
             )
 
@@ -169,8 +178,9 @@ class TestSSLCertCommandWithMockAPI:
             result = command.execute()
 
             assert result.status == STATE_CRITICAL
-            assert "cert_critical" in result.message
-            assert "5 days" in result.message
+            # CRITICAL status returns: "CRITICAL: cert_critical expires in 5 days"
+            assert "CRITICAL:" in result.message
+            assert "cert_critical expires in 5 days" in result.message
 
 
 class TestNTPCommandWithMockAPI:

@@ -27,6 +27,13 @@ from flask import Flask, jsonify, request
 class MockNITROServer:
     """Mock NITRO API Server"""
 
+    # Resource-specific identifier field names
+    # Most resources use "name", but some use different fields
+    RESOURCE_ID_FIELDS = {
+        "sslcertkey": "certkey",
+        # Add more resource-specific mappings here if needed
+    }
+
     def __init__(self, port: int = 8080, host: str = "127.0.0.1"):
         """
         Initialize mock server
@@ -164,18 +171,21 @@ class MockNITROServer:
 
         # If resource_name specified, filter results
         if resource_name and resource_type in data:
+            # Get the correct identifier field for this resource type
+            id_field = self.RESOURCE_ID_FIELDS.get(resource_type, "name")
+
             resources = data[resource_type]
             if isinstance(resources, list):
-                # Filter list by name
-                filtered = [r for r in resources if r.get("name") == resource_name]
+                # Filter list by identifier field
+                filtered = [r for r in resources if r.get(id_field) == resource_name]
                 if filtered:
                     # Always return as list for consistency (some commands expect list)
                     data[resource_type] = filtered
                 else:
                     return None
             elif isinstance(resources, dict):
-                # Single resource, check name - wrap in list
-                if resources.get("name") == resource_name:
+                # Single resource, check identifier field - wrap in list
+                if resources.get(id_field) == resource_name:
                     data[resource_type] = [resources]
                 else:
                     return None

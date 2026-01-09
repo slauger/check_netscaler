@@ -120,7 +120,9 @@ class LicenseCommand(BaseCommand):
 
         # Get all .lic files from /nsconfig/license
         try:
-            data = self.client.get_config("systemfile", args="filelocation:/nsconfig/license")
+            data = self.client.get_config(
+                "systemfile", url_options="args=filelocation:/nsconfig/license"
+            )
 
             if "systemfile" not in data:
                 return []
@@ -151,7 +153,8 @@ class LicenseCommand(BaseCommand):
         try:
             # Get license file content
             data = self.client.get_config(
-                "systemfile", args=f"filelocation:/nsconfig/license,filename:{filename}"
+                "systemfile",
+                url_options=f"args=filelocation:/nsconfig/license,filename:{filename}",
             )
 
             if "systemfile" not in data:

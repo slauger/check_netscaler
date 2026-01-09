@@ -230,14 +230,18 @@ class NTPCommand(BaseCommand):
         offset = float(ntp_info["synced_offset"])
         offset_text = f"Offset {ntp_info['synced_offset']} secs"
 
-        if thresholds["offset_critical"] is not None:
-            if abs(offset) >= thresholds["offset_critical"]:
-                worst_status = STATE_CRITICAL
-                offset_text += " (CRITICAL)"
-        elif thresholds["offset_warning"] is not None:
-            if abs(offset) >= thresholds["offset_warning"]:
-                worst_status = STATE_WARNING
-                offset_text += " (WARNING)"
+        if (
+            thresholds["offset_critical"] is not None
+            and abs(offset) >= thresholds["offset_critical"]
+        ):
+            worst_status = STATE_CRITICAL
+            offset_text += " (CRITICAL)"
+        elif (
+            thresholds["offset_warning"] is not None
+            and abs(offset) >= thresholds["offset_warning"]
+        ):
+            worst_status = STATE_WARNING
+            offset_text += " (WARNING)"
 
         messages.append(offset_text)
 
@@ -245,16 +249,16 @@ class NTPCommand(BaseCommand):
         jitter = ntp_info["synced_jitter"]
         jitter_text = f"jitter={jitter}"
 
-        if thresholds["jitter_critical"] is not None:
-            if jitter >= thresholds["jitter_critical"]:
-                if worst_status != STATE_CRITICAL:
-                    worst_status = STATE_CRITICAL
-                jitter_text += " (CRITICAL)"
-        elif thresholds["jitter_warning"] is not None:
-            if jitter >= thresholds["jitter_warning"]:
-                if worst_status == STATE_OK:
-                    worst_status = STATE_WARNING
-                jitter_text += " (WARNING)"
+        if thresholds["jitter_critical"] is not None and jitter >= thresholds["jitter_critical"]:
+            if worst_status != STATE_CRITICAL:
+                worst_status = STATE_CRITICAL
+            jitter_text += " (CRITICAL)"
+        elif (
+            thresholds["jitter_warning"] is not None and jitter >= thresholds["jitter_warning"]
+        ):
+            if worst_status == STATE_OK:
+                worst_status = STATE_WARNING
+            jitter_text += " (WARNING)"
 
         messages.append(jitter_text)
 
@@ -262,16 +266,14 @@ class NTPCommand(BaseCommand):
         stratum = ntp_info["synced_stratum"]
         stratum_text = f"stratum={stratum}"
 
-        if thresholds["stratum_critical"] is not None:
-            if stratum > thresholds["stratum_critical"]:
-                if worst_status != STATE_CRITICAL:
-                    worst_status = STATE_CRITICAL
-                stratum_text += " (CRITICAL)"
-        elif thresholds["stratum_warning"] is not None:
-            if stratum > thresholds["stratum_warning"]:
-                if worst_status == STATE_OK:
-                    worst_status = STATE_WARNING
-                stratum_text += " (WARNING)"
+        if thresholds["stratum_critical"] is not None and stratum > thresholds["stratum_critical"]:
+            if worst_status != STATE_CRITICAL:
+                worst_status = STATE_CRITICAL
+            stratum_text += " (CRITICAL)"
+        elif thresholds["stratum_warning"] is not None and stratum > thresholds["stratum_warning"]:
+            if worst_status == STATE_OK:
+                worst_status = STATE_WARNING
+            stratum_text += " (WARNING)"
 
         messages.append(stratum_text)
 
@@ -279,16 +281,20 @@ class NTPCommand(BaseCommand):
         truechimers = ntp_info["truechimers"]
         truechimers_text = f"truechimers={truechimers}"
 
-        if thresholds["truechimers_critical"] is not None:
-            if truechimers <= thresholds["truechimers_critical"]:
-                if worst_status != STATE_CRITICAL:
-                    worst_status = STATE_CRITICAL
-                truechimers_text += " (CRITICAL)"
-        elif thresholds["truechimers_warning"] is not None:
-            if truechimers <= thresholds["truechimers_warning"]:
-                if worst_status == STATE_OK:
-                    worst_status = STATE_WARNING
-                truechimers_text += " (WARNING)"
+        if (
+            thresholds["truechimers_critical"] is not None
+            and truechimers <= thresholds["truechimers_critical"]
+        ):
+            if worst_status != STATE_CRITICAL:
+                worst_status = STATE_CRITICAL
+            truechimers_text += " (CRITICAL)"
+        elif (
+            thresholds["truechimers_warning"] is not None
+            and truechimers <= thresholds["truechimers_warning"]
+        ):
+            if worst_status == STATE_OK:
+                worst_status = STATE_WARNING
+            truechimers_text += " (WARNING)"
 
         messages.append(truechimers_text)
 

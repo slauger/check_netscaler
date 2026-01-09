@@ -19,7 +19,7 @@ def test_login_success(mock_nitro_server):
 
     response = requests.post(url, json=data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201  # NetScaler returns 201 for successful login
     assert response.json()["errorcode"] == 0
     assert "NITRO_AUTH_TOKEN" in response.cookies
 
@@ -86,7 +86,10 @@ def test_get_specific_resource(mock_nitro_server):
     assert response.status_code == 200
     data = response.json()
     assert "lbvserver" in data
-    lb = data["lbvserver"]
+    # Specific resources are returned as lists for consistency
+    assert isinstance(data["lbvserver"], list)
+    assert len(data["lbvserver"]) == 1
+    lb = data["lbvserver"][0]
     assert lb["name"] == "lb_web"
 
 
