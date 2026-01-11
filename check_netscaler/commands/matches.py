@@ -2,6 +2,7 @@
 String matching command - matches and matches_not
 """
 
+import re
 from typing import Any, Dict, List
 
 from check_netscaler.client.exceptions import NITROException
@@ -111,7 +112,40 @@ class MatchesCommand(BaseCommand):
                         message=f"{mode}: no objects found",
                     )
 
+                # Compile filter and limit regex if provided
+                filter_regex = None
+                limit_regex = None
+
+                if hasattr(self.args, "filter") and self.args.filter:
+                    try:
+                        filter_regex = re.compile(self.args.filter)
+                    except re.error as e:
+                        return CheckResult(
+                            status=STATE_UNKNOWN,
+                            message=f"Invalid filter regex: {e}",
+                        )
+
+                if hasattr(self.args, "limit") and self.args.limit:
+                    try:
+                        limit_regex = re.compile(self.args.limit)
+                    except re.error as e:
+                        return CheckResult(
+                            status=STATE_UNKNOWN,
+                            message=f"Invalid limit regex: {e}",
+                        )
+
                 for idx, obj in enumerate(response):
+                    # Get object name for filtering
+                    obj_name = obj.get("name", "")
+
+                    # Apply filter (skip if matches)
+                    if filter_regex and filter_regex.search(obj_name):
+                        continue
+
+                    # Apply limit (skip if doesn't match)
+                    if limit_regex and not limit_regex.search(obj_name):
+                        continue
+
                     for field in field_names:
                         if field not in obj:
                             return CheckResult(

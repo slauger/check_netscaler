@@ -30,6 +30,8 @@ class TestMatchesCommand:
             "endpoint": "stat",
             "separator": ".",
             "label": None,
+            "filter": None,
+            "limit": None,
         }
         defaults.update(kwargs)
         return Namespace(**defaults)
@@ -375,3 +377,122 @@ class TestMatchesCommand:
 
         # Should start with "keyword matches_not:"
         assert result.message.startswith("keyword matches_not:")
+
+    def test_filter_objects_multiple(self):
+        """Test filtering objects using regex with multiple objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "state": "UP"},
+                {"name": "lb_test_1", "state": "DOWN"},
+                {"name": "lb_prod_2", "state": "UP"},
+            ]
+        }
+
+        # Filter out test servers
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="state",
+            warning="UNKNOWN",
+            critical="DOWN",
+            filter="test",
+            label="name",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should only check prod servers (test is filtered out)
+        # Both prod servers are UP, so should be OK
+        assert result.status == STATE_OK
+        assert "lb_prod_1" in result.message or "lb_prod_2" in result.message
+        assert "lb_test_1" not in result.message
+
+    def test_limit_objects_multiple(self):
+        """Test limiting objects using regex with multiple objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "state": "UP"},
+                {"name": "lb_test_1", "state": "DOWN"},
+                {"name": "lb_prod_2", "state": "UP"},
+            ]
+        }
+
+        # Limit to only prod servers
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="state",
+            warning="UNKNOWN",
+            critical="DOWN",
+            limit="prod",
+            label="name",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should only check prod servers
+        # Both prod servers are UP, so should be OK
+        assert result.status == STATE_OK
+        assert "lb_prod_1" in result.message or "lb_prod_2" in result.message
+        assert "lb_test_1" not in result.message
+
+    def test_filter_and_limit_combined_multiple(self):
+        """Test using both filter and limit together with multiple objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_web", "state": "UP"},
+                {"name": "lb_prod_api", "state": "DOWN"},
+                {"name": "lb_test_web", "state": "UP"},
+                {"name": "lb_dev_api", "state": "UP"},
+            ]
+        }
+
+        # Limit to prod, filter out api
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="state",
+            warning="UNKNOWN",
+            critical="DOWN",
+            limit="prod",
+            filter="api",
+            label="name",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should only check lb_prod_web
+        # lb_prod_web is UP, so should be OK
+        assert result.status == STATE_OK
+        assert "lb_prod_web" in result.message
+        assert "lb_prod_api" not in result.message
+        assert "lb_test_web" not in result.message
+        assert "lb_dev_api" not in result.message
+
+    def test_invalid_filter_regex_multiple(self):
+        """Test with invalid filter regex for multiple objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "state": "UP"}]}
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="state", warning="DOWN", critical="DOWN", filter="[invalid"
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid filter regex" in result.message
+
+    def test_invalid_limit_regex_multiple(self):
+        """Test with invalid limit regex for multiple objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "state": "UP"}]}
+
+        args = self.create_args(
+            objecttype="lbvserver", objectname="state", warning="DOWN", critical="DOWN", limit="[invalid"
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid limit regex" in result.message

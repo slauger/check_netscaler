@@ -2,6 +2,7 @@
 Generic performance data collection command
 """
 
+import re
 from typing import Dict
 
 from check_netscaler.client.exceptions import NITROException
@@ -78,6 +79,28 @@ class PerfdataCommand(BaseCommand):
                     message="perfdata: no data found",
                 )
 
+            # Compile filter and limit regex if provided
+            filter_regex = None
+            limit_regex = None
+
+            if hasattr(self.args, "filter") and self.args.filter:
+                try:
+                    filter_regex = re.compile(self.args.filter)
+                except re.error as e:
+                    return CheckResult(
+                        status=STATE_UNKNOWN,
+                        message=f"Invalid filter regex: {e}",
+                    )
+
+            if hasattr(self.args, "limit") and self.args.limit:
+                try:
+                    limit_regex = re.compile(self.args.limit)
+                except re.error as e:
+                    return CheckResult(
+                        status=STATE_UNKNOWN,
+                        message=f"Invalid limit regex: {e}",
+                    )
+
             # Get label field (optional)
             label_field = getattr(self.args, "label", None)
             separator = getattr(self.args, "separator", ".")
@@ -86,6 +109,17 @@ class PerfdataCommand(BaseCommand):
             perfdata: Dict[str, float] = {}
 
             for idx, obj in enumerate(response):
+                # Get object name for filtering
+                obj_name = obj.get("name", "")
+
+                # Apply filter (skip if matches)
+                if filter_regex and filter_regex.search(obj_name):
+                    continue
+
+                # Apply limit (skip if doesn't match)
+                if limit_regex and not limit_regex.search(obj_name):
+                    continue
+
                 # Determine label for this object
                 if label_field and label_field in obj:
                     label_prefix = str(obj[label_field])

@@ -28,6 +28,8 @@ class TestPerfdataCommand:
             "endpoint": None,
             "label": None,
             "separator": ".",
+            "filter": None,
+            "limit": None,
         }
         defaults.update(kwargs)
         return Namespace(**defaults)
@@ -417,3 +419,112 @@ class TestPerfdataCommand:
         # Should use index since label field doesn't exist
         assert "0.throughput" in result.perfdata
         assert "1.throughput" in result.perfdata
+
+    def test_filter_objects(self):
+        """Test filtering objects using regex"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "totalpktssent": "1000"},
+                {"name": "lb_test_1", "totalpktssent": "2000"},
+                {"name": "lb_prod_2", "totalpktssent": "3000"},
+            ]
+        }
+
+        # Filter out test servers (exclude anything with "test")
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", label="name", filter="test"
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        # Should only have prod servers (test is filtered out)
+        assert "lb_prod_1.totalpktssent" in result.perfdata
+        assert "lb_prod_2.totalpktssent" in result.perfdata
+        assert "lb_test_1.totalpktssent" not in result.perfdata
+        assert len(result.perfdata) == 2
+
+    def test_limit_objects(self):
+        """Test limiting objects using regex"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "totalpktssent": "1000"},
+                {"name": "lb_test_1", "totalpktssent": "2000"},
+                {"name": "lb_prod_2", "totalpktssent": "3000"},
+            ]
+        }
+
+        # Limit to only prod servers
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", label="name", limit="prod"
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        # Should only have prod servers
+        assert "lb_prod_1.totalpktssent" in result.perfdata
+        assert "lb_prod_2.totalpktssent" in result.perfdata
+        assert "lb_test_1.totalpktssent" not in result.perfdata
+        assert len(result.perfdata) == 2
+
+    def test_filter_and_limit_combined(self):
+        """Test using both filter and limit together"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_web", "totalpktssent": "1000"},
+                {"name": "lb_prod_api", "totalpktssent": "2000"},
+                {"name": "lb_test_web", "totalpktssent": "3000"},
+                {"name": "lb_dev_api", "totalpktssent": "4000"},
+            ]
+        }
+
+        # Limit to prod, filter out api
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="totalpktssent",
+            label="name",
+            limit="prod",
+            filter="api",
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        # Should only have lb_prod_web (prod servers, without api)
+        assert "lb_prod_web.totalpktssent" in result.perfdata
+        assert "lb_prod_api.totalpktssent" not in result.perfdata  # filtered out (has api)
+        assert "lb_test_web.totalpktssent" not in result.perfdata  # not in limit (not prod)
+        assert "lb_dev_api.totalpktssent" not in result.perfdata  # not in limit (not prod)
+        assert len(result.perfdata) == 1
+
+    def test_invalid_filter_regex(self):
+        """Test with invalid filter regex"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "totalpktssent": "1000"}]}
+
+        # Invalid regex pattern
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", filter="[invalid"
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid filter regex" in result.message
+
+    def test_invalid_limit_regex(self):
+        """Test with invalid limit regex"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "totalpktssent": "1000"}]}
+
+        # Invalid regex pattern
+        args = self.create_args(objecttype="lbvserver", objectname="totalpktssent", limit="[invalid")
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid limit regex" in result.message
