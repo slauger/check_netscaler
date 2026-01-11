@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.5.0 (2026-01-11)
+
+### Feature
+
+* add filter and limit support for perfdata and matches commands (#145)
 ## v2.4.0 (2026-01-09)
 
 ### Ci
