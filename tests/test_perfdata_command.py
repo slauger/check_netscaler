@@ -522,7 +522,9 @@ class TestPerfdataCommand:
         client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "totalpktssent": "1000"}]}
 
         # Invalid regex pattern
-        args = self.create_args(objecttype="lbvserver", objectname="totalpktssent", limit="[invalid")
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", limit="[invalid"
+        )
         command = PerfdataCommand(client, args)
         result = command.execute()
 

@@ -475,7 +475,11 @@ class TestMatchesCommand:
         client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "state": "UP"}]}
 
         args = self.create_args(
-            objecttype="lbvserver", objectname="state", warning="DOWN", critical="DOWN", filter="[invalid"
+            objecttype="lbvserver",
+            objectname="state",
+            warning="DOWN",
+            critical="DOWN",
+            filter="[invalid",
         )
         command = MatchesCommand(client, args)
         result = command.execute()
@@ -489,7 +493,11 @@ class TestMatchesCommand:
         client.get_stat.return_value = {"lbvserver": [{"name": "lb1", "state": "UP"}]}
 
         args = self.create_args(
-            objecttype="lbvserver", objectname="state", warning="DOWN", critical="DOWN", limit="[invalid"
+            objecttype="lbvserver",
+            objectname="state",
+            warning="DOWN",
+            critical="DOWN",
+            limit="[invalid",
         )
         command = MatchesCommand(client, args)
         result = command.execute()
