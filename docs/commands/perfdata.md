@@ -48,6 +48,26 @@ check_netscaler -C perfdata -o lbvserver -n totalhits --label name --separator "
 OK: perfdata collected | web_lb_totalhits=12345 api_lb_totalhits=23456
 ```
 
+### Filter and limit objects
+
+Filter out specific objects (exclude matching):
+```bash
+# Exclude test servers
+check_netscaler -C perfdata -o lbvserver -n totalhits --label name --filter "test"
+```
+
+Limit to specific objects (include only matching):
+```bash
+# Only production servers
+check_netscaler -C perfdata -o lbvserver -n totalhits --label name --limit "prod"
+```
+
+Combine filter and limit:
+```bash
+# Only production servers, exclude API servers
+check_netscaler -C perfdata -o lbvserver -n totalhits --label name --limit "prod" --filter "api"
+```
+
 ### Multiple fields from system stats
 
 ```bash
@@ -141,7 +161,7 @@ Common object types for perfdata:
 
 - **Field Names**: Use `-n` with comma-separated field names (e.g., `-n field1,field2,field3`)
 - **All Objects**: This command queries ALL objects of the specified type and collects the specified fields from each
-- **No Filtering**: Unlike other commands, perfdata does not support filtering by object name (matches Perl v1 behavior)
+- **Filtering**: Use `--filter` to exclude objects or `--limit` to include only specific objects (regex-based)
 
 ## Tips
 
@@ -149,6 +169,8 @@ Common object types for perfdata:
 - Use `-e config` for configuration values
 - Use `--label` to make perfdata more readable (e.g., `--label name` uses object names instead of indices)
 - Use `--separator` to customize the label separator (default is `.`)
+- Use `--filter` to exclude objects matching a regex pattern
+- Use `--limit` to include only objects matching a regex pattern
 - This command always returns OK status (for data collection only)
 - Combine with `above`/`below` commands for threshold-based alerting
 - Query the NITRO API documentation for available field names
