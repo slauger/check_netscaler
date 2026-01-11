@@ -504,3 +504,107 @@ class TestMatchesCommand:
 
         assert result.status == STATE_UNKNOWN
         assert "Invalid limit regex" in result.message
+
+    def test_filter_all_objects_multiple(self):
+        """Test when filter excludes all objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "state": "UP"},
+                {"name": "lb_prod_2", "state": "UP"},
+            ]
+        }
+
+        # Filter out everything
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="state",
+            warning="DOWN",
+            critical="DOWN",
+            label="name",
+            filter=".*",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should return OK with empty message (no objects to check)
+        assert result.status == STATE_OK
+        # Message should indicate no checks were performed
+        assert "keyword matches:" in result.message
+
+    def test_limit_no_matches_multiple(self):
+        """Test when limit matches no objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "state": "UP"},
+                {"name": "lb_prod_2", "state": "UP"},
+            ]
+        }
+
+        # Limit to something that doesn't exist
+        args = self.create_args(
+            objecttype="lbvserver",
+            objectname="state",
+            warning="DOWN",
+            critical="DOWN",
+            label="name",
+            limit="test",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should return OK with empty message (no objects to check)
+        assert result.status == STATE_OK
+        assert "keyword matches:" in result.message
+
+    def test_filter_objects_without_name_field_multiple(self):
+        """Test filtering when objects don't have name field"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "hanode": [
+                {"hacurstatus": "PRIMARY"},  # No name field
+                {"hacurstatus": "SECONDARY"},  # No name field
+            ]
+        }
+
+        # Filter should not crash when name field is missing
+        args = self.create_args(
+            objecttype="hanode",
+            objectname="hacurstatus",
+            warning="SECONDARY",
+            critical="DOWN",
+            filter="test",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should succeed - objects have no name, so filter doesn't match
+        # One object has SECONDARY which triggers warning
+        assert result.status == STATE_WARNING
+        assert "SECONDARY" in result.message
+
+    def test_limit_objects_without_name_field_multiple(self):
+        """Test limiting when objects don't have name field"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "hanode": [
+                {"hacurstatus": "PRIMARY"},  # No name field
+                {"hacurstatus": "SECONDARY"},  # No name field
+            ]
+        }
+
+        # Limit should not crash when name field is missing
+        # Objects with empty name won't match the limit pattern
+        args = self.create_args(
+            objecttype="hanode",
+            objectname="hacurstatus",
+            warning="SECONDARY",
+            critical="DOWN",
+            limit="anything",
+        )
+        command = MatchesCommand(client, args)
+        result = command.execute()
+
+        # Should return OK - no objects match limit, so nothing checked
+        assert result.status == STATE_OK

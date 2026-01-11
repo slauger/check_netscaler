@@ -530,3 +530,82 @@ class TestPerfdataCommand:
 
         assert result.status == STATE_UNKNOWN
         assert "Invalid limit regex" in result.message
+
+    def test_filter_all_objects(self):
+        """Test when filter excludes all objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "totalpktssent": "1000"},
+                {"name": "lb_prod_2", "totalpktssent": "2000"},
+            ]
+        }
+
+        # Filter out everything (matches all names)
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", label="name", filter=".*"
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "no numeric values found" in result.message
+
+    def test_limit_no_matches(self):
+        """Test when limit matches no objects"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [
+                {"name": "lb_prod_1", "totalpktssent": "1000"},
+                {"name": "lb_prod_2", "totalpktssent": "2000"},
+            ]
+        }
+
+        # Limit to something that doesn't exist
+        args = self.create_args(
+            objecttype="lbvserver", objectname="totalpktssent", label="name", limit="test"
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "no numeric values found" in result.message
+
+    def test_filter_objects_without_name_field(self):
+        """Test filtering when objects don't have name field"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "system": [
+                {"cpuusage": "50"},  # No name field
+                {"cpuusage": "60"},  # No name field
+            ]
+        }
+
+        # Filter should not crash when name field is missing
+        args = self.create_args(objecttype="system", objectname="cpuusage", filter="test")
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        # Should succeed - objects have no name, so filter doesn't match
+        assert result.status == STATE_OK
+        assert len(result.perfdata) == 2
+
+    def test_limit_objects_without_name_field(self):
+        """Test limiting when objects don't have name field"""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "system": [
+                {"cpuusage": "50"},  # No name field
+                {"cpuusage": "60"},  # No name field
+            ]
+        }
+
+        # Limit should not crash when name field is missing
+        # Objects with empty name won't match the limit pattern
+        args = self.create_args(objecttype="system", objectname="cpuusage", limit="anything")
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        # Should return UNKNOWN - no objects match limit
+        assert result.status == STATE_UNKNOWN
+        assert "no numeric values found" in result.message
