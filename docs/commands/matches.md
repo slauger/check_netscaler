@@ -76,6 +76,42 @@ Checks field in multiple objects, uses `name` field for labeling.
 check_netscaler -C matches -o hanode -n hacurstate -w UP -c DOWN --separator "_"
 ```
 
+### Filter and limit objects (for multiple objects)
+
+Filter out specific objects (exclude matching):
+```bash
+# Exclude test services
+check_netscaler -C matches -o service \
+  -n state \
+  -w "OUT OF SERVICE" \
+  -c DOWN \
+  --label name \
+  --filter "test"
+```
+
+Limit to specific objects (include only matching):
+```bash
+# Only production services
+check_netscaler -C matches -o service \
+  -n state \
+  -w "OUT OF SERVICE" \
+  -c DOWN \
+  --label name \
+  --limit "prod"
+```
+
+Combine filter and limit:
+```bash
+# Only production services, exclude API services
+check_netscaler -C matches -o service \
+  -n state \
+  -w "OUT OF SERVICE" \
+  -c DOWN \
+  --label name \
+  --limit "prod" \
+  --filter "api"
+```
+
 ## Use Cases
 
 ### 1. HA Master State
@@ -167,5 +203,7 @@ Multiple objects with label:
 - Use for checking specific states or configuration values
 - Combine with `--label` for meaningful output with arrays
 - Use `--separator` to customize perfdata labels
+- Use `--filter` to exclude objects matching a regex pattern (when checking multiple objects)
+- Use `--limit` to include only objects matching a regex pattern (when checking multiple objects)
 - Query NetScaler API to find available fields
 - Use `debug` command to see raw API response first
