@@ -222,7 +222,7 @@ jobs:
 
       - name: Python Semantic Release
         id: semantic
-        uses: python-semantic-release/python-semantic-release@v9.8.8
+        uses: python-semantic-release/python-semantic-release@v9.21.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           root_options: "-vv"
