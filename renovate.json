@@ -8,6 +8,10 @@
       "matchManagers": ["pip_requirements", "pip_setup", "pep621"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Python dependencies (non-major)"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "ci"
     }
   ]
 }
