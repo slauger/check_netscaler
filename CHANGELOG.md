@@ -1,13 +1,28 @@
 # CHANGELOG
 
+## v2.5.1 (2026-02-09)
+
+### Bug Fixes
+
+* update python-semantic-release/python-semantic-release action to v10 (#153)
+### Continuous Integration
+
+* update github actions dependencies (#154)
 ## v2.5.0 (2026-01-11)
 
-### Feature
+### Features
 
 * add filter and limit support for perfdata and matches commands (#145)
 ## v2.4.0 (2026-01-09)
 
-### Ci
+### Bug Fixes
+
+* fix ruff linting errors
+* fix integration tests and command bugs
+### Code Style
+
+* apply black code formatting
+### Continuous Integration
 
 * increase pytest verbosity to -vv for better test visibility
 * add flask dependency to release workflow
@@ -17,43 +32,39 @@
 * add objectname example for sslcert command
 * link to releases page instead of workflow artifacts
 * add information about pre-built binaries
-### Feature
+### Features
 
 * add mock NITRO API server for integration testing
-### Fix
-
-* fix ruff linting errors
-* fix integration tests and command bugs
-### Refactor
+### Refactoring
 
 * split integration tests into separate files
-### Style
-
-* apply black code formatting
-### Test
+### Testing
 
 * add nsconfig, hwinfo, debug tests
 * add above/below threshold command tests
 ## v2.3.1 (2026-01-09)
 
-### Fix
+### Bug Fixes
 
-* use &#39;context&#39; instead of &#39;ctx&#39; in changelog template
+* use 'context' instead of 'ctx' in changelog template
 ## v2.3.0 (2026-01-08)
 
-### Ci
+### Bug Fixes
+
+* use 'context' instead of 'ctx' in changelog template
+### Continuous Integration
 
 * use custom changelog template to show only commit subject lines
 * add SHA256 checksums for binaries
 * remove pull_request trigger from workflows, push is sufficient
-### Feature
+### Features
 
 * add PyInstaller builds for Linux, macOS, and Windows
-### Fix
-
-* use &#39;context&#39; instead of &#39;ctx&#39; in changelog template
 ## v2.2.1 (2026-01-08)
 
+### Bug Fixes
+
+* use -n for field names to match Perl v1 behavior
 ### Documentation
 
 * cleanup TODO.md - remove completed v2.0 tasks
@@ -62,57 +73,58 @@
 * add backup vServer monitoring examples to integration configs
 * standardize binary path across all documentation
 * update installation instructions for v2.0 release
-### Fix
-
-* use -n for field names to match Perl v1 behavior
 ## v2.2.0 (2025-12-09)
 
+### Code Style
+
+* Apply black formatting to backup vServer feature
 ### Documentation
 
 * add backup vserver monitoring examples to state command
-### Feature
+### Features
 
 * Add backup vServer monitoring for lbvserver state checks
-### Style
-
-* Apply black formatting to backup vServer feature
 ## v2.1.0 (2025-12-08)
 
-### Feature
-
-* Add Icinga2-compatible status tags to multiline output
-### Fix
+### Bug Fixes
 
 * Remove unused loop variable idx in servicegroup command
+### Features
+
+* Add Icinga2-compatible status tags to multiline output
 ## v2.0.0 (2025-12-08)
 
-### Breaking
+### Bug Fixes
+
+* update semantic-release monorepo
+### Chores
+
+* Make TestPyPI upload non-blocking in release workflow
+* add renovate.json
+### Continuous Integration
+
+* explicitly set angular commit parser for semantic-release
+* configure semantic-release commit parser options
+### Features
 
 * complete rewrite from Perl to Python 3.8+
 * remove -s flag for SSL, replaced with --no-ssl
 * change default protocol from HTTP to HTTPS
-### Chore
-
-* Make TestPyPI upload non-blocking in release workflow
-* add renovate.json
-### Ci
-
-* explicitly set angular commit parser for semantic-release
-* configure semantic-release commit parser options
-### Fix
-
-* update semantic-release monorepo
 ## v1.6.2 (2021-09-27)
 
-### Chore
+### Bug Fixes
+
+* correct interface resource type casing for NITRO API
+* measurement should be undef for hapktrxrate and hapkttxrate (#47)
+### Chores
 
 * 1.6.2 [skip ci]
 * add renovate.json
 * add GitHub Sponsors funding and fix linting issues
 * add CLAUDE.md and AGENT.md to .gitignore
-* remove string &#39;current branch only&#39; (#58)
+* remove string 'current branch only' (#58)
 * add additional icinga2 example (icinga2_command_advanced.conf) (#59)
-### Ci
+### Continuous Integration
 
 * add complete release pipeline with PyPI deployment
 * add GitHub Actions CI/CD pipeline and fix code quality issues
@@ -132,7 +144,7 @@
 * update TODO.md with threshold command completion
 * add TODO and architecture documentation
 * fix cmdPolicy for the license check (fixes #83)
-### Feature
+### Features
 
 * add environment variable support and make HTTPS default
 * add ntp command for NTP synchronization status checking
@@ -152,13 +164,18 @@
 * implement NITRO API client
 * add Python package structure and core modules
 * initial Python rewrite (v2.0)
-### Fix
-
-* correct interface resource type casing for NITRO API
-* measurement should be undef for hapktrxrate and hapkttxrate (#47)
 ## v1.6.1 (2020-09-18)
 
-### Chore
+### Bug Fixes
+
+* get host, user and password from environment variables (NETSCALER_HOST, NETSCALER_USERNAME, NETSCALER_PASSWORD)
+* add release automation via semantic-release-bot
+* add support for limit in more subs
+* add --seperator to allow to configure a custom perfdata seperator (#47)
+* add limit switch ('--limit', '-l') and change spec for label switch from '-l' to '-L'
+* replace hardcoded id with $plugin->opts->label
+* add the ability to set a custom perfdata label for sub check_keyword and check_threshold_and_get_perfdata (#56)
+### Chores
 
 * 1.6.1 [skip ci]
 * add more advanced tests
@@ -167,18 +184,9 @@
 * run perltidy
 * run perltidy
 * add docs for advanced switches
-### Fix
-
-* get host, user and password from environment variables (NETSCALER_HOST, NETSCALER_USERNAME, NETSCALER_PASSWORD)
-* add release automation via semantic-release-bot
-* add support for limit in more subs
-* add --seperator to allow to configure a custom perfdata seperator (#47)
-* add limit switch (&#39;--limit&#39;, &#39;-l&#39;) and change spec for label switch from &#39;-l&#39; to &#39;-L&#39;
-* replace hardcoded id with $plugin-&gt;opts-&gt;label
-* add the ability to set a custom perfdata label for sub check_keyword and check_threshold_and_get_perfdata (#56)
 ## v1.6.0 (2019-10-04)
 
-### Fix
+### Bug Fixes
 
 * perltidy broke the file permissions for check_netscaler.pl
 ## v1.5.1 (2018-06-10)
@@ -196,4 +204,3 @@
 ## v1.1.0 (2017-05-13)
 
 ## v1.0.0 (2017-02-02)
-
