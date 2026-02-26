@@ -11,7 +11,16 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "semanticCommitType": "ci"
+      "semanticCommitType": "ci",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["python"],
+      "semanticCommitType": "fix",
+      "automerge": true,
+      "automergeType": "pr"
     }
   ]
 }
