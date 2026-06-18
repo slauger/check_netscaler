@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v2.6.0 (2026-06-18)
+
+### Bug Fixes
+
+* remove duplicate lbvserver health perfdata
+* preserve legacy lbvserver state behavior
+* suppress urllib3 warnings for unverified https
+### Continuous Integration
+
+* update github artifact actions
+* update github-releases dependency python to 3.14
+* enable automerge for github actions and python runtime updates
+* update github artifact actions (#155)
+### Features
+
+* improve ns perfdata summary output
+* include lbvserver health thresholds in perfdata
+* add configurable lbvserver health thresholds
+* add lbvserver health checks to state command
+### Refactoring
+
+* drop lbvserver config fetch from state checks
 ## v2.5.1 (2026-02-09)
 
 ### Bug Fixes
