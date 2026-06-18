@@ -55,7 +55,9 @@ class TestStateCommandIntegration:
 
             assert result.status == STATE_WARNING
             assert result.message == "lb_ssl state: UP, Health: 95%"
-            assert result.perfdata["health"] == "95%"
+            assert result.perfdata["health"]["value"] == "95"
+            assert result.perfdata["health"]["warn"] == "100"
+            assert result.perfdata["health"]["crit"] == "0"
 
     def test_state_check_lbvserver_down(self, mock_nitro_server):
         """Test checking state of DOWN load balancer"""

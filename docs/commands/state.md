@@ -43,7 +43,7 @@ check_netscaler -C state -o lbvserver -n web_lb
 
 **Output:**
 ```
-OK: web_lb state: UP, Health: 100% | 'web_lb.health'=100%;; 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;;
+OK: web_lb state: UP, Health: 100% | 'web_lb.health'=100%;100;0;0;100 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
 ```
 
 ### Check all services
@@ -173,7 +173,7 @@ For `lbvserver`, the command prefers `effectivestate` when available and evaluat
 For `lbvserver`, the command outputs summary counters and health percentage:
 
 ```
-| 'web_lb.health'=100%;; 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;;
+| 'web_lb.health'=100%;100;0;0;100 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
 ```
 
 Other object types keep the existing generic summary perfdata.

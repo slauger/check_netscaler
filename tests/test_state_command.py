@@ -68,7 +68,10 @@ class TestStateCommand:
 
         assert result.status == STATE_OK
         assert result.message == "vserver1 state: UP, Health: 100%"
-        assert result.perfdata["health"] == "100%"
+        assert result.perfdata["health"]["value"] == "100"
+        assert result.perfdata["health"]["uom"] == "%"
+        assert result.perfdata["health"]["warn"] == "100"
+        assert result.perfdata["health"]["crit"] == "0"
 
     def test_state_one_down(self):
         """Test one object DOWN"""
@@ -278,7 +281,9 @@ class TestStateCommand:
 
         assert result.status == STATE_WARNING
         assert result.message == "vserver1 state: UP, Health: 95%"
-        assert result.perfdata["health"] == "95%"
+        assert result.perfdata["health"]["value"] == "95"
+        assert result.perfdata["health"]["warn"] == "100"
+        assert result.perfdata["health"]["crit"] == "0"
 
     def test_lbvserver_custom_health_thresholds(self):
         """Test lbvserver health thresholds can be customized with -w/-c."""
@@ -296,6 +301,8 @@ class TestStateCommand:
 
         assert result.status == STATE_OK
         assert result.message == "vserver1 state: UP, Health: 95%"
+        assert result.perfdata["health"]["warn"] == "90"
+        assert result.perfdata["health"]["crit"] == "50"
 
     def test_lbvserver_custom_critical_threshold(self):
         """Test lbvserver health becomes CRITICAL at or below custom critical threshold."""

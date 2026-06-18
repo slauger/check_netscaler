@@ -277,8 +277,10 @@ class StateCommand(BaseCommand):
             details = state if health_text is None else f"{state}, health={health_text}"
             long_output.append(f"[{status_str}] {name}: {details}")
 
-            if health_text is not None:
-                perfdata[f"{name}.health"] = health_text
+            if health is not None:
+                perfdata[f"{name}.health"] = self._build_lbvserver_health_perfdata(
+                    health, warning_threshold, critical_threshold
+                )
 
         if critical_count > 0:
             overall_status = STATE_CRITICAL
@@ -310,8 +312,10 @@ class StateCommand(BaseCommand):
         if total == 1:
             health = self._get_lbvserver_health(objects[0])
             health_text = self._format_health(health)
-            if health_text is not None:
-                perfdata["health"] = health_text
+            if health is not None:
+                perfdata["health"] = self._build_lbvserver_health_perfdata(
+                    health, warning_threshold, critical_threshold
+                )
 
         return CheckResult(
             status=overall_status,
@@ -376,6 +380,19 @@ class StateCommand(BaseCommand):
         if float(health).is_integer():
             return f"{int(health)}%"
         return f"{health:g}%"
+
+    def _build_lbvserver_health_perfdata(
+        self, health: float, warning_threshold: float, critical_threshold: float
+    ) -> Dict[str, str]:
+        """Build perfdata metadata for lbvserver health."""
+        return {
+            "value": f"{health:g}",
+            "uom": "%",
+            "warn": f"{warning_threshold:g}",
+            "crit": f"{critical_threshold:g}",
+            "min": "0",
+            "max": "100",
+        }
 
     def _get_lbvserver_health_thresholds(self) -> Tuple[float, float]:
         """Return warning and critical health thresholds for lbvserver checks."""

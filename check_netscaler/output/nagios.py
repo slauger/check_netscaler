@@ -95,6 +95,20 @@ class NagiosOutput:
             else:
                 label = key
 
+            if isinstance(value, dict):
+                perfdata_parts.append(
+                    NagiosOutput.format_perfdata_item(
+                        label=label,
+                        value=value.get("value", ""),
+                        uom=value.get("uom", ""),
+                        warn=value.get("warn"),
+                        crit=value.get("crit"),
+                        min_val=value.get("min"),
+                        max_val=value.get("max"),
+                    )
+                )
+                continue
+
             # Format value
             # Nagios perfdata format: 'label'=value[UOM];[warn];[crit];[min];[max]
             perfdata_str = f"'{label}'={value}"
