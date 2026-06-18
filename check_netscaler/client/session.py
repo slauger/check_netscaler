@@ -5,6 +5,8 @@ Session management for NITRO API
 from typing import Optional
 
 import requests
+import urllib3
+from urllib3.exceptions import InsecureRequestWarning
 
 from check_netscaler.client.exceptions import (
     NITROAuthenticationError,
@@ -44,6 +46,8 @@ class NITROSession:
         self.ssl = ssl
         self.timeout = timeout
         self.verify_ssl = verify_ssl
+        if self.ssl and not self.verify_ssl:
+            urllib3.disable_warnings(InsecureRequestWarning)
 
         # Determine port
         if port:

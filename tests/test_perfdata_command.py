@@ -318,6 +318,35 @@ class TestPerfdataCommand:
         assert "tcpcurclientconn" in result.perfdata
         assert "tcpcurserverconn" in result.perfdata
 
+    def test_ns_connections_summary_message(self):
+        """Test ns perfdata uses a human-readable connection summary."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "ns": {
+                "txmbitsrate": "12.5",
+                "rxmbitsrate": "34.5",
+                "tcpcurclientconnestablished": "123",
+                "tcpcurserverconnestablished": "456",
+                "ssltransactionsrate": "7",
+            }
+        }
+
+        args = self.create_args(
+            objecttype="ns",
+            objectname=(
+                "txmbitsrate,rxmbitsrate,tcpcurclientconnestablished,"
+                "tcpcurserverconnestablished,ssltransactionsrate"
+            ),
+        )
+        command = PerfdataCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert (
+            result.message
+            == "TX 12.5 MBits/s, RX 34.5 MBits/s, ClientConn 123, ServerConn 456, SSLConn 7 C/s"
+        )
+
     def test_api_error(self):
         """Test when API returns an error"""
         from check_netscaler.client.exceptions import NITROAPIError

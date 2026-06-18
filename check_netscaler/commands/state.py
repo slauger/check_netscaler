@@ -3,7 +3,7 @@ State check command - monitors vServer, service, servicegroup, and server states
 """
 
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from check_netscaler.client.exceptions import NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
@@ -130,6 +130,9 @@ class StateCommand(BaseCommand):
         Returns:
             CheckResult with aggregated status
         """
+        if objecttype == "lbvserver" and self._lbvserver_health_check_enabled():
+            return self._evaluate_lbvserver_states(objects)
+
         total = len(objects)
         ok_count = 0
         warning_count = 0
@@ -199,6 +202,200 @@ class StateCommand(BaseCommand):
             perfdata=perfdata,
             long_output=long_output if len(objects) > 1 else [],
         )
+
+    def _evaluate_lbvserver_states(self, objects: List[Dict]) -> CheckResult:
+        """Evaluate lbvserver status using stat state and health percentage."""
+        total = len(objects)
+        ok_count = 0
+        warning_count = 0
+        critical_count = 0
+        unknown_count = 0
+
+        critical_objects = []
+        warning_objects = []
+        long_output = []
+        perfdata = {}
+        warning_threshold, critical_threshold = self._get_lbvserver_health_thresholds()
+
+        for obj in objects:
+            name = obj.get("name", "unknown")
+            state = self._get_lbvserver_state(obj)
+            health = self._get_lbvserver_health(obj)
+
+            if state != "UP":
+                critical_count += 1
+                status_str = "CRITICAL"
+                critical_objects.append(name)
+            elif health is None:
+                ok_count += 1
+                status_str = "OK"
+            elif health <= critical_threshold:
+                critical_count += 1
+                status_str = "CRITICAL"
+                critical_objects.append(name)
+            elif health < warning_threshold:
+                warning_count += 1
+                status_str = "WARNING"
+                warning_objects.append(name)
+            else:
+                ok_count += 1
+                status_str = "OK"
+
+            health_text = self._format_health(health)
+            details = state if health_text is None else f"{state}, health={health_text}"
+            long_output.append(f"[{status_str}] {name}: {details}")
+
+            if total > 1 and health is not None:
+                perfdata[f"{name}.health"] = self._build_lbvserver_health_perfdata(
+                    health, warning_threshold, critical_threshold
+                )
+
+        if critical_count > 0:
+            overall_status = STATE_CRITICAL
+        elif warning_count > 0 or unknown_count > 0:
+            overall_status = STATE_WARNING
+        else:
+            overall_status = STATE_OK
+
+        message = self._build_lbvserver_message(
+            objects,
+            ok_count,
+            warning_count,
+            critical_count,
+            unknown_count,
+            critical_objects,
+            warning_objects,
+        )
+
+        perfdata.update(
+            {
+                "total": total,
+                "ok": ok_count,
+                "warning": warning_count,
+                "critical": critical_count,
+                "unknown": unknown_count,
+            }
+        )
+
+        if total == 1:
+            health = self._get_lbvserver_health(objects[0])
+            if health is not None:
+                perfdata["health"] = self._build_lbvserver_health_perfdata(
+                    health, warning_threshold, critical_threshold
+                )
+
+        return CheckResult(
+            status=overall_status,
+            message=message,
+            perfdata=perfdata,
+            long_output=long_output if len(objects) > 1 else [],
+        )
+
+    def _lbvserver_health_check_enabled(self) -> bool:
+        """Return whether lbvserver health evaluation is enabled via thresholds."""
+        return (
+            getattr(self.args, "warning", None) is not None
+            or getattr(self.args, "critical", None) is not None
+        )
+
+    def _build_lbvserver_message(
+        self,
+        objects: List[Dict],
+        ok: int,
+        warning: int,
+        critical: int,
+        unknown: int,
+        critical_objects: List[str],
+        warning_objects: List[str],
+    ) -> str:
+        """Build lbvserver-specific messages with state and health."""
+        total = len(objects)
+        if total == 1:
+            obj = objects[0]
+            name = obj.get("name", "unknown")
+            state = self._get_lbvserver_state(obj)
+            health_text = self._format_health(self._get_lbvserver_health(obj))
+            if health_text is None:
+                return f"{name} state: {state}"
+            return f"{name} state: {state}, Health: {health_text}"
+
+        return self._build_message(
+            "lbvserver",
+            total,
+            ok,
+            warning,
+            critical,
+            unknown,
+            critical_objects,
+            warning_objects,
+        )
+
+    def _get_lbvserver_state(self, obj: Dict[str, Any]) -> str:
+        """Return lbvserver state from the stat response."""
+        state = obj.get("state") or "UNKNOWN"
+        return str(state).upper()
+
+    def _get_lbvserver_health(self, obj: Dict[str, Any]) -> Optional[float]:
+        """Return lbvserver health percentage when provided by the API."""
+        for field in ("health", "vslbhealth"):
+            value = obj.get(field)
+            if value is None:
+                continue
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    def _format_health(self, health: Optional[float]) -> Optional[str]:
+        """Format health as a percentage without trailing decimals when possible."""
+        if health is None:
+            return None
+        if float(health).is_integer():
+            return f"{int(health)}%"
+        return f"{health:g}%"
+
+    def _build_lbvserver_health_perfdata(
+        self, health: float, warning_threshold: float, critical_threshold: float
+    ) -> Dict[str, str]:
+        """Build perfdata metadata for lbvserver health."""
+        return {
+            "value": f"{health:g}",
+            "uom": "%",
+            "warn": f"{warning_threshold:g}",
+            "crit": f"{critical_threshold:g}",
+            "min": "0",
+            "max": "100",
+        }
+
+    def _get_lbvserver_health_thresholds(self) -> Tuple[float, float]:
+        """Return warning and critical health thresholds for lbvserver checks."""
+        warning = self._parse_lbvserver_health_threshold(getattr(self.args, "warning", None), 100.0)
+        critical = self._parse_lbvserver_health_threshold(getattr(self.args, "critical", None), 0.0)
+
+        if critical > warning:
+            raise ValueError(
+                f"Invalid lbvserver health thresholds: critical ({critical:g}) cannot exceed warning ({warning:g})"
+            )
+
+        return warning, critical
+
+    def _parse_lbvserver_health_threshold(self, value: Optional[str], default: float) -> float:
+        """Parse lbvserver health threshold from CLI, preserving legacy defaults."""
+        if value is None:
+            return default
+
+        try:
+            threshold = float(value)
+        except ValueError as exc:
+            raise ValueError(f"Invalid lbvserver health threshold: {value}") from exc
+
+        if threshold < 0 or threshold > 100:
+            raise ValueError(
+                f"Invalid lbvserver health threshold: {threshold:g} (must be between 0 and 100)"
+            )
+
+        return threshold
 
     def _build_message(
         self,

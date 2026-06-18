@@ -107,14 +107,26 @@ check_netscaler -C perfdata -o system \
   -n tcpcurestablishedconn,tcpcurserverconn,tcpcurclientconn
 ```
 
-### 4. SSL/TLS statistics
+### 4. NetScaler connection overview
+
+```bash
+check_netscaler -C perfdata -o ns \
+  -n txmbitsrate,rxmbitsrate,tcpcurclientconnestablished,tcpcurserverconnestablished,ssltransactionsrate
+```
+
+**Output:**
+```
+OK: TX 12.5 MBits/s, RX 34.5 MBits/s, ClientConn 123, ServerConn 456, SSLConn 7 C/s | 'txmbitsrate'=12.5;; 'rxmbitsrate'=34.5;; 'tcpcurclientconnestablished'=123;; 'tcpcurserverconnestablished'=456;; 'ssltransactionsrate'=7;;
+```
+
+### 5. SSL/TLS statistics
 
 ```bash
 check_netscaler -C perfdata -o ssl \
   -n ssltotsessions,ssltothwsessions,ssltotswsessions
 ```
 
-### 5. Cache statistics
+### 6. Cache statistics
 
 ```bash
 check_netscaler -C perfdata -o cache \

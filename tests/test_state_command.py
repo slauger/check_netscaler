@@ -55,14 +55,17 @@ class TestStateCommand:
     def test_state_single_up(self):
         """Test single object UP"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {"lbvserver": [{"name": "vserver1", "state": "UP"}]}
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 100}]
+        }
 
         args = self.create_args()
         command = StateCommand(client, args)
         result = command.execute()
 
         assert result.status == STATE_OK
-        assert "lbvserver is UP" in result.message
+        assert result.message == "lbvserver is UP"
+        assert "health" not in result.perfdata
 
     def test_state_one_down(self):
         """Test one object DOWN"""
@@ -103,7 +106,7 @@ class TestStateCommand:
         assert result.perfdata["critical"] == 2
 
     def test_state_out_of_service(self):
-        """Test OUT OF SERVICE state (warning)"""
+        """Test lbvserver OUT OF SERVICE state remains WARNING by default."""
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [
@@ -238,8 +241,8 @@ class TestStateCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [
-                {"name": "vserver1", "state": "up"},  # lowercase
-                {"name": "vserver2", "state": "Up"},  # mixed case
+                {"name": "vserver1", "state": "up", "vslbhealth": 100},  # lowercase
+                {"name": "vserver2", "state": "Up", "vslbhealth": 100},  # mixed case
             ]
         }
 
@@ -250,16 +253,124 @@ class TestStateCommand:
         assert result.status == STATE_OK
         assert result.perfdata["ok"] == 2
 
+    def test_lbvserver_degraded_health_is_ignored_by_default(self):
+        """Test lbvserver health is ignored unless thresholds are provided."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args()
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert result.message == "lbvserver is UP"
+        assert "health" not in result.perfdata
+
+    def test_lbvserver_warns_on_degraded_health_when_thresholds_are_set(self):
+        """Test lbvserver health below warning threshold results in WARNING."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args(warning="100")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_WARNING
+        assert result.message == "vserver1 state: UP, Health: 95%"
+        assert result.perfdata["health"]["value"] == "95"
+        assert result.perfdata["health"]["warn"] == "100"
+        assert result.perfdata["health"]["crit"] == "0"
+        assert "vserver1.health" not in result.perfdata
+
+    def test_lbvserver_custom_health_thresholds(self):
+        """Test lbvserver health thresholds can be customized with -w/-c."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args(warning="90", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert result.message == "vserver1 state: UP, Health: 95%"
+        assert result.perfdata["health"]["warn"] == "90"
+        assert result.perfdata["health"]["crit"] == "50"
+        assert "vserver1.health" not in result.perfdata
+
+    def test_lbvserver_custom_critical_threshold(self):
+        """Test lbvserver health becomes CRITICAL at or below custom critical threshold."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 40}]
+        }
+
+        args = self.create_args(warning="90", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_CRITICAL
+        assert result.message == "vserver1 state: UP, Health: 40%"
+
+    def test_lbvserver_invalid_threshold_order(self):
+        """Test lbvserver invalid threshold order returns UNKNOWN."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args(warning="40", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "critical (50) cannot exceed warning (40)" in result.message
+
+    def test_lbvserver_invalid_threshold_value(self):
+        """Test lbvserver invalid threshold values return UNKNOWN."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args(warning="abc")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid lbvserver health threshold: abc" in result.message
+
+    def test_lbvserver_health_check_uses_stat_state_only(self):
+        """Test lbvserver health checks use stat state without fetching config."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 100}]
+        }
+        client.get_config.side_effect = AssertionError("get_config should not be called")
+
+        args = self.create_args(warning="100")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert result.message == "vserver1 state: UP, Health: 100%"
+
     def test_backup_vserver_check_disabled_by_default(self):
         """Test that backup check is disabled by default"""
         client = self.create_mock_client()
-        client.get_stat.return_value = {"lbvserver": [{"name": "vs_web", "state": "UP"}]}
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vs_web", "state": "UP", "vslbhealth": 100}]
+        }
 
         args = self.create_args(objecttype="lbvserver", objectname="vs_web")
         command = StateCommand(client, args)
         result = command.execute()
 
-        # Should only call get_stat, not get_config
         assert client.get_stat.called
         assert not client.get_config.called
         assert result.status == STATE_OK

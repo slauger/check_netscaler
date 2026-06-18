@@ -43,7 +43,7 @@ check_netscaler -C state -o lbvserver -n web_lb
 
 **Output:**
 ```
-OK: lbvserver web_lb is UP | web_lb.activeconnections=42
+OK: lbvserver is UP | 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;;
 ```
 
 ### Check all services
@@ -134,13 +134,31 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 - Alert when traffic is being served by backup infrastructure
 - Track when primary services have been restored (backup no longer active)
 
+### Custom lbvserver health thresholds
+
+For `state -o lbvserver`, health percentage evaluation is opt-in and only activates when you pass `-w` or `-c`:
+
+```bash
+check_netscaler -C state -o lbvserver -n web_lb -w 95 -c 80
+```
+
+This means:
+- `health <= 80` -> `CRITICAL`
+- `health < 95` -> `WARNING`
+- `health >= 95` with `state == UP` -> `OK`
+
+If you omit both thresholds, the command keeps the legacy behavior and only checks the lbvserver `state`.
+
 ## State Mappings
 
 ### vServer States
-- `UP` - OK (vServer is operational)
-- `DOWN` - CRITICAL (vServer is down)
-- `OUT OF SERVICE` - WARNING (administratively disabled)
-- `UNKNOWN` - UNKNOWN (state cannot be determined)
+- default: `state` is evaluated exactly as before (`UP` = OK, `DOWN` = CRITICAL, `OUT OF SERVICE` = WARNING)
+- with `-w`/`-c`: `state != UP` - CRITICAL
+- with `-w`/`-c`: `state == UP` and `health <= critical` - CRITICAL
+- with `-w`/`-c`: `state == UP` and `health < warning` - WARNING
+- with `-w`/`-c`: `state == UP` and `health >= warning` - OK
+
+When health thresholds are enabled, the command evaluates only the `stat` response fields already returned by the NITRO API: `state` and `vslbhealth`.
 
 ### Service States
 - `UP` - OK
@@ -150,6 +168,14 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 - `UNKNOWN` - UNKNOWN
 
 ## Performance Data
+
+When `-w` or `-c` enables health checks for `lbvserver`, the command outputs summary counters and health percentage:
+
+```
+| 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
+```
+
+Other object types keep the existing generic summary perfdata.
 
 The command outputs performance data for active connections:
 

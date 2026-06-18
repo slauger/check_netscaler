@@ -16,6 +16,14 @@ from check_netscaler.constants import (
 class PerfdataCommand(BaseCommand):
     """Collect arbitrary performance data fields"""
 
+    NS_CONNECTION_SUMMARY_FIELDS = {
+        "txmbitsrate": ("TX", "MBits/s"),
+        "rxmbitsrate": ("RX", "MBits/s"),
+        "tcpcurclientconnestablished": ("ClientConn", ""),
+        "tcpcurserverconnestablished": ("ServerConn", ""),
+        "ssltransactionsrate": ("SSLConn", "C/s"),
+    }
+
     def execute(self) -> CheckResult:
         """
         Execute perfdata check
@@ -156,9 +164,7 @@ class PerfdataCommand(BaseCommand):
                 )
 
             # Build message
-            message = f"perfdata: collected {len(perfdata)} metrics from {objecttype}"
-            if objectname:
-                message += f" ({objectname})"
+            message = self._build_message(objecttype, response, fields, perfdata)
 
             return CheckResult(
                 status=STATE_OK,
@@ -176,3 +182,38 @@ class PerfdataCommand(BaseCommand):
                 status=STATE_UNKNOWN,
                 message=f"Unexpected error: {str(e)}",
             )
+
+    def _build_message(self, objecttype: str, response, fields, perfdata: Dict[str, float]) -> str:
+        """Build a useful status summary for perfdata checks."""
+        if objecttype == "ns":
+            summary = self._build_ns_summary(response, fields)
+            if summary:
+                return summary
+
+        return f"perfdata: collected {len(perfdata)} metrics from {objecttype}"
+
+    def _build_ns_summary(self, response, fields) -> str:
+        """Build legacy-style ns connection summary when the expected metrics are requested."""
+        if len(response) != 1 or not isinstance(response[0], dict):
+            return ""
+
+        obj = response[0]
+        parts = []
+
+        for field in fields:
+            if field not in self.NS_CONNECTION_SUMMARY_FIELDS or field not in obj:
+                continue
+
+            try:
+                value = float(obj[field])
+            except (TypeError, ValueError):
+                continue
+
+            label, suffix = self.NS_CONNECTION_SUMMARY_FIELDS[field]
+            value_text = f"{value:g}"
+            if suffix:
+                parts.append(f"{label} {value_text} {suffix}")
+            else:
+                parts.append(f"{label} {value_text}")
+
+        return ", ".join(parts)
