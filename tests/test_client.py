@@ -62,6 +62,32 @@ class TestNITROSession:
         assert session.port == 8443
         assert session.base_url == "https://192.168.1.1:8443/nitro/v1"
 
+    @patch("check_netscaler.client.session.urllib3.disable_warnings")
+    def test_session_disables_insecure_request_warning(self, mock_disable_warnings):
+        """Test HTTPS sessions with verify_ssl disabled suppress urllib3 warnings."""
+        NITROSession(
+            hostname="192.168.1.1",
+            username="admin",
+            password="secret",
+            ssl=True,
+            verify_ssl=False,
+        )
+
+        mock_disable_warnings.assert_called_once()
+
+    @patch("check_netscaler.client.session.urllib3.disable_warnings")
+    def test_session_keeps_warnings_when_verifying_ssl(self, mock_disable_warnings):
+        """Test verified HTTPS sessions do not suppress urllib3 warnings."""
+        NITROSession(
+            hostname="192.168.1.1",
+            username="admin",
+            password="secret",
+            ssl=True,
+            verify_ssl=True,
+        )
+
+        mock_disable_warnings.assert_not_called()
+
     @patch("requests.Session.post")
     def test_login_success(self, mock_post):
         """Test successful login"""
