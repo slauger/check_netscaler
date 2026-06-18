@@ -145,7 +145,7 @@ check_netscaler -C state -o lbvserver -n web_lb -w 95 -c 80
 This means:
 - `health <= 80` -> `CRITICAL`
 - `health < 95` -> `WARNING`
-- `health >= 95` with `effectivestate == UP` -> `OK`
+- `health >= 95` with `state == UP` -> `OK`
 
 If you omit both thresholds, the command keeps the legacy behavior and only checks the lbvserver `state`.
 
@@ -153,12 +153,12 @@ If you omit both thresholds, the command keeps the legacy behavior and only chec
 
 ### vServer States
 - default: `state` is evaluated exactly as before (`UP` = OK, `DOWN` = CRITICAL, `OUT OF SERVICE` = WARNING)
-- with `-w`/`-c`: `effectivestate != UP` - CRITICAL
-- with `-w`/`-c`: `effectivestate == UP` and `health <= critical` - CRITICAL
-- with `-w`/`-c`: `effectivestate == UP` and `health < warning` - WARNING
-- with `-w`/`-c`: `effectivestate == UP` and `health >= warning` - OK
+- with `-w`/`-c`: `state != UP` - CRITICAL
+- with `-w`/`-c`: `state == UP` and `health <= critical` - CRITICAL
+- with `-w`/`-c`: `state == UP` and `health < warning` - WARNING
+- with `-w`/`-c`: `state == UP` and `health >= warning` - OK
 
-When health thresholds are enabled, the command prefers `effectivestate` when available and evaluates the vServer health percentage from the NITRO API.
+When health thresholds are enabled, the command evaluates only the `stat` response fields already returned by the NITRO API: `state` and `vslbhealth`.
 
 ### Service States
 - `UP` - OK

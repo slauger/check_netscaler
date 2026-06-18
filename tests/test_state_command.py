@@ -274,9 +274,6 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
-        }
 
         args = self.create_args(warning="100")
         command = StateCommand(client, args)
@@ -294,9 +291,6 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
-        }
 
         args = self.create_args(warning="90", critical="50")
         command = StateCommand(client, args)
@@ -313,9 +307,6 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 40}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
-        }
 
         args = self.create_args(warning="90", critical="50")
         command = StateCommand(client, args)
@@ -329,9 +320,6 @@ class TestStateCommand:
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
-        }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
         }
 
         args = self.create_args(warning="40", critical="50")
@@ -347,9 +335,6 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
-        }
 
         args = self.create_args(warning="abc")
         command = StateCommand(client, args)
@@ -358,22 +343,20 @@ class TestStateCommand:
         assert result.status == STATE_UNKNOWN
         assert "Invalid lbvserver health threshold: abc" in result.message
 
-    def test_lbvserver_uses_effectivestate_for_status_when_health_check_is_enabled(self):
-        """Test lbvserver effectivestate overrides stat state when health checks are enabled."""
+    def test_lbvserver_health_check_uses_stat_state_only(self):
+        """Test lbvserver health checks use stat state without fetching config."""
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 100}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "DOWN"}]
-        }
+        client.get_config.side_effect = AssertionError("get_config should not be called")
 
         args = self.create_args(warning="100")
         command = StateCommand(client, args)
         result = command.execute()
 
-        assert result.status == STATE_CRITICAL
-        assert result.message == "vserver1 state: DOWN, Health: 100%"
+        assert result.status == STATE_OK
+        assert result.message == "vserver1 state: UP, Health: 100%"
 
     def test_backup_vserver_check_disabled_by_default(self):
         """Test that backup check is disabled by default"""
@@ -381,7 +364,6 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vs_web", "state": "UP", "vslbhealth": 100}]
         }
-        client.get_config.return_value = {"lbvserver": [{"name": "vs_web", "effectivestate": "UP"}]}
 
         args = self.create_args(objecttype="lbvserver", objectname="vs_web")
         command = StateCommand(client, args)

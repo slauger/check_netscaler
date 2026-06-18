@@ -5,7 +5,7 @@ State check command - monitors vServer, service, servicegroup, and server states
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from check_netscaler.client.exceptions import NITROAPIError, NITROResourceNotFoundError
+from check_netscaler.client.exceptions import NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
     STATE_CRITICAL,
@@ -45,9 +45,6 @@ class StateCommand(BaseCommand):
 
             # Extract objects from response
             objects = self._extract_objects(data, objecttype)
-
-            if objecttype == "lbvserver" and self._lbvserver_health_check_enabled():
-                objects = self._merge_lbvserver_config(objects, objectname)
 
             if not objects:
                 return CheckResult(
@@ -206,39 +203,8 @@ class StateCommand(BaseCommand):
             long_output=long_output if len(objects) > 1 else [],
         )
 
-    def _merge_lbvserver_config(self, objects: List[Dict], objectname: Optional[str]) -> List[Dict]:
-        """Merge lbvserver config fields like effectivestate into stat objects."""
-        try:
-            config_data = self.client.get_config("lbvserver", objectname)
-        except NITROAPIError:
-            return objects
-
-        if not isinstance(config_data, dict):
-            return objects
-
-        config_objects = self._extract_objects(config_data, "lbvserver")
-        if not config_objects:
-            return objects
-
-        config_by_name = {
-            obj.get("name"): obj
-            for obj in config_objects
-            if isinstance(obj, dict) and obj.get("name")
-        }
-
-        merged_objects = []
-        for obj in objects:
-            if not isinstance(obj, dict):
-                merged_objects.append(obj)
-                continue
-
-            config_obj = config_by_name.get(obj.get("name"), {})
-            merged_objects.append({**config_obj, **obj})
-
-        return merged_objects
-
     def _evaluate_lbvserver_states(self, objects: List[Dict]) -> CheckResult:
-        """Evaluate lbvserver status using effective state and health percentage."""
+        """Evaluate lbvserver status using stat state and health percentage."""
         total = len(objects)
         ok_count = 0
         warning_count = 0
@@ -343,7 +309,7 @@ class StateCommand(BaseCommand):
         critical_objects: List[str],
         warning_objects: List[str],
     ) -> str:
-        """Build lbvserver-specific messages with effective state and health."""
+        """Build lbvserver-specific messages with state and health."""
         total = len(objects)
         if total == 1:
             obj = objects[0]
@@ -366,8 +332,8 @@ class StateCommand(BaseCommand):
         )
 
     def _get_lbvserver_state(self, obj: Dict[str, Any]) -> str:
-        """Prefer lbvserver effectivestate when available."""
-        state = obj.get("effectivestate") or obj.get("state") or "UNKNOWN"
+        """Return lbvserver state from the stat response."""
+        state = obj.get("state") or "UNKNOWN"
         return str(state).upper()
 
     def _get_lbvserver_health(self, obj: Dict[str, Any]) -> Optional[float]:
