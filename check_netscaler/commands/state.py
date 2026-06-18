@@ -46,7 +46,7 @@ class StateCommand(BaseCommand):
             # Extract objects from response
             objects = self._extract_objects(data, objecttype)
 
-            if objecttype == "lbvserver":
+            if objecttype == "lbvserver" and self._lbvserver_health_check_enabled():
                 objects = self._merge_lbvserver_config(objects, objectname)
 
             if not objects:
@@ -133,7 +133,7 @@ class StateCommand(BaseCommand):
         Returns:
             CheckResult with aggregated status
         """
-        if objecttype == "lbvserver":
+        if objecttype == "lbvserver" and self._lbvserver_health_check_enabled():
             return self._evaluate_lbvserver_states(objects)
 
         total = len(objects)
@@ -221,7 +221,9 @@ class StateCommand(BaseCommand):
             return objects
 
         config_by_name = {
-            obj.get("name"): obj for obj in config_objects if isinstance(obj, dict) and obj.get("name")
+            obj.get("name"): obj
+            for obj in config_objects
+            if isinstance(obj, dict) and obj.get("name")
         }
 
         merged_objects = []
@@ -324,6 +326,13 @@ class StateCommand(BaseCommand):
             long_output=long_output if len(objects) > 1 else [],
         )
 
+    def _lbvserver_health_check_enabled(self) -> bool:
+        """Return whether lbvserver health evaluation is enabled via thresholds."""
+        return (
+            getattr(self.args, "warning", None) is not None
+            or getattr(self.args, "critical", None) is not None
+        )
+
     def _build_lbvserver_message(
         self,
         objects: List[Dict],
@@ -397,9 +406,7 @@ class StateCommand(BaseCommand):
     def _get_lbvserver_health_thresholds(self) -> Tuple[float, float]:
         """Return warning and critical health thresholds for lbvserver checks."""
         warning = self._parse_lbvserver_health_threshold(getattr(self.args, "warning", None), 100.0)
-        critical = self._parse_lbvserver_health_threshold(
-            getattr(self.args, "critical", None), 0.0
-        )
+        critical = self._parse_lbvserver_health_threshold(getattr(self.args, "critical", None), 0.0)
 
         if critical > warning:
             raise ValueError(
@@ -408,9 +415,7 @@ class StateCommand(BaseCommand):
 
         return warning, critical
 
-    def _parse_lbvserver_health_threshold(
-        self, value: Optional[str], default: float
-    ) -> float:
+    def _parse_lbvserver_health_threshold(self, value: Optional[str], default: float) -> float:
         """Parse lbvserver health threshold from CLI, preserving legacy defaults."""
         if value is None:
             return default

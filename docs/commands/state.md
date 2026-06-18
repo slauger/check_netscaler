@@ -43,7 +43,7 @@ check_netscaler -C state -o lbvserver -n web_lb
 
 **Output:**
 ```
-OK: web_lb state: UP, Health: 100% | 'web_lb.health'=100%;100;0;0;100 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
+OK: lbvserver is UP | 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;;
 ```
 
 ### Check all services
@@ -136,7 +136,7 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 
 ### Custom lbvserver health thresholds
 
-For `state -o lbvserver`, you can override the default health handling with `-w` and `-c`:
+For `state -o lbvserver`, health percentage evaluation is opt-in and only activates when you pass `-w` or `-c`:
 
 ```bash
 check_netscaler -C state -o lbvserver -n web_lb -w 95 -c 80
@@ -147,19 +147,18 @@ This means:
 - `health < 95` -> `WARNING`
 - `health >= 95` with `effectivestate == UP` -> `OK`
 
-If you omit these thresholds, the legacy-compatible defaults are still used:
-- warning below `100`
-- critical at or below `0`
+If you omit both thresholds, the command keeps the legacy behavior and only checks the lbvserver `state`.
 
 ## State Mappings
 
 ### vServer States
-- `effectivestate != UP` - CRITICAL
-- `effectivestate == UP` and `health == 0` - CRITICAL
-- `effectivestate == UP` and `health < 100` - WARNING
-- `effectivestate == UP` and `health == 100` - OK
+- default: `state` is evaluated exactly as before (`UP` = OK, `DOWN` = CRITICAL, `OUT OF SERVICE` = WARNING)
+- with `-w`/`-c`: `effectivestate != UP` - CRITICAL
+- with `-w`/`-c`: `effectivestate == UP` and `health <= critical` - CRITICAL
+- with `-w`/`-c`: `effectivestate == UP` and `health < warning` - WARNING
+- with `-w`/`-c`: `effectivestate == UP` and `health >= warning` - OK
 
-For `lbvserver`, the command prefers `effectivestate` when available and evaluates the vServer health percentage from the NITRO API.
+When health thresholds are enabled, the command prefers `effectivestate` when available and evaluates the vServer health percentage from the NITRO API.
 
 ### Service States
 - `UP` - OK
@@ -170,7 +169,7 @@ For `lbvserver`, the command prefers `effectivestate` when available and evaluat
 
 ## Performance Data
 
-For `lbvserver`, the command outputs summary counters and health percentage:
+When `-w` or `-c` enables health checks for `lbvserver`, the command outputs summary counters and health percentage:
 
 ```
 | 'web_lb.health'=100%;100;0;0;100 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100

@@ -58,20 +58,14 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 100}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
-        }
 
         args = self.create_args()
         command = StateCommand(client, args)
         result = command.execute()
 
         assert result.status == STATE_OK
-        assert result.message == "vserver1 state: UP, Health: 100%"
-        assert result.perfdata["health"]["value"] == "100"
-        assert result.perfdata["health"]["uom"] == "%"
-        assert result.perfdata["health"]["warn"] == "100"
-        assert result.perfdata["health"]["crit"] == "0"
+        assert result.message == "lbvserver is UP"
+        assert "health" not in result.perfdata
 
     def test_state_one_down(self):
         """Test one object DOWN"""
@@ -112,7 +106,7 @@ class TestStateCommand:
         assert result.perfdata["critical"] == 2
 
     def test_state_out_of_service(self):
-        """Test lbvserver OUT OF SERVICE state is CRITICAL."""
+        """Test lbvserver OUT OF SERVICE state remains WARNING by default."""
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [
@@ -125,9 +119,9 @@ class TestStateCommand:
         command = StateCommand(client, args)
         result = command.execute()
 
-        assert result.status == STATE_CRITICAL
-        assert "1/2 lbvserver CRITICAL" in result.message
-        assert result.perfdata["critical"] == 1
+        assert result.status == STATE_WARNING
+        assert "1/2 lbvserver WARNING" in result.message
+        assert result.perfdata["warning"] == 1
 
     def test_state_mixed_statuses(self):
         """Test mix of OK, WARNING, and CRITICAL"""
@@ -251,12 +245,6 @@ class TestStateCommand:
                 {"name": "vserver2", "state": "Up", "vslbhealth": 100},  # mixed case
             ]
         }
-        client.get_config.return_value = {
-            "lbvserver": [
-                {"name": "vserver1", "effectivestate": "up"},
-                {"name": "vserver2", "effectivestate": "Up"},
-            ]
-        }
 
         args = self.create_args()
         command = StateCommand(client, args)
@@ -265,8 +253,23 @@ class TestStateCommand:
         assert result.status == STATE_OK
         assert result.perfdata["ok"] == 2
 
-    def test_lbvserver_warns_on_degraded_health(self):
-        """Test lbvserver health below 100 results in WARNING."""
+    def test_lbvserver_degraded_health_is_ignored_by_default(self):
+        """Test lbvserver health is ignored unless thresholds are provided."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+
+        args = self.create_args()
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert result.message == "lbvserver is UP"
+        assert "health" not in result.perfdata
+
+    def test_lbvserver_warns_on_degraded_health_when_thresholds_are_set(self):
+        """Test lbvserver health below warning threshold results in WARNING."""
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
@@ -275,7 +278,7 @@ class TestStateCommand:
             "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
         }
 
-        args = self.create_args()
+        args = self.create_args(warning="100")
         command = StateCommand(client, args)
         result = command.execute()
 
@@ -355,8 +358,8 @@ class TestStateCommand:
         assert result.status == STATE_UNKNOWN
         assert "Invalid lbvserver health threshold: abc" in result.message
 
-    def test_lbvserver_uses_effectivestate_for_status(self):
-        """Test lbvserver effectivestate overrides stat state for status evaluation."""
+    def test_lbvserver_uses_effectivestate_for_status_when_health_check_is_enabled(self):
+        """Test lbvserver effectivestate overrides stat state when health checks are enabled."""
         client = self.create_mock_client()
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 100}]
@@ -365,7 +368,7 @@ class TestStateCommand:
             "lbvserver": [{"name": "vserver1", "effectivestate": "DOWN"}]
         }
 
-        args = self.create_args()
+        args = self.create_args(warning="100")
         command = StateCommand(client, args)
         result = command.execute()
 
@@ -378,16 +381,14 @@ class TestStateCommand:
         client.get_stat.return_value = {
             "lbvserver": [{"name": "vs_web", "state": "UP", "vslbhealth": 100}]
         }
-        client.get_config.return_value = {
-            "lbvserver": [{"name": "vs_web", "effectivestate": "UP"}]
-        }
+        client.get_config.return_value = {"lbvserver": [{"name": "vs_web", "effectivestate": "UP"}]}
 
         args = self.create_args(objecttype="lbvserver", objectname="vs_web")
         command = StateCommand(client, args)
         result = command.execute()
 
         assert client.get_stat.called
-        assert client.get_config.called
+        assert not client.get_config.called
         assert result.status == STATE_OK
 
     def test_backup_vserver_active_warning(self):

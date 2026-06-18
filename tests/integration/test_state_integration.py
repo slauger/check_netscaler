@@ -31,10 +31,10 @@ class TestStateCommandIntegration:
             result = command.execute()
 
             assert result.status == STATE_OK
-            assert result.message == "lb_web state: UP, Health: 100%"
+            assert result.message == "lbvserver is UP"
 
-    def test_state_check_lbvserver_health_warning(self, mock_nitro_server):
-        """Test checking lbvserver health below 100%."""
+    def test_state_check_lbvserver_ignores_health_by_default(self, mock_nitro_server):
+        """Test lbvserver health does not affect status without thresholds."""
         with NITROClient(
             hostname=mock_nitro_server.host,
             port=mock_nitro_server.port,
@@ -48,6 +48,32 @@ class TestStateCommandIntegration:
                 objectname="lb_ssl",
                 filter=None,
                 limit=None,
+            )
+
+            command = StateCommand(client, args)
+            result = command.execute()
+
+            assert result.status == STATE_OK
+            assert result.message == "lbvserver is UP"
+            assert "health" not in result.perfdata
+
+    def test_state_check_lbvserver_health_warning(self, mock_nitro_server):
+        """Test checking lbvserver health below warning threshold."""
+        with NITROClient(
+            hostname=mock_nitro_server.host,
+            port=mock_nitro_server.port,
+            username="nsroot",
+            password="nsroot",
+            ssl=False,
+        ) as client:
+            args = Namespace(
+                command="state",
+                objecttype="lbvserver",
+                objectname="lb_ssl",
+                filter=None,
+                limit=None,
+                warning="100",
+                critical=None,
             )
 
             command = StateCommand(client, args)
@@ -80,7 +106,7 @@ class TestStateCommandIntegration:
             result = command.execute()
 
             assert result.status == STATE_CRITICAL
-            assert result.message == "lb_down state: DOWN, Health: 0%"
+            assert result.message == "1/1 lbvserver CRITICAL (lb_down)"
 
     def test_state_check_all_lbvservers(self, mock_nitro_server):
         """Test checking all load balancers"""
