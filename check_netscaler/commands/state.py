@@ -245,7 +245,7 @@ class StateCommand(BaseCommand):
             details = state if health_text is None else f"{state}, health={health_text}"
             long_output.append(f"[{status_str}] {name}: {details}")
 
-            if health is not None:
+            if total > 1 and health is not None:
                 perfdata[f"{name}.health"] = self._build_lbvserver_health_perfdata(
                     health, warning_threshold, critical_threshold
                 )
@@ -279,7 +279,6 @@ class StateCommand(BaseCommand):
 
         if total == 1:
             health = self._get_lbvserver_health(objects[0])
-            health_text = self._format_health(health)
             if health is not None:
                 perfdata["health"] = self._build_lbvserver_health_perfdata(
                     health, warning_threshold, critical_threshold

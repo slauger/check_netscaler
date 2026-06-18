@@ -172,7 +172,7 @@ When health thresholds are enabled, the command evaluates only the `stat` respon
 When `-w` or `-c` enables health checks for `lbvserver`, the command outputs summary counters and health percentage:
 
 ```
-| 'web_lb.health'=100%;100;0;0;100 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
+| 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;100;0;0;100
 ```
 
 Other object types keep the existing generic summary perfdata.

@@ -284,6 +284,7 @@ class TestStateCommand:
         assert result.perfdata["health"]["value"] == "95"
         assert result.perfdata["health"]["warn"] == "100"
         assert result.perfdata["health"]["crit"] == "0"
+        assert "vserver1.health" not in result.perfdata
 
     def test_lbvserver_custom_health_thresholds(self):
         """Test lbvserver health thresholds can be customized with -w/-c."""
@@ -300,6 +301,7 @@ class TestStateCommand:
         assert result.message == "vserver1 state: UP, Health: 95%"
         assert result.perfdata["health"]["warn"] == "90"
         assert result.perfdata["health"]["crit"] == "50"
+        assert "vserver1.health" not in result.perfdata
 
     def test_lbvserver_custom_critical_threshold(self):
         """Test lbvserver health becomes CRITICAL at or below custom critical threshold."""

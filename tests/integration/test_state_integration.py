@@ -84,6 +84,7 @@ class TestStateCommandIntegration:
             assert result.perfdata["health"]["value"] == "95"
             assert result.perfdata["health"]["warn"] == "100"
             assert result.perfdata["health"]["crit"] == "0"
+            assert "lb_ssl.health" not in result.perfdata
 
     def test_state_check_lbvserver_down(self, mock_nitro_server):
         """Test checking state of DOWN load balancer"""
