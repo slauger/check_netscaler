@@ -4,7 +4,7 @@ from argparse import Namespace
 
 from check_netscaler.client import NITROClient
 from check_netscaler.commands.state import StateCommand
-from check_netscaler.constants import STATE_CRITICAL, STATE_OK
+from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_WARNING
 
 
 class TestStateCommandIntegration:
@@ -31,7 +31,31 @@ class TestStateCommandIntegration:
             result = command.execute()
 
             assert result.status == STATE_OK
-            assert result.message == "lbvserver is UP"
+            assert result.message == "lb_web state: UP, Health: 100%"
+
+    def test_state_check_lbvserver_health_warning(self, mock_nitro_server):
+        """Test checking lbvserver health below 100%."""
+        with NITROClient(
+            hostname=mock_nitro_server.host,
+            port=mock_nitro_server.port,
+            username="nsroot",
+            password="nsroot",
+            ssl=False,
+        ) as client:
+            args = Namespace(
+                command="state",
+                objecttype="lbvserver",
+                objectname="lb_ssl",
+                filter=None,
+                limit=None,
+            )
+
+            command = StateCommand(client, args)
+            result = command.execute()
+
+            assert result.status == STATE_WARNING
+            assert result.message == "lb_ssl state: UP, Health: 95%"
+            assert result.perfdata["health"] == "95%"
 
     def test_state_check_lbvserver_down(self, mock_nitro_server):
         """Test checking state of DOWN load balancer"""
@@ -54,9 +78,7 @@ class TestStateCommandIntegration:
             result = command.execute()
 
             assert result.status == STATE_CRITICAL
-            assert "CRITICAL" in result.message
-            assert "lb_down" in result.message
-            assert "1/1" in result.message
+            assert result.message == "lb_down state: DOWN, Health: 0%"
 
     def test_state_check_all_lbvservers(self, mock_nitro_server):
         """Test checking all load balancers"""

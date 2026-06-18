@@ -3,9 +3,9 @@ State check command - monitors vServer, service, servicegroup, and server states
 """
 
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from check_netscaler.client.exceptions import NITROResourceNotFoundError
+from check_netscaler.client.exceptions import NITROAPIError, NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
 from check_netscaler.constants import (
     STATE_CRITICAL,
@@ -45,6 +45,9 @@ class StateCommand(BaseCommand):
 
             # Extract objects from response
             objects = self._extract_objects(data, objecttype)
+
+            if objecttype == "lbvserver":
+                objects = self._merge_lbvserver_config(objects, objectname)
 
             if not objects:
                 return CheckResult(
@@ -130,6 +133,9 @@ class StateCommand(BaseCommand):
         Returns:
             CheckResult with aggregated status
         """
+        if objecttype == "lbvserver":
+            return self._evaluate_lbvserver_states(objects)
+
         total = len(objects)
         ok_count = 0
         warning_count = 0
@@ -199,6 +205,176 @@ class StateCommand(BaseCommand):
             perfdata=perfdata,
             long_output=long_output if len(objects) > 1 else [],
         )
+
+    def _merge_lbvserver_config(self, objects: List[Dict], objectname: Optional[str]) -> List[Dict]:
+        """Merge lbvserver config fields like effectivestate into stat objects."""
+        try:
+            config_data = self.client.get_config("lbvserver", objectname)
+        except NITROAPIError:
+            return objects
+
+        if not isinstance(config_data, dict):
+            return objects
+
+        config_objects = self._extract_objects(config_data, "lbvserver")
+        if not config_objects:
+            return objects
+
+        config_by_name = {
+            obj.get("name"): obj for obj in config_objects if isinstance(obj, dict) and obj.get("name")
+        }
+
+        merged_objects = []
+        for obj in objects:
+            if not isinstance(obj, dict):
+                merged_objects.append(obj)
+                continue
+
+            config_obj = config_by_name.get(obj.get("name"), {})
+            merged_objects.append({**config_obj, **obj})
+
+        return merged_objects
+
+    def _evaluate_lbvserver_states(self, objects: List[Dict]) -> CheckResult:
+        """Evaluate lbvserver status using effective state and health percentage."""
+        total = len(objects)
+        ok_count = 0
+        warning_count = 0
+        critical_count = 0
+        unknown_count = 0
+
+        critical_objects = []
+        warning_objects = []
+        long_output = []
+        perfdata = {}
+
+        for obj in objects:
+            name = obj.get("name", "unknown")
+            state = self._get_lbvserver_state(obj)
+            health = self._get_lbvserver_health(obj)
+
+            if state != "UP":
+                critical_count += 1
+                status_str = "CRITICAL"
+                critical_objects.append(name)
+            elif health is None:
+                ok_count += 1
+                status_str = "OK"
+            elif health == 0:
+                critical_count += 1
+                status_str = "CRITICAL"
+                critical_objects.append(name)
+            elif health < 100:
+                warning_count += 1
+                status_str = "WARNING"
+                warning_objects.append(name)
+            else:
+                ok_count += 1
+                status_str = "OK"
+
+            health_text = self._format_health(health)
+            details = state if health_text is None else f"{state}, health={health_text}"
+            long_output.append(f"[{status_str}] {name}: {details}")
+
+            if health_text is not None:
+                perfdata[f"{name}.health"] = health_text
+
+        if critical_count > 0:
+            overall_status = STATE_CRITICAL
+        elif warning_count > 0 or unknown_count > 0:
+            overall_status = STATE_WARNING
+        else:
+            overall_status = STATE_OK
+
+        message = self._build_lbvserver_message(
+            objects,
+            ok_count,
+            warning_count,
+            critical_count,
+            unknown_count,
+            critical_objects,
+            warning_objects,
+        )
+
+        perfdata.update(
+            {
+                "total": total,
+                "ok": ok_count,
+                "warning": warning_count,
+                "critical": critical_count,
+                "unknown": unknown_count,
+            }
+        )
+
+        if total == 1:
+            health = self._get_lbvserver_health(objects[0])
+            health_text = self._format_health(health)
+            if health_text is not None:
+                perfdata["health"] = health_text
+
+        return CheckResult(
+            status=overall_status,
+            message=message,
+            perfdata=perfdata,
+            long_output=long_output if len(objects) > 1 else [],
+        )
+
+    def _build_lbvserver_message(
+        self,
+        objects: List[Dict],
+        ok: int,
+        warning: int,
+        critical: int,
+        unknown: int,
+        critical_objects: List[str],
+        warning_objects: List[str],
+    ) -> str:
+        """Build lbvserver-specific messages with effective state and health."""
+        total = len(objects)
+        if total == 1:
+            obj = objects[0]
+            name = obj.get("name", "unknown")
+            state = self._get_lbvserver_state(obj)
+            health_text = self._format_health(self._get_lbvserver_health(obj))
+            if health_text is None:
+                return f"{name} state: {state}"
+            return f"{name} state: {state}, Health: {health_text}"
+
+        return self._build_message(
+            "lbvserver",
+            total,
+            ok,
+            warning,
+            critical,
+            unknown,
+            critical_objects,
+            warning_objects,
+        )
+
+    def _get_lbvserver_state(self, obj: Dict[str, Any]) -> str:
+        """Prefer lbvserver effectivestate when available."""
+        state = obj.get("effectivestate") or obj.get("state") or "UNKNOWN"
+        return str(state).upper()
+
+    def _get_lbvserver_health(self, obj: Dict[str, Any]) -> Optional[float]:
+        """Return lbvserver health percentage when provided by the API."""
+        for field in ("health", "vslbhealth"):
+            value = obj.get(field)
+            if value is None:
+                continue
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+        return None
+
+    def _format_health(self, health: Optional[float]) -> Optional[str]:
+        """Format health as a percentage without trailing decimals when possible."""
+        if health is None:
+            return None
+        if float(health).is_integer():
+            return f"{int(health)}%"
+        return f"{health:g}%"
 
     def _build_message(
         self,

@@ -27,7 +27,7 @@
       "state": "UP",
       "actsvcs": 5,
       "inactsvcs": 0,
-      "vslbhealth": 100,
+      "vslbhealth": 95,
       "primaryipaddress": "192.168.1.101",
       "primaryport": 443,
       "totalpktsrecvd": 250000,

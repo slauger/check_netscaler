@@ -43,7 +43,7 @@ check_netscaler -C state -o lbvserver -n web_lb
 
 **Output:**
 ```
-OK: lbvserver web_lb is UP | web_lb.activeconnections=42
+OK: web_lb state: UP, Health: 100% | 'web_lb.health'=100%;; 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;;
 ```
 
 ### Check all services
@@ -137,10 +137,12 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 ## State Mappings
 
 ### vServer States
-- `UP` - OK (vServer is operational)
-- `DOWN` - CRITICAL (vServer is down)
-- `OUT OF SERVICE` - WARNING (administratively disabled)
-- `UNKNOWN` - UNKNOWN (state cannot be determined)
+- `effectivestate != UP` - CRITICAL
+- `effectivestate == UP` and `health == 0` - CRITICAL
+- `effectivestate == UP` and `health < 100` - WARNING
+- `effectivestate == UP` and `health == 100` - OK
+
+For `lbvserver`, the command now prefers `effectivestate` when available and also evaluates the vServer health percentage from the NITRO API.
 
 ### Service States
 - `UP` - OK
@@ -150,6 +152,14 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 - `UNKNOWN` - UNKNOWN
 
 ## Performance Data
+
+For `lbvserver`, the command outputs summary counters and health percentage:
+
+```
+| 'web_lb.health'=100%;; 'total'=1;; 'ok'=1;; 'warning'=0;; 'critical'=0;; 'unknown'=0;; 'health'=100%;;
+```
+
+Other object types keep the existing generic summary perfdata.
 
 The command outputs performance data for active connections:
 
