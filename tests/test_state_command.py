@@ -280,6 +280,74 @@ class TestStateCommand:
         assert result.message == "vserver1 state: UP, Health: 95%"
         assert result.perfdata["health"] == "95%"
 
+    def test_lbvserver_custom_health_thresholds(self):
+        """Test lbvserver health thresholds can be customized with -w/-c."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
+        }
+
+        args = self.create_args(warning="90", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_OK
+        assert result.message == "vserver1 state: UP, Health: 95%"
+
+    def test_lbvserver_custom_critical_threshold(self):
+        """Test lbvserver health becomes CRITICAL at or below custom critical threshold."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 40}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
+        }
+
+        args = self.create_args(warning="90", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_CRITICAL
+        assert result.message == "vserver1 state: UP, Health: 40%"
+
+    def test_lbvserver_invalid_threshold_order(self):
+        """Test lbvserver invalid threshold order returns UNKNOWN."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
+        }
+
+        args = self.create_args(warning="40", critical="50")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "critical (50) cannot exceed warning (40)" in result.message
+
+    def test_lbvserver_invalid_threshold_value(self):
+        """Test lbvserver invalid threshold values return UNKNOWN."""
+        client = self.create_mock_client()
+        client.get_stat.return_value = {
+            "lbvserver": [{"name": "vserver1", "state": "UP", "vslbhealth": 95}]
+        }
+        client.get_config.return_value = {
+            "lbvserver": [{"name": "vserver1", "effectivestate": "UP"}]
+        }
+
+        args = self.create_args(warning="abc")
+        command = StateCommand(client, args)
+        result = command.execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Invalid lbvserver health threshold: abc" in result.message
+
     def test_lbvserver_uses_effectivestate_for_status(self):
         """Test lbvserver effectivestate overrides stat state for status evaluation."""
         client = self.create_mock_client()

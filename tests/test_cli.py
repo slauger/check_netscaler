@@ -120,6 +120,29 @@ class TestArgumentParser:
         assert args.warning == "75"
         assert args.critical == "90"
 
+    def test_lbvserver_health_thresholds(self):
+        """Test lbvserver state command accepts warning and critical health thresholds."""
+        parser = create_parser()
+        args = parser.parse_args(
+            [
+                "-H",
+                "192.168.1.1",
+                "-C",
+                "state",
+                "-o",
+                "lbvserver",
+                "-n",
+                "my_vserver",
+                "-w",
+                "95",
+                "-c",
+                "50",
+            ]
+        )
+
+        assert args.warning == "95"
+        assert args.critical == "50"
+
     def test_verbose_flag(self):
         """Test verbose flag (can be repeated)"""
         parser = create_parser()

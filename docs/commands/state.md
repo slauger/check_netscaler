@@ -134,6 +134,23 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 - Alert when traffic is being served by backup infrastructure
 - Track when primary services have been restored (backup no longer active)
 
+### Custom lbvserver health thresholds
+
+For `state -o lbvserver`, you can override the default health handling with `-w` and `-c`:
+
+```bash
+check_netscaler -C state -o lbvserver -n web_lb -w 95 -c 80
+```
+
+This means:
+- `health <= 80` -> `CRITICAL`
+- `health < 95` -> `WARNING`
+- `health >= 95` with `effectivestate == UP` -> `OK`
+
+If you omit these thresholds, the legacy-compatible defaults are still used:
+- warning below `100`
+- critical at or below `0`
+
 ## State Mappings
 
 ### vServer States
@@ -142,7 +159,7 @@ CRITICAL: lbvserver is UP; Backup vServer active: api_lb_backup | total=1 ok=1 w
 - `effectivestate == UP` and `health < 100` - WARNING
 - `effectivestate == UP` and `health == 100` - OK
 
-For `lbvserver`, the command now prefers `effectivestate` when available and also evaluates the vServer health percentage from the NITRO API.
+For `lbvserver`, the command prefers `effectivestate` when available and evaluates the vServer health percentage from the NITRO API.
 
 ### Service States
 - `UP` - OK

@@ -3,7 +3,7 @@ State check command - monitors vServer, service, servicegroup, and server states
 """
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from check_netscaler.client.exceptions import NITROAPIError, NITROResourceNotFoundError
 from check_netscaler.commands.base import BaseCommand, CheckResult
@@ -247,6 +247,7 @@ class StateCommand(BaseCommand):
         warning_objects = []
         long_output = []
         perfdata = {}
+        warning_threshold, critical_threshold = self._get_lbvserver_health_thresholds()
 
         for obj in objects:
             name = obj.get("name", "unknown")
@@ -260,11 +261,11 @@ class StateCommand(BaseCommand):
             elif health is None:
                 ok_count += 1
                 status_str = "OK"
-            elif health == 0:
+            elif health <= critical_threshold:
                 critical_count += 1
                 status_str = "CRITICAL"
                 critical_objects.append(name)
-            elif health < 100:
+            elif health < warning_threshold:
                 warning_count += 1
                 status_str = "WARNING"
                 warning_objects.append(name)
@@ -375,6 +376,39 @@ class StateCommand(BaseCommand):
         if float(health).is_integer():
             return f"{int(health)}%"
         return f"{health:g}%"
+
+    def _get_lbvserver_health_thresholds(self) -> Tuple[float, float]:
+        """Return warning and critical health thresholds for lbvserver checks."""
+        warning = self._parse_lbvserver_health_threshold(getattr(self.args, "warning", None), 100.0)
+        critical = self._parse_lbvserver_health_threshold(
+            getattr(self.args, "critical", None), 0.0
+        )
+
+        if critical > warning:
+            raise ValueError(
+                f"Invalid lbvserver health thresholds: critical ({critical:g}) cannot exceed warning ({warning:g})"
+            )
+
+        return warning, critical
+
+    def _parse_lbvserver_health_threshold(
+        self, value: Optional[str], default: float
+    ) -> float:
+        """Parse lbvserver health threshold from CLI, preserving legacy defaults."""
+        if value is None:
+            return default
+
+        try:
+            threshold = float(value)
+        except ValueError as exc:
+            raise ValueError(f"Invalid lbvserver health threshold: {value}") from exc
+
+        if threshold < 0 or threshold > 100:
+            raise ValueError(
+                f"Invalid lbvserver health threshold: {threshold:g} (must be between 0 and 100)"
+            )
+
+        return threshold
 
     def _build_message(
         self,
