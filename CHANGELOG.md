@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v2.7.0 (2026-08-04)
+
+### Continuous Integration
+
+* update actions/setup-python action to v7 (#164)
+* update python-semantic-release/python-semantic-release action to v10.6.1 (#162)
+* update python-semantic-release/python-semantic-release action to v10.6.0 (#161)
+* update actions/cache action to v6 (#160)
+* update actions/checkout action to v7 (#159)
+### Features
+
+* query license state via NITRO API instead of .lic files
 ## v2.6.0 (2026-06-18)
 
 ### Bug Fixes
