@@ -1,10 +1,20 @@
 """
 License expiration check command
+
+Checks the NetScaler license state directly via the NITRO API instead of
+reading ``*.lic`` files. The ``-o/--objecttype`` flag names the NITRO config
+resource to query:
+
+- ``-o nslicense`` (default) - base platform license:
+  ``licensingmode``, ``modelid``, ``daystoexpiration``.
+- ``-o nslaslicense``        - LAS / pooled ("Application Delivery Management")
+  license lease: ``status``, ``daystoexpiration``, ``renewalnextdate``.
+
+Only the selected resource is queried. If the appliance does not return it, the
+result is UNKNOWN.
 """
 
-import base64
-from datetime import datetime, timezone
-from typing import List
+from typing import Any, Dict, Optional, Tuple
 
 from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
@@ -17,7 +27,7 @@ from check_netscaler.constants import (
 
 
 class LicenseCommand(BaseCommand):
-    """Check license expiration"""
+    """Check license expiration via the NITRO nslicense/nslaslicense resources"""
 
     # Default thresholds in days
     DEFAULT_WARNING = 30
@@ -31,7 +41,6 @@ class LicenseCommand(BaseCommand):
             CheckResult indicating license expiration status
         """
         try:
-            # Get thresholds
             warning_days = self._get_threshold("warning", self.DEFAULT_WARNING)
             critical_days = self._get_threshold("critical", self.DEFAULT_CRITICAL)
 
@@ -41,50 +50,42 @@ class LicenseCommand(BaseCommand):
                     message="license: command requires warning and critical thresholds (in days)",
                 )
 
-            # Get endpoint (default to config)
-            endpoint = getattr(self.args, "endpoint", None) or "config"
+            # Select which license resource to query via -o/--objecttype. The
+            # value is the NITRO config resource name itself:
+            #   nslicense    -> base platform license
+            #   nslaslicense -> LAS/pooled (ADM) license lease
+            # Defaults to "nslicense" when -o is omitted.
+            resource = (getattr(self.args, "objecttype", None) or "nslicense").strip().lower()
 
-            if endpoint != "config":
+            if resource not in ("nslicense", "nslaslicense"):
                 return CheckResult(
                     status=STATE_UNKNOWN,
-                    message="license: only config endpoint is supported",
+                    message="license: -o/--objecttype must be 'nslicense' or 'nslaslicense'",
                 )
 
-            # Get license files
-            license_files = self._get_license_files()
+            perfdata: Dict[str, Any] = {}
 
-            if not license_files:
+            data = self.client.get_config(resource)
+            license_data = self._unwrap(data.get(resource))
+            if license_data is None:
                 return CheckResult(
                     status=STATE_UNKNOWN,
-                    message="license: no license files found",
+                    message=f"license: {resource} data not found in API response",
                 )
 
-            # Check each license file
-            messages: List[str] = []
-            worst_status = STATE_OK
-
-            for license_file in license_files:
-                file_status, file_messages = self._check_license_file(
-                    license_file, warning_days, critical_days
+            if resource == "nslicense":
+                status, message = self._check_nslicense(
+                    license_data, warning_days, critical_days, perfdata
                 )
-
-                if file_status > worst_status:
-                    worst_status = file_status
-
-                messages.extend(file_messages)
-
-            if not messages:
-                return CheckResult(
-                    status=STATE_UNKNOWN,
-                    message="license: no INCREMENT lines found in license files",
+            else:  # resource == "nslaslicense"
+                status, message = self._check_nslaslicense(
+                    license_data, warning_days, critical_days, perfdata
                 )
-
-            # Build final message
-            message = "license: " + "; ".join(messages)
 
             return CheckResult(
-                status=worst_status,
-                message=message,
+                status=status,
+                message="license: " + message,
+                perfdata=perfdata,
             )
 
         except NITROException as e:
@@ -98,7 +99,7 @@ class LicenseCommand(BaseCommand):
                 message=f"Unexpected error: {str(e)}",
             )
 
-    def _get_threshold(self, name: str, default: int) -> int:
+    def _get_threshold(self, name: str, default: int) -> Optional[int]:
         """Get threshold value from args"""
         if not hasattr(self.args, name):
             return default
@@ -110,119 +111,91 @@ class LicenseCommand(BaseCommand):
         except (ValueError, TypeError):
             return None
 
-    def _get_license_files(self) -> List[str]:
-        """Get list of license files to check"""
-        objectname = getattr(self.args, "objectname", None)
+    @staticmethod
+    def _unwrap(resource: Any) -> Optional[Dict[str, Any]]:
+        """Return a single dict from a NITRO resource that may be a dict or a list"""
+        if isinstance(resource, list):
+            return resource[0] if resource else None
+        if isinstance(resource, dict):
+            return resource
+        return None
 
-        if objectname:
-            # User specified specific license file(s)
-            return [f.strip() for f in objectname.split(",")]
-
-        # Get all .lic files from /nsconfig/license
+    @staticmethod
+    def _parse_days(value: Any) -> Optional[int]:
+        """Parse a daystoexpiration value to int, or None if not numeric"""
         try:
-            data = self.client.get_config(
-                "systemfile", url_options="args=filelocation:/nsconfig/license"
-            )
+            return int(value)
+        except (ValueError, TypeError):
+            return None
 
-            if "systemfile" not in data:
-                return []
+    def _classify_days(self, days: Optional[int], warning_days: int, critical_days: int) -> int:
+        """Map a days-to-expiration value to a Nagios status"""
+        if days is None:
+            return STATE_UNKNOWN
+        if days < critical_days:
+            return STATE_CRITICAL
+        if days < warning_days:
+            return STATE_WARNING
+        return STATE_OK
 
-            files = data["systemfile"]
-            if not isinstance(files, list):
-                files = [files]
+    def _check_nslicense(
+        self,
+        nslicense: Dict[str, Any],
+        warning_days: int,
+        critical_days: int,
+        perfdata: Dict[str, Any],
+    ) -> Tuple[int, str]:
+        """Evaluate the base platform license (nslicense)"""
+        modelid = nslicense.get("modelid", "unknown")
+        mode = nslicense.get("licensingmode", "unknown")
+        days = self._parse_days(nslicense.get("daystoexpiration"))
 
-            # Filter for .lic files
-            license_files = [
-                f["filename"]
-                for f in files
-                if isinstance(f, dict) and f.get("filename", "").endswith(".lic")
-            ]
+        status = self._classify_days(days, warning_days, critical_days)
 
-            return license_files
+        if days is None:
+            expiry_text = "daystoexpiration unavailable"
+        else:
+            perfdata["nslicense_daystoexpiration"] = {
+                "value": str(days),
+                "warn": str(warning_days),
+                "crit": str(critical_days),
+            }
+            expiry_text = f"expires in {days} days"
 
-        except NITROException:
-            return []
+        message = f"nslicense modelid={modelid} mode={mode} {expiry_text}"
+        return status, message
 
-    def _check_license_file(self, filename: str, warning_days: int, critical_days: int) -> tuple:
-        """
-        Check a single license file
+    def _check_nslaslicense(
+        self,
+        nslaslicense: Dict[str, Any],
+        warning_days: int,
+        critical_days: int,
+        perfdata: Dict[str, Any],
+    ) -> Tuple[int, str]:
+        """Evaluate the LAS / pooled (ADM) license lease (nslaslicense)"""
+        lic_status = nslaslicense.get("status", "unknown")
+        days = self._parse_days(nslaslicense.get("daystoexpiration"))
 
-        Returns:
-            tuple: (status, messages)
-        """
-        try:
-            # Get license file content
-            data = self.client.get_config(
-                "systemfile",
-                url_options=f"args=filelocation:/nsconfig/license,filename:{filename}",
-            )
+        status = self._classify_days(days, warning_days, critical_days)
 
-            if "systemfile" not in data:
-                return (STATE_UNKNOWN, [f"{filename}: not found"])
+        # A non-ACTIVE lease is critical regardless of days-to-expiration.
+        if str(lic_status).upper() != "ACTIVE":
+            status = STATE_CRITICAL
 
-            files = data["systemfile"]
-            if isinstance(files, list):
-                if not files:
-                    return (STATE_UNKNOWN, [f"{filename}: not found"])
-                file_data = files[0]
-            else:
-                file_data = files
+        if days is None:
+            expiry_text = "entitlement daystoexpiration unavailable"
+        else:
+            perfdata["nslaslicense_daystoexpiration"] = {
+                "value": str(days),
+                "warn": str(warning_days),
+                "crit": str(critical_days),
+            }
+            expiry_text = f"entitlement expires in {days} days"
 
-            # Decode base64 content
-            filecontent = file_data.get("filecontent", "")
-            if not filecontent:
-                return (STATE_UNKNOWN, [f"{filename}: empty content"])
+        message = f"nslaslicense status={lic_status} {expiry_text}"
 
-            try:
-                content = base64.b64decode(filecontent).decode("utf-8")
-            except Exception as e:
-                return (STATE_UNKNOWN, [f"{filename}: failed to decode content - {e}"])
+        renewal = nslaslicense.get("renewalnextdate")
+        if renewal:
+            message += f" (renewal {renewal})"
 
-            # Parse INCREMENT lines
-            messages = []
-            worst_status = STATE_OK
-
-            for line in content.splitlines():
-                line = line.strip()
-                if line.startswith("INCREMENT"):
-                    parts = line.split()
-                    if len(parts) < 5:
-                        continue
-
-                    feature = parts[1]
-                    expiry = parts[4]
-
-                    if expiry.lower() == "permanent":
-                        messages.append(f"{feature} never expires")
-                    else:
-                        # Parse date (format: 18-jan-2018)
-                        try:
-                            expiry_date = datetime.strptime(expiry, "%d-%b-%Y")
-                            # Make it timezone-aware (UTC)
-                            expiry_date = expiry_date.replace(tzinfo=timezone.utc)
-                            now = datetime.now(timezone.utc)
-                            days_until_expiry = (expiry_date - now).days
-
-                            if days_until_expiry < critical_days:
-                                status = STATE_CRITICAL
-                            elif days_until_expiry < warning_days:
-                                status = STATE_WARNING
-                            else:
-                                status = STATE_OK
-
-                            if status > worst_status:
-                                worst_status = status
-
-                            messages.append(f"{feature} expires on {expiry}")
-
-                        except ValueError:
-                            messages.append(f"{feature} has invalid date format: {expiry}")
-                            if worst_status < STATE_WARNING:
-                                worst_status = STATE_WARNING
-
-            return (worst_status, messages)
-
-        except NITROException as e:
-            return (STATE_UNKNOWN, [f"{filename}: API error - {str(e)}"])
-        except Exception as e:
-            return (STATE_UNKNOWN, [f"{filename}: error - {str(e)}"])
+        return status, message

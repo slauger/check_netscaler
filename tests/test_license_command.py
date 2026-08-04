@@ -2,11 +2,10 @@
 Tests for license command
 """
 
-import base64
 from argparse import Namespace
-from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock
 
+from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.license import LicenseCommand
 from check_netscaler.constants import STATE_CRITICAL, STATE_OK, STATE_UNKNOWN, STATE_WARNING
 
@@ -24,618 +23,228 @@ class TestLicenseCommand:
         """Create mock arguments"""
         defaults = {
             "command": "license",
-            "objectname": None,
-            "endpoint": "config",
+            "objecttype": None,
             "warning": "30",
             "critical": "10",
         }
         defaults.update(kwargs)
         return Namespace(**defaults)
 
-    def create_license_content(self, features):
-        """
-        Create license file content
-
-        Args:
-            features: List of tuples (feature_name, expiry_date_string or "permanent")
-        """
-        lines = []
-        for feature, expiry in features:
-            if expiry == "permanent":
-                lines.append(f"INCREMENT {feature} vendor version {expiry}")
-            else:
-                lines.append(f"INCREMENT {feature} vendor version {expiry}")
-        content = "\n".join(lines)
-        return base64.b64encode(content.encode("utf-8")).decode("utf-8")
-
-    def test_license_expires_ok(self):
-        """Test license that expires far in the future (OK)"""
-        client = self.create_mock_client()
-
-        # License expires in 60 days
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        # First call: list license files
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            # Second call: get license content
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("CNS_V1000_ServerPlatinum", expiry_str)]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_OK
-        assert "CNS_V1000_ServerPlatinum expires on" in result.message
-
-    def test_license_expires_warning(self):
-        """Test license that expires soon (WARNING)"""
-        client = self.create_mock_client()
-
-        # License expires in 20 days (between warning 30 and critical 10)
-        future_date = datetime.now(timezone.utc) + timedelta(days=20)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("CNS_V1000_ServerPlatinum", expiry_str)]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_WARNING
-        assert "CNS_V1000_ServerPlatinum expires on" in result.message
-
-    def test_license_expires_critical(self):
-        """Test license that expires very soon (CRITICAL)"""
-        client = self.create_mock_client()
-
-        # License expires in 5 days (less than critical 10)
-        future_date = datetime.now(timezone.utc) + timedelta(days=5)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("CNS_V1000_ServerPlatinum", expiry_str)]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_CRITICAL
-        assert "CNS_V1000_ServerPlatinum expires on" in result.message
-
-    def test_license_permanent(self):
-        """Test permanent license"""
-        client = self.create_mock_client()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("CNS_V1000_ServerPlatinum", "permanent")]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_OK
-        assert "CNS_V1000_ServerPlatinum never expires" in result.message
-
-    def test_multiple_licenses_all_ok(self):
-        """Test multiple license features, all OK"""
-        client = self.create_mock_client()
-
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [
-                                ("CNS_V1000_ServerPlatinum", expiry_str),
-                                ("CNS_SSLVPN_CONCURRENT_USERS_5000", expiry_str),
-                                ("CNS_AppFW", "permanent"),
-                            ]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_OK
-        assert "CNS_V1000_ServerPlatinum expires on" in result.message
-        assert "CNS_SSLVPN_CONCURRENT_USERS_5000 expires on" in result.message
-        assert "CNS_AppFW never expires" in result.message
-
-    def test_multiple_licenses_one_warning(self):
-        """Test multiple licenses with one expiring soon"""
-        client = self.create_mock_client()
-
-        ok_date = datetime.now(timezone.utc) + timedelta(days=60)
-        warning_date = datetime.now(timezone.utc) + timedelta(days=20)
-        ok_str = ok_date.strftime("%d-%b-%Y").lower()
-        warning_str = warning_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("Feature1", ok_str), ("Feature2", warning_str)]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_WARNING
-        assert "Feature1 expires on" in result.message
-        assert "Feature2 expires on" in result.message
-
-    def test_multiple_licenses_one_critical(self):
-        """Test multiple licenses with one expiring very soon"""
-        client = self.create_mock_client()
-
-        ok_date = datetime.now(timezone.utc) + timedelta(days=60)
-        critical_date = datetime.now(timezone.utc) + timedelta(days=5)
-        ok_str = ok_date.strftime("%d-%b-%Y").lower()
-        critical_str = critical_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {
-                        "filecontent": self.create_license_content(
-                            [("Feature1", ok_str), ("Feature2", critical_str)]
-                        )
-                    }
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_CRITICAL
-        assert "Feature1 expires on" in result.message
-        assert "Feature2 expires on" in result.message
-
-    def test_custom_thresholds(self):
-        """Test custom warning/critical thresholds"""
-        client = self.create_mock_client()
-
-        # License expires in 40 days
-        # With custom thresholds: warning=50, critical=25
-        # Should be WARNING
-        future_date = datetime.now(timezone.utc) + timedelta(days=40)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-        ]
-
-        args = self.create_args(warning="50", critical="25")
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_WARNING
-
-    def test_specific_license_file(self):
-        """Test checking specific license file via objectname"""
-        client = self.create_mock_client()
-
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        # Only one call - directly fetch the specified file
-        client.get_config.return_value = {
-            "systemfile": [{"filecontent": self.create_license_content([("Feature1", expiry_str)])}]
+    def nslicense(self, days="113", modelid="200", mode="LAS (Fixed Bandwidth)"):
+        """Build an nslicense API response"""
+        return {
+            "nslicense": {
+                "modelid": modelid,
+                "licensingmode": mode,
+                "daystoexpiration": days,
+            }
         }
 
-        args = self.create_args(objectname="specific.lic")
-        command = LicenseCommand(client, args)
-        result = command.execute()
+    def nslaslicense(self, days="546", status="ACTIVE", renewal="Thu Oct 29 14:33:06 2026"):
+        """Build an nslaslicense API response"""
+        return {
+            "nslaslicense": {
+                "status": status,
+                "daystoexpiration": days,
+                "renewalnextdate": renewal,
+            }
+        }
 
+    # ---- selector: nslicense (default) -------------------------------------
+
+    def test_default_selector_checks_nslicense(self):
+        """No -o defaults to 'nslicense' and queries only nslicense"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="113")
+
+        result = LicenseCommand(client, self.create_args()).execute()
+
+        client.get_config.assert_called_once_with("nslicense")
         assert result.status == STATE_OK
-        # Should not list files, just fetch the specific one
-        assert client.get_config.call_count == 1
+        assert result.message.startswith("license: ")
+        assert (
+            "nslicense modelid=200 mode=LAS (Fixed Bandwidth) expires in 113 days" in result.message
+        )
+        assert result.perfdata["nslicense_daystoexpiration"]["value"] == "113"
+        assert result.perfdata["nslicense_daystoexpiration"]["warn"] == "30"
+        assert result.perfdata["nslicense_daystoexpiration"]["crit"] == "10"
 
-    def test_multiple_license_files(self):
-        """Test checking multiple license files"""
+    def test_explicit_nslicense_selector(self):
+        """-o nslicense behaves like the default"""
         client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="113")
 
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
+        result = LicenseCommand(client, self.create_args(objecttype="nslicense")).execute()
 
-        # Multiple files specified via objectname
-        client.get_config.side_effect = [
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature2", expiry_str)])}
-                ]
-            },
-        ]
-
-        args = self.create_args(objectname="file1.lic,file2.lic")
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
+        client.get_config.assert_called_once_with("nslicense")
         assert result.status == STATE_OK
-        assert "Feature1" in result.message
-        assert "Feature2" in result.message
 
-    def test_no_license_files_found(self):
-        """Test when no license files are found"""
+    def test_selector_is_case_insensitive(self):
+        """-o NsLicense is accepted"""
         client = self.create_mock_client()
-        client.get_config.return_value = {"systemfile": []}
+        client.get_config.return_value = self.nslicense(days="113")
 
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args(objecttype="NsLicense")).execute()
 
-        assert result.status == STATE_UNKNOWN
-        assert "no license files found" in result.message
+        client.get_config.assert_called_once_with("nslicense")
+        assert result.status == STATE_OK
 
-    def test_no_increment_lines(self):
-        """Test license file with no INCREMENT lines"""
+    def test_lic_warning(self):
+        """nslicense days between critical and warning -> WARNING"""
         client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="20")
 
-        content = "# Some comment\nSERVER this_host ANY\n"
-        encoded = base64.b64encode(content.encode("utf-8")).decode("utf-8")
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": encoded}]},
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "no INCREMENT lines found" in result.message
-
-    def test_empty_license_content(self):
-        """Test license file with empty content"""
-        client = self.create_mock_client()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": ""}]},
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "empty content" in result.message
-
-    def test_invalid_base64_content(self):
-        """Test license file with invalid base64 content"""
-        client = self.create_mock_client()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": "invalid!!!base64"}]},
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "failed to decode content" in result.message
-
-    def test_invalid_date_format(self):
-        """Test license with invalid date format"""
-        client = self.create_mock_client()
-
-        content = "INCREMENT Feature1 vendor version invalid-date-format\n"
-        encoded = base64.b64encode(content.encode("utf-8")).decode("utf-8")
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {"systemfile": [{"filecontent": encoded}]},
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args()).execute()
 
         assert result.status == STATE_WARNING
-        assert "invalid date format" in result.message
+        assert "expires in 20 days" in result.message
 
-    def test_missing_warning_threshold(self):
-        """Test when warning threshold is not provided"""
+    def test_lic_critical(self):
+        """nslicense days below critical -> CRITICAL"""
         client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="5")
 
-        args = self.create_args(warning=None)
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args()).execute()
+
+        assert result.status == STATE_CRITICAL
+        assert "expires in 5 days" in result.message
+
+    def test_lic_custom_thresholds(self):
+        """Custom -w/-c are honoured and reflected in perfdata"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="113")
+
+        result = LicenseCommand(client, self.create_args(warning="120", critical="10")).execute()
+
+        assert result.status == STATE_WARNING
+        assert result.perfdata["nslicense_daystoexpiration"]["warn"] == "120"
+
+    def test_lic_non_numeric_days(self):
+        """Non-numeric daystoexpiration -> UNKNOWN, no stale perfdata"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslicense(days="n/a")
+
+        result = LicenseCommand(client, self.create_args()).execute()
 
         assert result.status == STATE_UNKNOWN
-        assert "requires warning and critical thresholds" in result.message
+        assert "daystoexpiration unavailable" in result.message
+        assert result.perfdata == {}
 
-    def test_missing_critical_threshold(self):
-        """Test when critical threshold is not provided"""
+    def test_lic_resource_as_list(self):
+        """nslicense returned as a list is unwrapped"""
         client = self.create_mock_client()
+        client.get_config.return_value = {
+            "nslicense": [{"modelid": "200", "licensingmode": "LAS", "daystoexpiration": "113"}]
+        }
 
-        args = self.create_args(critical=None)
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "requires warning and critical thresholds" in result.message
-
-    def test_invalid_warning_threshold(self):
-        """Test when warning threshold is invalid"""
-        client = self.create_mock_client()
-
-        args = self.create_args(warning="invalid")
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "requires warning and critical thresholds" in result.message
-
-    def test_stat_endpoint_not_supported(self):
-        """Test that stat endpoint is not supported"""
-        client = self.create_mock_client()
-
-        args = self.create_args(endpoint="stat")
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "only config endpoint is supported" in result.message
-
-    def test_systemfile_not_in_response(self):
-        """Test when systemfile is not in API response"""
-        client = self.create_mock_client()
-        client.get_config.return_value = {}
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        assert result.status == STATE_UNKNOWN
-        assert "no license files found" in result.message
-
-    def test_systemfile_as_dict(self):
-        """Test when systemfile is returned as dict instead of list"""
-        client = self.create_mock_client()
-
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": {"filename": "license.lic"}},  # Dict instead of list
-            {
-                "systemfile": {
-                    "filecontent": self.create_license_content([("Feature1", expiry_str)])
-                }
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args()).execute()
 
         assert result.status == STATE_OK
-        assert "Feature1" in result.message
+        assert "expires in 113 days" in result.message
 
-    def test_filter_non_lic_files(self):
-        """Test that only .lic files are checked"""
+    def test_lic_missing_body(self):
+        """nslicense absent from response -> UNKNOWN"""
         client = self.create_mock_client()
+        client.get_config.return_value = {"errorcode": 0}
 
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
+        result = LicenseCommand(client, self.create_args()).execute()
 
-        client.get_config.side_effect = [
-            {
-                "systemfile": [
-                    {"filename": "license.lic"},
-                    {"filename": "readme.txt"},  # Should be filtered out
-                    {"filename": "backup.lic"},
-                ]
-            },
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature2", expiry_str)])}
-                ]
-            },
-        ]
+        assert result.status == STATE_UNKNOWN
+        assert "nslicense data not found" in result.message
 
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+    def test_lic_api_error(self):
+        """NITROException while fetching nslicense -> UNKNOWN"""
+        client = self.create_mock_client()
+        client.get_config.side_effect = NITROException("boom")
+
+        result = LicenseCommand(client, self.create_args()).execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "Error checking license" in result.message
+
+    # ---- selector: nslaslicense --------------------------------------------
+
+    def test_nslaslicense_selector_ok(self):
+        """-o nslaslicense queries only nslaslicense"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslaslicense(days="546")
+
+        result = LicenseCommand(client, self.create_args(objecttype="nslaslicense")).execute()
+
+        client.get_config.assert_called_once_with("nslaslicense")
+        assert result.status == STATE_OK
+        assert "nslaslicense status=ACTIVE entitlement expires in 546 days" in result.message
+        assert "renewal Thu Oct 29 14:33:06 2026" in result.message
+        assert result.perfdata["nslaslicense_daystoexpiration"]["value"] == "546"
+
+    def test_nslaslicense_non_active_is_critical(self):
+        """A non-ACTIVE lease is CRITICAL regardless of days left"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslaslicense(days="999", status="EXPIRED")
+
+        result = LicenseCommand(client, self.create_args(objecttype="nslaslicense")).execute()
+
+        assert result.status == STATE_CRITICAL
+        assert "status=EXPIRED" in result.message
+
+    def test_nslaslicense_days_drive_status(self):
+        """nslaslicense days below critical -> CRITICAL"""
+        client = self.create_mock_client()
+        client.get_config.return_value = self.nslaslicense(days="3")
+
+        result = LicenseCommand(client, self.create_args(objecttype="nslaslicense")).execute()
+
+        assert result.status == STATE_CRITICAL
+
+    def test_nslaslicense_missing_body(self):
+        """nslaslicense absent (not licensed) -> UNKNOWN when explicitly requested"""
+        client = self.create_mock_client()
+        client.get_config.return_value = {"errorcode": 0}
+
+        result = LicenseCommand(client, self.create_args(objecttype="nslaslicense")).execute()
+
+        assert result.status == STATE_UNKNOWN
+        assert "nslaslicense data not found" in result.message
+
+    def test_nslaslicense_no_renewal_date(self):
+        """Missing renewalnextdate simply omits the suffix"""
+        client = self.create_mock_client()
+        client.get_config.return_value = {
+            "nslaslicense": {"status": "ACTIVE", "daystoexpiration": "546"}
+        }
+
+        result = LicenseCommand(client, self.create_args(objecttype="nslaslicense")).execute()
 
         assert result.status == STATE_OK
-        # Only 2 .lic files should be checked
-        assert "Feature1" in result.message
-        assert "Feature2" in result.message
+        assert "renewal" not in result.message
 
-    def test_api_error_listing_files(self):
-        """Test when API returns an error listing files"""
-        from check_netscaler.client.exceptions import NITROAPIError
+    # ---- selector validation & thresholds ----------------------------------
 
+    def test_invalid_selector(self):
+        """An unknown -o value -> UNKNOWN and no API call"""
         client = self.create_mock_client()
-        client.get_config.side_effect = NITROAPIError("API Error")
 
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args(objecttype="bogus")).execute()
 
         assert result.status == STATE_UNKNOWN
-        # API error during listing is caught and results in empty list
-        assert "no license files found" in result.message
+        assert "must be 'nslicense' or 'nslaslicense'" in result.message
+        client.get_config.assert_not_called()
 
-    def test_api_error_reading_file(self):
-        """Test when API returns an error reading a specific file"""
-        from check_netscaler.client.exceptions import NITROAPIError
-
+    def test_missing_thresholds(self):
+        """Missing warning/critical -> UNKNOWN"""
         client = self.create_mock_client()
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            NITROAPIError("API Error reading file"),
-        ]
 
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args(warning=None, critical=None)).execute()
 
         assert result.status == STATE_UNKNOWN
-        assert "API error" in result.message
+        assert "requires warning and critical thresholds" in result.message
+        client.get_config.assert_not_called()
 
-    def test_unexpected_exception(self):
-        """Test handling of unexpected exceptions"""
+    def test_invalid_thresholds(self):
+        """Non-numeric warning/critical -> UNKNOWN"""
         client = self.create_mock_client()
-        client.get_config.side_effect = Exception("Unexpected error")
 
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
+        result = LicenseCommand(client, self.create_args(warning="soon", critical="now")).execute()
 
         assert result.status == STATE_UNKNOWN
-        assert "Unexpected error" in result.message
-
-    def test_message_format(self):
-        """Test that message format is correct"""
-        client = self.create_mock_client()
-
-        future_date = datetime.now(timezone.utc) + timedelta(days=60)
-        expiry_str = future_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        # Message should start with "license:"
-        assert result.message.startswith("license:")
-        # Should use semicolons as separators
-        assert ";" in result.message or "expires on" in result.message
-
-    def test_expired_license(self):
-        """Test license that has already expired"""
-        client = self.create_mock_client()
-
-        # License expired 5 days ago
-        past_date = datetime.now(timezone.utc) - timedelta(days=5)
-        expiry_str = past_date.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        # Expired license should be CRITICAL (negative days < critical threshold)
-        assert result.status == STATE_CRITICAL
-        assert "Feature1 expires on" in result.message
-
-    def test_license_expires_today(self):
-        """Test license that expires today"""
-        client = self.create_mock_client()
-
-        today = datetime.now(timezone.utc)
-        expiry_str = today.strftime("%d-%b-%Y").lower()
-
-        client.get_config.side_effect = [
-            {"systemfile": [{"filename": "license.lic"}]},
-            {
-                "systemfile": [
-                    {"filecontent": self.create_license_content([("Feature1", expiry_str)])}
-                ]
-            },
-        ]
-
-        args = self.create_args()
-        command = LicenseCommand(client, args)
-        result = command.execute()
-
-        # Expires today (0 days) should be CRITICAL
-        assert result.status == STATE_CRITICAL
-        assert "Feature1 expires on" in result.message
+        client.get_config.assert_not_called()

@@ -1,0 +1,13 @@
+{
+  "errorcode": 0,
+  "message": "Done",
+  "severity": "NONE",
+  "nslaslicense": {
+    "status": "ACTIVE",
+    "daystoexpiration": "546",
+    "renewalprev": "1761766086",
+    "renewalnext": "1793302386",
+    "renewalprevdate": "Wed Oct 29 14:28:06 2025",
+    "renewalnextdate": "Thu Oct 29 14:33:06 2026"
+  }
+}

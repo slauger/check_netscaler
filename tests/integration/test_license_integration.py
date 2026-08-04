@@ -10,28 +10,46 @@ from check_netscaler.constants import STATE_OK
 class TestLicenseCommandIntegration:
     """Test license command against mock API"""
 
-    def test_license_check_ok(self, mock_nitro_server):
-        """Test license check with valid license"""
-        with NITROClient(
+    def _client(self, mock_nitro_server):
+        return NITROClient(
             hostname=mock_nitro_server.host,
             port=mock_nitro_server.port,
             username="nsroot",
             password="nsroot",
             ssl=False,
-        ) as client:
+        )
+
+    def test_license_nslicense_ok(self, mock_nitro_server):
+        """Default selector reports the base platform license (nslicense)"""
+        with self._client(mock_nitro_server) as client:
             args = Namespace(
                 command="license",
-                objectname=None,
+                objecttype="nslicense",
                 warning="30",
                 critical="10",
-                endpoint="config",
             )
 
-            command = LicenseCommand(client, args)
-            result = command.execute()
+            result = LicenseCommand(client, args).execute()
 
             assert result.status == STATE_OK
-            assert "CNS_V3000_SERVER_PLT" in result.message
-            assert "CNS_WEBLOGGING" in result.message
-            assert "CNS_SSL" in result.message
-            assert "never expires" in result.message
+            assert "nslicense modelid=200" in result.message
+            assert "mode=LAS (Fixed Bandwidth)" in result.message
+            assert "expires in 113 days" in result.message
+            assert result.perfdata["nslicense_daystoexpiration"]["value"] == "113"
+
+    def test_license_nslaslicense_ok(self, mock_nitro_server):
+        """-o nslaslicense reports the LAS/pooled lease (nslaslicense)"""
+        with self._client(mock_nitro_server) as client:
+            args = Namespace(
+                command="license",
+                objecttype="nslaslicense",
+                warning="30",
+                critical="10",
+            )
+
+            result = LicenseCommand(client, args).execute()
+
+            assert result.status == STATE_OK
+            assert "nslaslicense status=ACTIVE" in result.message
+            assert "entitlement expires in 546 days" in result.message
+            assert result.perfdata["nslaslicense_daystoexpiration"]["value"] == "546"
