@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,22 +7,19 @@ name = "check_netscaler"
 version = "2.7.0"
 description = "Nagios/Icinga monitoring plugin for Citrix NetScaler ADC using NITRO REST API"
 readme = "README.md"
-requires-python = ">=3.8"
-license = {text = "MIT"}
+requires-python = ">=3.12"
+license = "MIT"
 authors = [
-    {name = "slauger", email = "slauger@users.noreply.github.com"}
+    {name = "Simon Lauger", email = "simon@lauger.de"}
 ]
 keywords = ["nagios", "icinga", "monitoring", "netscaler", "citrix", "adc"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: System :: Monitoring",
 ]
 
@@ -35,9 +32,9 @@ dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.11.0",
-    "black>=23.7.0",
-    "ruff>=0.0.285",
-    "mypy>=1.5.0",
+    "black>=25.9.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
     "types-requests>=2.31.0",
     "flask>=2.3.0",
 ]
@@ -51,7 +48,7 @@ Repository = "https://github.com/slauger/check_netscaler"
 Issues = "https://github.com/slauger/check_netscaler/issues"
 
 [tool.setuptools.packages.find]
-include = ["check_netscaler*"]
+where = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -63,12 +60,12 @@ python_functions = ["test_*"]
 
 [tool.black]
 line-length = 100
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py312', 'py313', 'py314']
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -84,7 +81,7 @@ ignore = [
 ]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
@@ -97,7 +94,7 @@ warn_unused_ignores = true
 [tool.semantic_release]
 version_toml = ["pyproject.toml:project.version"]
 version_variables = [
-    "check_netscaler/__init__.py:__version__",
+    "src/check_netscaler/__init__.py:__version__",
 ]
 branch = "master"
 upload_to_pypi = false

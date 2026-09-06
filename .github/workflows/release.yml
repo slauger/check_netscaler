@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.12', '3.13', '3.14']
       fail-fast: false
 
     steps:
@@ -43,32 +43,19 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install ruff black mypy types-requests pytest flask
+          pip install -e ".[dev]"
 
       - name: Run ruff (linting)
-        run: |
-          echo "Running ruff linter..."
-          ruff check check_netscaler/ tests/ --output-format=github
-        continue-on-error: false
+        run: ruff check src/ tests/ --output-format=github
 
       - name: Run black (code formatting check)
-        run: |
-          echo "Checking code formatting with black..."
-          black --check --diff check_netscaler/ tests/
-        continue-on-error: false
+        run: black --check --diff src/ tests/
 
       - name: Run mypy (type checking)
-        run: |
-          echo "Running mypy type checker..."
-          mypy check_netscaler/ --ignore-missing-imports --no-strict-optional
-        continue-on-error: true
+        run: mypy src/check_netscaler/
 
       - name: Run tests
-        run: |
-          echo "Running pytest..."
-          pytest tests/ -vv --tb=short
-        continue-on-error: false
+        run: pytest tests/ -vv --tb=short
 
       - name: Test CLI
         run: |
@@ -129,7 +116,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
 
-    - name: Set up Python 3.13
+    - name: Set up Python 3.14
       uses: actions/setup-python@v7
       with:
         python-version: '3.14'

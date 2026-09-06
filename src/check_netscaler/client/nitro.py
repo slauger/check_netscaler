@@ -125,7 +125,7 @@ class NITROClient:
                 )
 
             # Parse JSON response
-            data = response.json()
+            data: Dict[str, Any] = response.json()
 
             # Check for NITRO error in response
             if "errorcode" in data and data["errorcode"] != 0:

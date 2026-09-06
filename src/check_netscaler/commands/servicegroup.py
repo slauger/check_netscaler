@@ -34,8 +34,8 @@ class ServiceGroupCommand(BaseCommand):
                 )
 
             # Default quorum thresholds (in percent)
-            warning_quorum = 90
-            critical_quorum = 50
+            warning_quorum = 90.0
+            critical_quorum = 50.0
 
             # Parse thresholds from args
             if self.args.warning:

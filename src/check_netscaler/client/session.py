@@ -2,7 +2,7 @@
 Session management for NITRO API
 """
 
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import requests
 import urllib3
@@ -126,7 +126,7 @@ class NITROSession:
             return
 
         logout_url = f"{self.base_url}/config/logout"
-        logout_data = {"logout": {}}
+        logout_data: Dict[str, Any] = {"logout": {}}
 
         try:
             self.session.post(

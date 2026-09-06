@@ -203,6 +203,7 @@ def main(args: Optional[List[str]] = None) -> int:
     try:
         # Import here to avoid circular dependencies
         from check_netscaler.client import NITROClient
+        from check_netscaler.commands.base import BaseCommand
         from check_netscaler.commands.state import StateCommand
         from check_netscaler.output.nagios import NagiosOutput
 
@@ -220,6 +221,7 @@ def main(args: Optional[List[str]] = None) -> int:
 
         # Execute command
         with client:
+            command: BaseCommand
             if parsed_args.command == "state":
                 command = StateCommand(client, parsed_args)
                 result = command.execute()

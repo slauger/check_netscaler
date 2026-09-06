@@ -2,7 +2,7 @@
 NTP synchronization status check command
 """
 
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from check_netscaler.client.exceptions import NITROException
 from check_netscaler.commands.base import BaseCommand, CheckResult
@@ -111,7 +111,7 @@ class NTPCommand(BaseCommand):
 
     def _parse_ntp_status(self, response_text: str) -> Dict:
         """Parse ntpstatus response text"""
-        ntp_info = {
+        ntp_info: Dict[str, Any] = {
             "synced_source": None,
             "synced_stratum": -1,
             "synced_offset": "unknown",
@@ -168,7 +168,7 @@ class NTPCommand(BaseCommand):
 
     def _parse_thresholds(self) -> Dict:
         """Parse threshold parameters (format: o=0.03,s=1,j=100,t=3)"""
-        thresholds = {
+        thresholds: Dict[str, Optional[float]] = {
             "offset_warning": None,
             "offset_critical": None,
             "jitter_warning": None,

@@ -13,7 +13,7 @@ This document describes the architecture and design decisions for the Python rew
 ## 📁 Project Structure
 
 ```
-check_netscaler/
+src/check_netscaler/
 ├── __init__.py              # Package initialization, version info
 ├── __main__.py              # CLI entry point
 ├── cli.py                   # Argument parser and CLI logic
@@ -343,7 +343,7 @@ class MockNITROServer:
 ### Breaking Changes
 - None intended for basic usage
 - Advanced features may differ
-- Python 3.8+ required (vs Perl)
+- Python 3.12+ required (vs Perl)
 
 ### Migration Path
 1. Test v2.0 in parallel with v1.x
