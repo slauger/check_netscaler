@@ -27,12 +27,12 @@ check_netscaler -H 192.168.1.10 -C state -o lbvserver
 check_netscaler -H 192.168.1.10 --no-ssl -C state -o lbvserver
 ```
 
-### 2. Python 3.8+ required
+### 2. Python 3.12+ required
 
 **Old:** Perl 5.x
-**New:** Python 3.8, 3.9, 3.10, 3.11, or 3.12
+**New:** Python 3.12, 3.13, or 3.14
 
-Ensure Python 3.8+ is available on your monitoring server.
+Ensure Python 3.12+ is available on your monitoring server.
 
 ### 3. Command naming changes
 
@@ -188,7 +188,7 @@ CLI arguments always take precedence over environment variables.
 
 ### Supported Versions
 
-- **Python:** 3.8, 3.9, 3.10, 3.11, 3.12
+- **Python:** 3.12, 3.13, 3.14
 - **NetScaler/ADC:** 11.x, 12.x, 13.x, 14.x
 - **NITRO API:** v1 (default), v2 (via `-a v2`)
 - **Monitoring Systems:** Nagios, Icinga, Icinga 2, Naemon, Shinken, Sensu

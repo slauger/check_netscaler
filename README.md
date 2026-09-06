@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/slauger/check_netscaler/actions/workflows/lint-and-type-check.yml/badge.svg?branch=master)](https://github.com/slauger/check_netscaler/actions/workflows/lint-and-type-check.yml)
 [![PyPI](https://img.shields.io/pypi/v/check_netscaler)](https://pypi.org/project/check_netscaler/)
-[![Python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Nagios/Icinga monitoring plugin for Citrix NetScaler (ADC) using the NITRO REST API.
@@ -39,12 +39,12 @@ Monitor your NetScaler without SNMP:
 - Regex-based filtering (`--filter` / `--limit`)
 - Custom performance data labels
 - Flexible threshold formats
-- Multiple Python versions supported (3.8-3.12)
+- Multiple Python versions supported (3.12-3.14)
 
 ## Requirements
 
 ```
-Python >= 3.8
+Python >= 3.12
 requests >= 2.31.0
 ```
 
@@ -179,7 +179,7 @@ black check_netscaler/ tests/
 ### CI/CD
 
 GitHub Actions pipeline runs automatically on every push:
-- Matrix testing on Python 3.8, 3.9, 3.10, 3.11, 3.12
+- Matrix testing on Python 3.12, 3.13, 3.14
 - Linting with ruff
 - Code formatting with black
 - Type checking with mypy

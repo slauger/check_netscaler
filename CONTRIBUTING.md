@@ -42,7 +42,7 @@ Thank you for your interest in contributing to check_netscaler! This document pr
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.12 or higher
 - pip for package management
 - Git for version control
 
@@ -63,11 +63,11 @@ pip install pytest pytest-cov ruff black mypy
 pytest
 
 # Check code style
-ruff check check_netscaler/ tests/
-black --check check_netscaler/ tests/
+ruff check src/ tests/
+black --check src/ tests/
 
 # Run type checking
-mypy check_netscaler/
+mypy src/check_netscaler/
 ```
 
 ## Making Changes
@@ -116,8 +116,8 @@ Add NTP synchronization monitoring command
 
 4. **Check code style**:
    ```bash
-   ruff check check_netscaler/ tests/
-   black check_netscaler/ tests/
+   ruff check src/ tests/
+   black src/ tests/
    ```
 
 5. **Update documentation** if needed
@@ -163,7 +163,7 @@ def test_new_feature():
 - **Unit tests** for all commands
 - **Mock-based** testing (no live NetScaler required)
 - **Coverage** should not decrease
-- Tests must **pass** on Python 3.8, 3.9, 3.10, 3.11, 3.12
+- Tests must **pass** on Python 3.12, 3.13, 3.14
 
 ## Code Style
 
@@ -173,10 +173,10 @@ We use automated tools to maintain consistent code style:
 
 ```bash
 # Check for issues
-ruff check check_netscaler/ tests/
+ruff check src/ tests/
 
 # Auto-fix issues
-ruff check --fix check_netscaler/ tests/
+ruff check --fix src/ tests/
 ```
 
 **Configuration:** `pyproject.toml`
@@ -187,10 +187,10 @@ ruff check --fix check_netscaler/ tests/
 
 ```bash
 # Check formatting
-black --check check_netscaler/ tests/
+black --check src/ tests/
 
 # Auto-format
-black check_netscaler/ tests/
+black src/ tests/
 ```
 
 **Configuration:** `pyproject.toml`
@@ -200,7 +200,7 @@ black check_netscaler/ tests/
 
 ```bash
 # Run type checking
-mypy check_netscaler/
+mypy src/check_netscaler/
 ```
 
 **Note:** Type checking is currently soft-enforced (warnings only)
@@ -219,8 +219,8 @@ mypy check_netscaler/
 ### Before Submitting
 
 - [ ] All tests pass: `pytest`
-- [ ] Code is formatted: `black check_netscaler/ tests/`
-- [ ] No linting errors: `ruff check check_netscaler/ tests/`
+- [ ] Code is formatted: `black src/ tests/`
+- [ ] No linting errors: `ruff check src/ tests/`
 - [ ] Documentation is updated
 - [ ] Commit messages are clear
 - [ ] Branch is up-to-date with upstream
@@ -356,7 +356,7 @@ check_netscaler -C state -o lbvserver
 
 ### Adding a New Command
 
-1. Create command file in `check_netscaler/commands/`
+1. Create command file in `src/check_netscaler/commands/`
 2. Inherit from `BaseCommand`
 3. Implement `execute()` method
 4. Register in `check_netscaler/commands/__init__.py`

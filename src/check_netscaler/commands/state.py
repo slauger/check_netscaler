@@ -214,7 +214,7 @@ class StateCommand(BaseCommand):
         critical_objects = []
         warning_objects = []
         long_output = []
-        perfdata = {}
+        perfdata: Dict[str, Any] = {}
         warning_threshold, critical_threshold = self._get_lbvserver_health_thresholds()
 
         for obj in objects:
