@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v3.0.0 (2026-09-06)
+
+### Continuous Integration
+
+* update python-semantic-release/python-semantic-release action to v10.6.2 (#166)
+### Documentation
+
+* update remaining package paths in contributing guide
+### Features
+
+* require Python 3.12+, adopt src layout and stricter tooling
 ## v2.7.0 (2026-08-04)
 
 ### Continuous Integration
