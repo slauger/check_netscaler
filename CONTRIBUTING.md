@@ -359,8 +359,8 @@ check_netscaler -C state -o lbvserver
 1. Create command file in `src/check_netscaler/commands/`
 2. Inherit from `BaseCommand`
 3. Implement `execute()` method
-4. Register in `check_netscaler/commands/__init__.py`
-5. Add CLI arguments in `check_netscaler/cli.py`
+4. Register in `src/check_netscaler/commands/__init__.py`
+5. Add CLI arguments in `src/check_netscaler/cli.py`
 6. Write comprehensive tests in `tests/test_commands/`
 7. Add usage examples in `docs/commands/`
 8. Update documentation
